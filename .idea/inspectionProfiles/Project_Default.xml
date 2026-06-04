@@ -1,0 +1,21 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <list>
+          <option value="ffmpeg-python" />
+          <option value="future" />
+          <option value="humanize" />
+          <option value="lxml" />
+          <option value="pymediainfo" />
+          <option value="python-pptx" />
+          <option value="reportlab" />
+          <option value="tencentcloud-sdk-python" />
+          <option value="tqdm" />
+          <option value="xlsxwriter" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>

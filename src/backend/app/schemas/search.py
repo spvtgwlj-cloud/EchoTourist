@@ -1,0 +1,31 @@
+"""搜索 API 的请求和响应模型。"""
+
+from pydantic import BaseModel
+from typing import Optional
+
+
+class SearchTourItem(BaseModel):
+    id: str
+    slug: str
+    name: str
+    subtitle: Optional[str] = None
+    duration_days: int
+    start_price: float
+    currency: str = "USD"
+    avg_rating: float = 0
+    review_count: int = 0
+    difficulty: str = "easy"
+    highlights: str = ""
+
+
+class FacetBucket(BaseModel):
+    key: str
+    count: int
+
+
+class SearchResponse(BaseModel):
+    tours: list[SearchTourItem]
+    total: int
+    page: int = 1
+    page_size: int = 12
+    facets: Optional[dict[str, list[FacetBucket]]] = None
