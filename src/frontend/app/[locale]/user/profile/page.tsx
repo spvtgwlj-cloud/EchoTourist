@@ -99,9 +99,9 @@ export default function ProfilePage() {
               onChange={(e) => setLocale(e.target.value)}
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
-              <option value="en">English</option>
-              <option value="zh">中文</option>
-              <option value="es">Español</option>
+              <option value="en">{t('languageEn')}</option>
+              <option value="zh">{t('languageZh')}</option>
+              <option value="es">{t('languageEs')}</option>
             </select>
           </div>
 

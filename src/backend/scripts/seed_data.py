@@ -104,8 +104,8 @@ TOURS = [
         "duration_nights": 0,
         "max_pax": 30,
         "min_pax": 2,
-        "start_price": 388.0,
-        "currency": "CNY",
+        "start_price": 99.0,
+        "currency": "USD",
         "difficulty": "easy",
         "destination_slugs": ["beijing"],
         "highlights": ["故宫博物院深度讲解", "三大殿+后三宫+珍宝馆", "专享快速通道免排队", "专业中文/英文导游陪同", "含故宫文创纪念品"],
@@ -129,6 +129,26 @@ TOURS = [
                 "itinerary": [
                     {"day": 1, "title": "Forbidden City Tour", "description": "Morning: Meet at Meridian Gate → Hall of Supreme Harmony → Hall of Central Harmony → Hall of Preserving Harmony\nAfternoon: Palace of Heavenly Purity → Hall of Union → Palace of Earthly Tranquility → Imperial Garden → Treasure Gallery → Exit from Gate of Divine Might"},
                 ],
+                "highlights": [
+                    "Expert-guided Forbidden City tour",
+                    "Hall of Supreme Harmony & Imperial Garden",
+                    "Treasure Gallery admission included",
+                    "Fast-track entry — skip the lines",
+                    "Professional bilingual guide",
+                    "Commemorative souvenir gift",
+                ],
+                "includes": [
+                    "Forbidden City + Treasure Gallery tickets",
+                    "Professional guide service",
+                    "Wireless headset receiver",
+                    "Souvenir gift",
+                    "Travel accident insurance",
+                ],
+                "excludes": [
+                    "Personal expenses",
+                    "Meals and drinks",
+                    "Hotel pickup (available as add-on)",
+                ],
                 "meta_title": "Forbidden City Deep Tour | Echo Tours",
                 "meta_description": "Expert-guided in-depth tour of the Forbidden City, exploring the Hall of Supreme Harmony, Imperial Garden and Treasure Gallery.",
             },
@@ -139,12 +159,12 @@ TOURS = [
             {"url": "/images/tours/forbidden-city-3.svg", "alt_text": "故宫御花园", "sort_order": 3},
         ],
         "dates": [
-            {"start_date_offset": 7, "price": 388.0, "availability": 20},
-            {"start_date_offset": 14, "price": 388.0, "availability": 15},
-            {"start_date_offset": 21, "price": 428.0, "availability": 25},
-            {"start_date_offset": 30, "price": 428.0, "availability": 18},
-            {"start_date_offset": 45, "price": 388.0, "availability": 22},
-            {"start_date_offset": 60, "price": 388.0, "availability": 30},
+            {"start_date_offset": 7, "price": 99.0, "availability": 20},
+            {"start_date_offset": 14, "price": 99.0, "availability": 15},
+            {"start_date_offset": 21, "price": 109.0, "availability": 25},
+            {"start_date_offset": 30, "price": 109.0, "availability": 18},
+            {"start_date_offset": 45, "price": 99.0, "availability": 22},
+            {"start_date_offset": 60, "price": 99.0, "availability": 30},
         ],
     },
     # ═══════════════ 北京-长城 ═══════════════
@@ -156,8 +176,8 @@ TOURS = [
         "duration_nights": 0,
         "max_pax": 35,
         "min_pax": 2,
-        "start_price": 458.0,
-        "currency": "CNY",
+        "start_price": 129.0,
+        "currency": "USD",
         "difficulty": "moderate",
         "destination_slugs": ["beijing"],
         "highlights": ["八达岭长城徒步", "居庸关外景拍照", "长城好汉证书", "含往返缆车/滑车", "北京特色午餐"],
@@ -172,7 +192,7 @@ TOURS = [
                     {"day": 1, "title": "长城一日游", "description": "上午：市区集合出发 → 抵达八达岭长城 → 乘缆车上山\n中午：长城脚下北京特色午餐\n下午：北段长城徒步 → 好汉坡 → 自由拍照 → 滑车下山 → 返回市区"},
                 ],
                 "meta_title": "八达岭长城徒步之旅 | Echo Tours",
-                "meta_description": "登临八达岭长城，体验“不到长城非好汉”的豪情，含往返缆车和北京特色午餐。",
+                "meta_description": "登临八达岭长城，体验\"不到长城非好汉\"的豪情，含往返缆车和北京特色午餐。",
             },
             "en": {
                 "name": "Badaling Great Wall Hiking Tour",
@@ -180,6 +200,26 @@ TOURS = [
                 "description": "Badaling is the most representative and best-preserved section of the Ming Great Wall. Located in Yanqing District at an elevation of 1,000 meters, it offers breathtaking views and well-maintained facilities. Round-trip cable car included.",
                 "itinerary": [
                     {"day": 1, "title": "Great Wall Day Trip", "description": "Morning: Depart from downtown Beijing → Arrive at Badaling → Cable car up\nAfternoon: North section hike → Hero Slope → Free time for photos → Toboggan down → Return to Beijing"},
+                ],
+                "highlights": [
+                    "Badaling Great Wall hiking experience",
+                    "Juyongguan Pass photo opportunity",
+                    "Great Wall hero certificate",
+                    "Round-trip cable car / toboggan ride",
+                    "Beijing-style lunch included",
+                ],
+                "includes": [
+                    "Badaling Great Wall entrance ticket",
+                    "Round-trip cable car / toboggan ticket",
+                    "Professional guide service",
+                    "Beijing-style lunch",
+                    "Great Wall hero certificate",
+                    "Travel accident insurance",
+                ],
+                "excludes": [
+                    "Personal shopping",
+                    "Hotel pickup (available as add-on)",
+                    "Additional drinks",
                 ],
                 "meta_title": "Badaling Great Wall Hiking | Echo Tours",
                 "meta_description": "Hike the iconic Badaling Great Wall with round-trip cable car and Beijing-style lunch included.",
@@ -190,11 +230,11 @@ TOURS = [
             {"url": "/images/tours/great-wall-2.svg", "alt_text": "长城上的游客", "sort_order": 2},
         ],
         "dates": [
-            {"start_date_offset": 5, "price": 458.0, "availability": 25},
-            {"start_date_offset": 12, "price": 458.0, "availability": 20},
-            {"start_date_offset": 19, "price": 498.0, "availability": 30},
-            {"start_date_offset": 28, "price": 498.0, "availability": 22},
-            {"start_date_offset": 50, "price": 458.0, "availability": 28},
+            {"start_date_offset": 5, "price": 129.0, "availability": 25},
+            {"start_date_offset": 12, "price": 129.0, "availability": 20},
+            {"start_date_offset": 19, "price": 139.0, "availability": 30},
+            {"start_date_offset": 28, "price": 139.0, "availability": 22},
+            {"start_date_offset": 50, "price": 129.0, "availability": 28},
         ],
     },
     # ═══════════════ 北京-慕田峪长城 ═══════════════
@@ -206,8 +246,8 @@ TOURS = [
         "duration_nights": 0,
         "max_pax": 10,
         "min_pax": 1,
-        "start_price": 688.0,
-        "currency": "CNY",
+        "start_price": 249.0,
+        "currency": "USD",
         "difficulty": "moderate",
         "destination_slugs": ["beijing"],
         "highlights": ["慕田峪长城（人少景美）", "含往返缆车+下山滑道", "私家团小团出行", "可定制行程", "赠送长城纪念册"],
@@ -217,7 +257,7 @@ TOURS = [
             "zh": {
                 "name": "慕田峪长城精品私家游",
                 "subtitle": "避开人潮，独享长城壮美",
-                "description": "慕田峪长城位于北京市怀柔区，是明长军的精华段落之一。相比八达岭，慕田峪游客较少、风光更为秀丽。本行程采用精品小团模式（最多10人），包含刺激的下山滑道体验，让您以最舒适的方式领略长城之美。",
+                "description": "慕田峪长城位于北京市怀柔区，是明长城的精华段落之一。相比八达岭，慕田峪游客较少、风光更为秀丽。本行程采用精品小团模式（最多10人），包含刺激的下山滑道体验，让您以最舒适的方式领略长城之美。",
                 "itinerary": [
                     {"day": 1, "title": "慕田峪长城精品游", "description": "上午：市区酒店接送 → 抵达慕田峪 → 缆车上山\n中午：长城脚下农家午餐\n下午：慕田峪精华段徒步 → 敌楼探访 → 滑道下山 → 返回市区"},
                 ],
@@ -231,6 +271,25 @@ TOURS = [
                 "itinerary": [
                     {"day": 1, "title": "Mutianyu Premium Tour", "description": "Morning: Hotel pickup → Arrive at Mutianyu → Cable car up\nAfternoon: Hike the essence section → Explore watchtowers → Toboggan down → Return to Beijing"},
                 ],
+                "highlights": [
+                    "Mutianyu Great Wall — fewer crowds, stunning scenery",
+                    "Round-trip cable car + downhill toboggan ride",
+                    "Premium small group tour (max 10 pax)",
+                    "Customizable itinerary options",
+                    "Free souvenir photo album",
+                ],
+                "includes": [
+                    "Mutianyu Great Wall ticket",
+                    "Round-trip cable car + toboggan ride",
+                    "Senior guide exclusive service",
+                    "Farmhouse lunch",
+                    "Great Wall souvenir photo album",
+                    "Travel accident insurance",
+                ],
+                "excludes": [
+                    "Personal shopping",
+                    "Hotel pickup (available as add-on)",
+                ],
                 "meta_title": "Mutianyu Great Wall Premium Tour | Echo Tours",
                 "meta_description": "Premium small-group tour of Mutianyu Great Wall with cable car, toboggan ride and farm lunch.",
             },
@@ -240,11 +299,11 @@ TOURS = [
             {"url": "/images/tours/mutianyu-2.svg", "alt_text": "慕田峪长城秋色", "sort_order": 2},
         ],
         "dates": [
-            {"start_date_offset": 8, "price": 688.0, "availability": 8},
-            {"start_date_offset": 15, "price": 688.0, "availability": 6},
-            {"start_date_offset": 22, "price": 758.0, "availability": 10},
-            {"start_date_offset": 35, "price": 688.0, "availability": 8},
-            {"start_date_offset": 55, "price": 758.0, "availability": 7},
+            {"start_date_offset": 8, "price": 249.0, "availability": 8},
+            {"start_date_offset": 15, "price": 249.0, "availability": 6},
+            {"start_date_offset": 22, "price": 274.0, "availability": 10},
+            {"start_date_offset": 35, "price": 249.0, "availability": 8},
+            {"start_date_offset": 55, "price": 274.0, "availability": 7},
         ],
     },
     # ═══════════════ 北京-天坛 ═══════════════
@@ -256,8 +315,8 @@ TOURS = [
         "duration_nights": 0,
         "max_pax": 25,
         "min_pax": 2,
-        "start_price": 258.0,
-        "currency": "CNY",
+        "start_price": 69.0,
+        "currency": "USD",
         "difficulty": "easy",
         "destination_slugs": ["beijing"],
         "highlights": ["天坛祈年殿/圜丘坛", "皇家祭祀文化讲解", "天坛公园古柏群", "可观看晨练太极", "赠送天坛祈福丝带"],
@@ -281,6 +340,25 @@ TOURS = [
                 "itinerary": [
                     {"day": 1, "title": "Temple of Heaven Tour", "description": "Morning: Meet at South Gate → Circular Mound Altar → Echo Wall → Imperial Vault of Heaven\nAfternoon: Hall of Prayer for Good Harvests → Danbi Bridge → Free exploration"},
                 ],
+                "highlights": [
+                    "Hall of Prayer & Circular Mound Altar",
+                    "Imperial ceremonial culture explained",
+                    "Ancient cypress groves in the park",
+                    "Watch locals practicing tai chi",
+                    "Temple blessing ribbon included",
+                ],
+                "includes": [
+                    "Temple of Heaven combo ticket (Hall of Prayer + Echo Wall + Circular Mound)",
+                    "Professional guide service",
+                    "Wireless headset",
+                    "Blessing ribbon",
+                    "Travel accident insurance",
+                ],
+                "excludes": [
+                    "Meals and drinks",
+                    "Personal expenses",
+                    "Hotel pickup",
+                ],
                 "meta_title": "Temple of Heaven Cultural Tour | Echo Tours",
                 "meta_description": "Explore the Temple of Heaven's Hall of Prayer, Echo Wall and Circular Mound with expert guide.",
             },
@@ -289,11 +367,11 @@ TOURS = [
             {"url": "/images/tours/temple-of-heaven-1.svg", "alt_text": "天坛祈年殿", "sort_order": 1},
         ],
         "dates": [
-            {"start_date_offset": 3, "price": 258.0, "availability": 20},
-            {"start_date_offset": 10, "price": 258.0, "availability": 25},
-            {"start_date_offset": 17, "price": 288.0, "availability": 22},
-            {"start_date_offset": 24, "price": 288.0, "availability": 18},
-            {"start_date_offset": 40, "price": 258.0, "availability": 30},
+            {"start_date_offset": 3, "price": 69.0, "availability": 20},
+            {"start_date_offset": 10, "price": 69.0, "availability": 25},
+            {"start_date_offset": 17, "price": 79.0, "availability": 22},
+            {"start_date_offset": 24, "price": 79.0, "availability": 18},
+            {"start_date_offset": 40, "price": 69.0, "availability": 30},
         ],
     },
     # ═══════════════ 北京-颐和园 ═══════════════
@@ -305,8 +383,8 @@ TOURS = [
         "duration_nights": 0,
         "max_pax": 25,
         "min_pax": 2,
-        "start_price": 328.0,
-        "currency": "CNY",
+        "start_price": 89.0,
+        "currency": "USD",
         "difficulty": "easy",
         "destination_slugs": ["beijing"],
         "highlights": ["颐和园全景游览", "昆明湖游船体验", "长廊彩绘赏析", "佛香阁登高望远", "十七孔桥打卡"],
@@ -316,7 +394,7 @@ TOURS = [
             "zh": {
                 "name": "颐和园皇家园林一日游",
                 "subtitle": "漫步中国最后的皇家园林",
-                "description": "颐和园是中国现存规模最大、保存最完整的皇家园林，被誉为“皇家园林博物馆”。这里曾是慈禧太后的夏宫，融合了江南园林的精致与北方建筑的恢宏。行程包含昆明湖游船、登佛香阁俯瞰全景、漫步世界最长的画廊——长廊。",
+                "description": "颐和园是中国现存规模最大、保存最完整的皇家园林，被誉为\"皇家园林博物馆\"。这里曾是慈禧太后的夏宫，融合了江南园林的精致与北方建筑的恢宏。行程包含昆明湖游船、登佛香阁俯瞰全景、漫步世界最长的画廊——长廊。",
                 "itinerary": [
                     {"day": 1, "title": "颐和园一日游", "description": "上午：东宫门集合 → 仁寿殿 → 德和园 → 乐寿堂\n中午：长廊漫步 → 排云殿 → 佛香阁登高\n下午：石舫 → 昆明湖游船 → 南湖岛 → 十七孔桥 → 新建宫门结束"},
                 ],
@@ -330,6 +408,25 @@ TOURS = [
                 "itinerary": [
                     {"day": 1, "title": "Summer Palace Tour", "description": "Morning: East Palace Gate → Hall of Benevolence → Hall of Joyful Longevity\nAfternoon: Long Corridor → Cloud-Dispelling Hall → Tower of Buddhist Incense → Marble Boat → Kunming Lake cruise → Seventeen-Arch Bridge"},
                 ],
+                "highlights": [
+                    "Full Summer Palace exploration",
+                    "Kunming Lake boat cruise",
+                    "Long Corridor painted gallery",
+                    "Tower of Buddhist Incense climb",
+                    "Seventeen-Arch Bridge photo spot",
+                ],
+                "includes": [
+                    "Summer Palace + Tower of Buddhist Incense tickets",
+                    "Kunming Lake cruise ticket",
+                    "Professional guide service",
+                    "Wireless headset",
+                    "Travel accident insurance",
+                ],
+                "excludes": [
+                    "Meals and drinks",
+                    "Personal shopping",
+                    "Hotel pickup",
+                ],
                 "meta_title": "Summer Palace Tour | Echo Tours",
                 "meta_description": "Explore the magnificent Summer Palace with Kunming Lake cruise and Tower of Buddhist Incense climb.",
             },
@@ -340,11 +437,11 @@ TOURS = [
             {"url": "/images/tours/summer-palace-3.svg", "alt_text": "十七孔桥与南湖岛", "sort_order": 3},
         ],
         "dates": [
-            {"start_date_offset": 4, "price": 328.0, "availability": 20},
-            {"start_date_offset": 11, "price": 328.0, "availability": 25},
-            {"start_date_offset": 18, "price": 368.0, "availability": 22},
-            {"start_date_offset": 32, "price": 368.0, "availability": 18},
-            {"start_date_offset": 48, "price": 328.0, "availability": 30},
+            {"start_date_offset": 4, "price": 89.0, "availability": 20},
+            {"start_date_offset": 11, "price": 89.0, "availability": 25},
+            {"start_date_offset": 18, "price": 99.0, "availability": 22},
+            {"start_date_offset": 32, "price": 99.0, "availability": 18},
+            {"start_date_offset": 48, "price": 89.0, "availability": 30},
         ],
     },
     # ═══════════════ 北京-恭王府 ═══════════════
@@ -356,8 +453,8 @@ TOURS = [
         "duration_nights": 0,
         "max_pax": 20,
         "min_pax": 2,
-        "start_price": 298.0,
-        "currency": "CNY",
+        "start_price": 79.0,
+        "currency": "USD",
         "difficulty": "easy",
         "destination_slugs": ["beijing"],
         "highlights": ["恭王府深度游览", "和珅府邸传奇故事", "什刹海胡同文化区", "三轮车胡同游", "老北京小吃品尝"],
@@ -367,7 +464,7 @@ TOURS = [
             "zh": {
                 "name": "恭王府+什刹海胡同文化游",
                 "subtitle": "一座恭王府，半部清朝史",
-                "description": "恭王府是清代规模最大、保存最完整的一座王府，曾为和珅、恭亲王奕訢的府邸，素有“一座恭王府，半部清朝史”之说。行程不仅探访恭王府的奢华建筑与福字文化，还将乘坐三轮车穿梭于什刹海周边胡同，体验地道的老北京生活。",
+                "description": "恭王府是清代规模最大、保存最完整的一座王府，曾为和珅、恭亲王奕訢的府邸，素有\"一座恭王府，半部清朝史\"之说。行程不仅探访恭王府的奢华建筑与福字文化，还将乘坐三轮车穿梭于什刹海周边胡同，体验地道的老北京生活。",
                 "itinerary": [
                     {"day": 1, "title": "恭王府+胡同游", "description": "上午：恭王府集合 → 银安殿 → 后花园 → 邀月台 → 福字碑\n中午：什刹海周边漫步\n下午：三轮车胡同游（参观四合院）→ 烟袋斜街 → 钟鼓楼广场结束"},
                 ],
@@ -381,6 +478,25 @@ TOURS = [
                 "itinerary": [
                     {"day": 1, "title": "Mansion & Hutong Tour", "description": "Morning: Meet at Prince Gong's Mansion → Silver Peace Hall → Back Garden → Fuzi Stele\nAfternoon: Rickshaw hutong tour → Yandai Xiejie → Bell & Drum Towers"},
                 ],
+                "highlights": [
+                    "Prince Gong's Mansion in-depth tour",
+                    "Fascinating story of Heshen's former residence",
+                    "Shichahai hutong cultural district",
+                    "Rickshaw ride through historic lanes",
+                    "Old Beijing snack tasting",
+                ],
+                "includes": [
+                    "Prince Gong's Mansion ticket",
+                    "Professional Chinese guide",
+                    "Rickshaw hutong tour (~30 min)",
+                    "Old Beijing snack tasting",
+                    "Travel accident insurance",
+                ],
+                "excludes": [
+                    "Personal shopping",
+                    "Full meal costs",
+                    "Hotel pickup",
+                ],
                 "meta_title": "Prince Gong's Mansion & Hutong Tour | Echo Tours",
                 "meta_description": "Explore the magnificent Prince Gong's Mansion and ride rickshaws through Beijing's historic hutongs.",
             },
@@ -389,10 +505,10 @@ TOURS = [
             {"url": "/images/tours/gong-mansion-1.svg", "alt_text": "恭王府后花园", "sort_order": 1},
         ],
         "dates": [
-            {"start_date_offset": 6, "price": 298.0, "availability": 18},
-            {"start_date_offset": 13, "price": 298.0, "availability": 20},
-            {"start_date_offset": 20, "price": 328.0, "availability": 22},
-            {"start_date_offset": 35, "price": 298.0, "availability": 16},
+            {"start_date_offset": 6, "price": 79.0, "availability": 18},
+            {"start_date_offset": 13, "price": 79.0, "availability": 20},
+            {"start_date_offset": 20, "price": 89.0, "availability": 22},
+            {"start_date_offset": 35, "price": 79.0, "availability": 16},
         ],
     },
     # ═══════════════ 北京-奥林匹克公园 ═══════════════
@@ -404,8 +520,8 @@ TOURS = [
         "duration_nights": 0,
         "max_pax": 30,
         "min_pax": 2,
-        "start_price": 198.0,
-        "currency": "CNY",
+        "start_price": 49.0,
+        "currency": "USD",
         "difficulty": "easy",
         "destination_slugs": ["beijing"],
         "highlights": ["鸟巢（国家体育场）", "水立方/冰立方", "奥林匹克观光塔", "2022冬奥会场地", "现代建筑摄影胜地"],
@@ -415,7 +531,7 @@ TOURS = [
             "zh": {
                 "name": "奥林匹克公园现代北京半日游",
                 "subtitle": "从2008到2022，双奥之城的骄傲",
-                "description": "北京奥林匹克公园是2008年夏季奥运会和2022年冬季奥运会的核心举办地，见证了北京成为全球首个“双奥之城”的历史时刻。行程将参观鸟巢国家体育场、水立方国家游泳中心，感受奥运精神与现代建筑之美。",
+                "description": "北京奥林匹克公园是2008年夏季奥运会和2022年冬季奥运会的核心举办地，见证了北京成为全球首个\"双奥之城\"的历史时刻。行程将参观鸟巢国家体育场、水立方国家游泳中心，感受奥运精神与现代建筑之美。",
                 "itinerary": [
                     {"day": 1, "title": "奥体公园半日游", "description": "上午：奥林匹克公园集合 → 鸟巢（入内参观）→ 水立方（入内参观）\n中午：奥林匹克公园自由活动 → 拍照留念 → 结束"},
                 ],
@@ -429,6 +545,24 @@ TOURS = [
                 "itinerary": [
                     {"day": 1, "title": "Olympic Park Tour", "description": "Morning: Meet at Olympic Park → Bird's Nest (interior visit) → Water Cube (interior visit)\nAfternoon: Free time for photos"},
                 ],
+                "highlights": [
+                    "Bird's Nest (National Stadium)",
+                    "Water Cube / Ice Cube",
+                    "Olympic sightseeing tower",
+                    "2022 Winter Olympics venue",
+                    "Modern architecture photography",
+                ],
+                "includes": [
+                    "Bird's Nest visit ticket",
+                    "Water Cube visit ticket",
+                    "Professional guide service",
+                    "Travel accident insurance",
+                ],
+                "excludes": [
+                    "Meals and drinks",
+                    "Olympic Tower ticket",
+                    "Personal expenses",
+                ],
                 "meta_title": "Beijing Olympic Park Tour | Echo Tours",
                 "meta_description": "Visit the Bird's Nest and Water Cube at Beijing's iconic Olympic Park.",
             },
@@ -438,11 +572,11 @@ TOURS = [
             {"url": "/images/tours/olympic-2.svg", "alt_text": "水立方与鸟巢", "sort_order": 2},
         ],
         "dates": [
-            {"start_date_offset": 2, "price": 198.0, "availability": 25},
-            {"start_date_offset": 9, "price": 198.0, "availability": 30},
-            {"start_date_offset": 16, "price": 228.0, "availability": 28},
-            {"start_date_offset": 25, "price": 228.0, "availability": 25},
-            {"start_date_offset": 42, "price": 198.0, "availability": 35},
+            {"start_date_offset": 2, "price": 49.0, "availability": 25},
+            {"start_date_offset": 9, "price": 49.0, "availability": 30},
+            {"start_date_offset": 16, "price": 59.0, "availability": 28},
+            {"start_date_offset": 25, "price": 59.0, "availability": 25},
+            {"start_date_offset": 42, "price": 49.0, "availability": 35},
         ],
     },
     # ═══════════════ 北京-圆明园 ═══════════════
@@ -454,8 +588,8 @@ TOURS = [
         "duration_nights": 0,
         "max_pax": 25,
         "min_pax": 2,
-        "start_price": 218.0,
-        "currency": "CNY",
+        "start_price": 49.0,
+        "currency": "USD",
         "difficulty": "easy",
         "destination_slugs": ["beijing"],
         "highlights": ["圆明园西洋楼遗址", "大水法标志景观", "爱国主义教育基地", "正觉寺参观", "圆明园盛时全景沙盘"],
@@ -465,7 +599,7 @@ TOURS = [
             "zh": {
                 "name": "圆明园历史探索半日游",
                 "subtitle": "追寻万园之园的昔日辉煌",
-                "description": "圆明园是清代大型皇家园林，被誉为“万园之园”，曾是人类文化的宝库。1860年遭英法联军劫掠焚毁，如今成为重要的爱国主义教育基地。行程将参观西洋楼遗址、大水法、海晏堂等标志性遗迹，并通过全景沙盘还原圆明园盛时风貌。",
+                "description": "圆明园是清代大型皇家园林，被誉为\"万园之园\"，曾是人类文化的宝库。1860年遭英法联军劫掠焚毁，如今成为重要的爱国主义教育基地。行程将参观西洋楼遗址、大水法、海晏堂等标志性遗迹，并通过全景沙盘还原圆明园盛时风貌。",
                 "itinerary": [
                     {"day": 1, "title": "圆明园半日游", "description": "上午：圆明园南门集合 → 正觉寺 → 绮春园 → 长春园\n中午：西洋楼遗址区（大水法、海晏堂、谐奇趣）→ 全景沙盘展 → 结束"},
                 ],
@@ -479,6 +613,24 @@ TOURS = [
                 "itinerary": [
                     {"day": 1, "title": "Old Summer Palace Tour", "description": "Morning: South Gate → Zhengjue Temple → Qichun Garden → Changchun Garden\nAfternoon: Western-style ruins (Great Waterworks, Haiyantang, Xiejiqu) → Panoramic model exhibition"},
                 ],
+                "highlights": [
+                    "Western-style ruins of Yuanmingyuan",
+                    "Iconic Great Waterworks site",
+                    "Historical education experience",
+                    "Zhengjue Temple visit",
+                    "Panoramic model of the original garden",
+                ],
+                "includes": [
+                    "Old Summer Palace park ticket",
+                    "Western ruins area ticket",
+                    "Professional guide service",
+                    "Travel accident insurance",
+                ],
+                "excludes": [
+                    "Meals and drinks",
+                    "Boat ride ticket",
+                    "Personal expenses",
+                ],
                 "meta_title": "Old Summer Palace Tour | Echo Tours",
                 "meta_description": "Explore the historic ruins of the Old Summer Palace, including the Western-style buildings and iconic Great Waterworks.",
             },
@@ -487,10 +639,10 @@ TOURS = [
             {"url": "/images/tours/yuanmingyuan-1.svg", "alt_text": "圆明园大水法遗址", "sort_order": 1},
         ],
         "dates": [
-            {"start_date_offset": 5, "price": 218.0, "availability": 20},
-            {"start_date_offset": 12, "price": 218.0, "availability": 25},
-            {"start_date_offset": 26, "price": 248.0, "availability": 22},
-            {"start_date_offset": 40, "price": 218.0, "availability": 28},
+            {"start_date_offset": 5, "price": 49.0, "availability": 20},
+            {"start_date_offset": 12, "price": 49.0, "availability": 25},
+            {"start_date_offset": 26, "price": 59.0, "availability": 22},
+            {"start_date_offset": 40, "price": 49.0, "availability": 28},
         ],
     },
     # ═══════════════ 北京-明十三陵 ═══════════════
@@ -502,8 +654,8 @@ TOURS = [
         "duration_nights": 0,
         "max_pax": 20,
         "min_pax": 2,
-        "start_price": 298.0,
-        "currency": "CNY",
+        "start_price": 79.0,
+        "currency": "USD",
         "difficulty": "easy",
         "destination_slugs": ["beijing"],
         "highlights": ["长陵（明成祖朱棣陵墓）", "定陵（唯一开放地宫的陵墓）", "神道石像生群", "万历皇帝金丝翼善冠复制品", "明文化讲解"],
@@ -527,6 +679,24 @@ TOURS = [
                 "itinerary": [
                     {"day": 1, "title": "Ming Tombs Tour", "description": "Morning: Sacred Way (stone statues) → Changling (Ling'en Hall, Ming Tower)\nAfternoon: Dingling (underground palace tour) → Ming culture exhibition"},
                 ],
+                "highlights": [
+                    "Changling — Emperor Yongle's tomb",
+                    "Dingling — only open underground palace",
+                    "Sacred Way stone statue avenue",
+                    "Wanli Emperor's golden crown replica",
+                    "Ming dynasty history & culture",
+                ],
+                "includes": [
+                    "Changling + Dingling entrance tickets",
+                    "Dingling underground palace visit",
+                    "Professional guide service",
+                    "Travel accident insurance",
+                ],
+                "excludes": [
+                    "Meals and drinks",
+                    "Sacred Way ticket",
+                    "Personal expenses",
+                ],
                 "meta_title": "Ming Tombs Tour | Echo Tours",
                 "meta_description": "Visit the Ming Tombs' Changling and Dingling underground palace, explore Ming dynasty royal burial culture.",
             },
@@ -535,10 +705,10 @@ TOURS = [
             {"url": "/images/tours/ming-tombs-1.svg", "alt_text": "明十三陵神道石像", "sort_order": 1},
         ],
         "dates": [
-            {"start_date_offset": 9, "price": 298.0, "availability": 15},
-            {"start_date_offset": 16, "price": 298.0, "availability": 18},
-            {"start_date_offset": 30, "price": 328.0, "availability": 20},
-            {"start_date_offset": 48, "price": 298.0, "availability": 16},
+            {"start_date_offset": 9, "price": 79.0, "availability": 15},
+            {"start_date_offset": 16, "price": 79.0, "availability": 18},
+            {"start_date_offset": 30, "price": 89.0, "availability": 20},
+            {"start_date_offset": 48, "price": 79.0, "availability": 16},
         ],
     },
     # ═══════════════ 北京-多日深度游 ═══════════════
@@ -550,8 +720,8 @@ TOURS = [
         "duration_nights": 2,
         "max_pax": 20,
         "min_pax": 4,
-        "start_price": 1980.0,
-        "currency": "CNY",
+        "start_price": 699.0,
+        "currency": "USD",
         "difficulty": "easy",
         "destination_slugs": ["beijing"],
         "highlights": ["故宫+长城+颐和园+天坛全覆盖", "全程豪华旅游大巴", "四星级酒店住宿含早餐", "地道北京风味餐（烤鸭/涮肉）", "资深导游全程陪同"],
@@ -579,6 +749,27 @@ TOURS = [
                     {"day": 2, "title": "Royal Gardens & Great Wall", "description": "Morning: Badaling Great Wall (cable car)\nAfternoon: Summer Palace (Kunming Lake cruise)\nEvening: Authentic Peking Duck dinner"},
                     {"day": 3, "title": "Mansion & Olympics", "description": "Morning: Prince Gong's Mansion → Shichahai Hutong tour\nAfternoon: Olympic Park (Bird's Nest & Water Cube) → Tour ends"},
                 ],
+                "highlights": [
+                    "Forbidden City + Great Wall + Summer Palace + Temple of Heaven",
+                    "Luxury air-conditioned tour bus",
+                    "4-star hotel with breakfast included",
+                    "Authentic Peking duck & hotpot dinner",
+                    "Senior guide throughout the journey",
+                ],
+                "includes": [
+                    "Two nights 4-star hotel (with breakfast)",
+                    "All listed attraction entrance tickets",
+                    "Full-time professional guide service",
+                    "Air-conditioned tour bus",
+                    "Meals as listed (Day 1 L/D, Day 2 L/D, Day 3 L)",
+                    "Travel accident insurance",
+                ],
+                "excludes": [
+                    "Personal expenses",
+                    "Single room supplement",
+                    "Hotel pickup/drop-off",
+                    "Optional activities not listed",
+                ],
                 "meta_title": "Beijing 3-Day Essence Tour | Echo Tours",
                 "meta_description": "A 3-day tour covering Beijing's top attractions including Forbidden City, Great Wall and Summer Palace with 4-star hotel.",
             },
@@ -589,11 +780,11 @@ TOURS = [
             {"url": "/images/tours/beijing-3day-3.svg", "alt_text": "胡同文化体验", "sort_order": 3},
         ],
         "dates": [
-            {"start_date_offset": 10, "price": 1980.0, "availability": 15},
-            {"start_date_offset": 24, "price": 2280.0, "availability": 18},
-            {"start_date_offset": 38, "price": 1980.0, "availability": 12},
-            {"start_date_offset": 52, "price": 2580.0, "availability": 20},
-            {"start_date_offset": 66, "price": 2280.0, "availability": 16},
+            {"start_date_offset": 10, "price": 699.0, "availability": 15},
+            {"start_date_offset": 24, "price": 799.0, "availability": 18},
+            {"start_date_offset": 38, "price": 699.0, "availability": 12},
+            {"start_date_offset": 52, "price": 899.0, "availability": 20},
+            {"start_date_offset": 66, "price": 799.0, "availability": 16},
         ],
     },
     # ═══════════════ 南京 ═══════════════
@@ -605,8 +796,8 @@ TOURS = [
         "duration_nights": 1,
         "max_pax": 20,
         "min_pax": 2,
-        "start_price": 1280.0,
-        "currency": "CNY",
+        "start_price": 449.0,
+        "currency": "USD",
         "difficulty": "easy",
         "destination_slugs": ["nanjing"],
         "highlights": ["中山陵（孙中山陵寝）", "夫子庙秦淮河风光", "明孝陵世界遗产", "南京博物院", "品尝南京盐水鸭"],
@@ -632,6 +823,25 @@ TOURS = [
                     {"day": 1, "title": "Zhongshan Scenic Area", "description": "Morning: Sun Yat-sen Mausoleum\nAfternoon: Ming Xiaoling Mausoleum\nEvening: Qinhuai River night cruise"},
                     {"day": 2, "title": "Museum & Xuanwu Lake", "description": "Morning: Nanjing Museum\nAfternoon: Xuanwu Lake Park → Tour ends"},
                 ],
+                "highlights": [
+                    "Dr. Sun Yat-sen's Mausoleum",
+                    "Confucius Temple & Qinhuai River scenery",
+                    "Ming Xiaoling UNESCO World Heritage site",
+                    "Nanjing Museum",
+                    "Nanjing salted duck tasting",
+                ],
+                "includes": [
+                    "All listed attraction entrance tickets",
+                    "1 night 3-star hotel accommodation",
+                    "Professional guide service",
+                    "Meals as listed",
+                    "Travel accident insurance",
+                ],
+                "excludes": [
+                    "Personal expenses",
+                    "Single room supplement",
+                    "Round-trip transportation",
+                ],
                 "meta_title": "Nanjing 2-Day Historical Tour | Echo Tours",
                 "meta_description": "A 2-day tour of Nanjing's historical highlights including Sun Yat-sen Mausoleum, Ming Tombs and Confucius Temple.",
             },
@@ -640,9 +850,9 @@ TOURS = [
             {"url": "/images/tours/nanjing-1.svg", "alt_text": "南京中山陵", "sort_order": 1},
         ],
         "dates": [
-            {"start_date_offset": 12, "price": 1280.0, "availability": 15},
-            {"start_date_offset": 26, "price": 1380.0, "availability": 18},
-            {"start_date_offset": 45, "price": 1280.0, "availability": 20},
+            {"start_date_offset": 12, "price": 449.0, "availability": 15},
+            {"start_date_offset": 26, "price": 489.0, "availability": 18},
+            {"start_date_offset": 45, "price": 449.0, "availability": 20},
         ],
     },
     # ═══════════════ 西安 ═══════════════
@@ -654,8 +864,8 @@ TOURS = [
         "duration_nights": 1,
         "max_pax": 20,
         "min_pax": 2,
-        "start_price": 1480.0,
-        "currency": "CNY",
+        "start_price": 549.0,
+        "currency": "USD",
         "difficulty": "easy",
         "destination_slugs": ["xian"],
         "highlights": ["兵马俑博物馆（世界第八大奇迹）", "华清宫（唐玄宗与杨贵妃爱情故事）", "西安古城墙骑行", "回民街美食", "大雁塔广场音乐喷泉"],
@@ -681,6 +891,25 @@ TOURS = [
                     {"day": 1, "title": "Terracotta Warriors", "description": "Morning: Terracotta Warriors Museum (Pits 1-3, Bronze Chariots)\nAfternoon: Huaqing Palace → Lishan Mountain\nEvening: Giant Wild Goose Pagoda Square"},
                     {"day": 2, "title": "City Wall & Muslim Quarter", "description": "Morning: Xi'an Ancient City Wall (cycling)\nAfternoon: Muslim Quarter food tour → Bell & Drum Towers → Tour ends"},
                 ],
+                "highlights": [
+                    "Terracotta Warriors Museum (Eighth Wonder of the World)",
+                    "Huaqing Palace — Tang emperor's love story",
+                    "Xi'an Ancient City Wall cycling",
+                    "Muslim Quarter food tour",
+                    "Giant Wild Goose Pagoda & musical fountain",
+                ],
+                "includes": [
+                    "Terracotta Warriors + Huaqing Palace tickets",
+                    "1 night 3-star hotel with breakfast",
+                    "Professional guide service",
+                    "City wall bicycle rental",
+                    "Travel accident insurance",
+                ],
+                "excludes": [
+                    "Personal expenses",
+                    "Single room supplement",
+                    "Round-trip transportation",
+                ],
                 "meta_title": "Xi'an 2-Day Terracotta Warriors Tour | Echo Tours",
                 "meta_description": "A 2-day Xi'an tour covering the Terracotta Warriors, Ancient City Wall and Muslim Quarter food tour.",
             },
@@ -690,10 +919,10 @@ TOURS = [
             {"url": "/images/tours/xian-2.svg", "alt_text": "西安古城墙", "sort_order": 2},
         ],
         "dates": [
-            {"start_date_offset": 14, "price": 1480.0, "availability": 18},
-            {"start_date_offset": 28, "price": 1580.0, "availability": 20},
-            {"start_date_offset": 42, "price": 1480.0, "availability": 15},
-            {"start_date_offset": 56, "price": 1680.0, "availability": 22},
+            {"start_date_offset": 14, "price": 549.0, "availability": 18},
+            {"start_date_offset": 28, "price": 589.0, "availability": 20},
+            {"start_date_offset": 42, "price": 549.0, "availability": 15},
+            {"start_date_offset": 56, "price": 629.0, "availability": 22},
         ],
     },
 ]
@@ -966,7 +1195,7 @@ ATTRACTIONS = {
             "image_url": _PLACEHOLDER.format(slug="memorial-hall-nanjing"),
             "translations": {
                 "zh": {"name": "侵华日军南京大屠杀遇难同胞纪念馆", "description": "为纪念南京大屠杀遇难同胞而建，是重要的爱国主义教育基地和世界和平的警示。"},
-                "en": {"name": "Memorial Hall of the Victims in Nanjing Massacre", "description": "Built in memory of the victims of the Nanjing Massacre, an important教育基地 for patriotism and a warning for world peace."},
+                "en": {"name": "Memorial Hall of the Victims in Nanjing Massacre", "description": "Built in memory of the victims of the Nanjing Massacre, an important education base for patriotism and a warning for world peace."},
             },
         },
         {
@@ -1138,7 +1367,7 @@ ATTRACTIONS = {
             "image_url": _PLACEHOLDER.format(slug="daming-palace"),
             "translations": {
                 "zh": {"name": "大明宫国家遗址公园", "description": "唐代最宏伟的皇宫建筑群遗址，是北京紫禁城的4.5倍，世界文化遗产，丝绸之路上的重要地标。"},
-                "en": {"name": "Daming Palace National Heritage Park", "description": "The遗址 of the most magnificent Tang dynasty imperial palace, 4.5 times the size of the Forbidden City, a UNESCO World Heritage site on the Silk Road."},
+                "en": {"name": "Daming Palace National Heritage Park", "description": "The ruins of the most magnificent Tang dynasty imperial palace, 4.5 times the size of the Forbidden City, a UNESCO World Heritage site on the Silk Road."},
             },
         },
         {
@@ -1443,6 +1672,9 @@ async def seed_tours(db, dest_slug_to_id: dict, email_to_id: dict) -> dict[str, 
                 subtitle=trans.get("subtitle"),
                 description=trans.get("description"),
                 itinerary=trans.get("itinerary"),
+                highlights=trans.get("highlights"),
+                includes=trans.get("includes"),
+                excludes=trans.get("excludes"),
                 meta_title=trans.get("meta_title"),
                 meta_description=trans.get("meta_description"),
             )
@@ -1477,7 +1709,7 @@ async def seed_tours(db, dest_slug_to_id: dict, email_to_id: dict) -> dict[str, 
             db.add(tour_date)
 
         name_zh = t["translations"]["zh"]["name"]
-        logger.info(f"  ✅ {name_zh} ({t['slug']}) — ¥{t['start_price']} 起 / {len(t.get('dates', []))}个团期")
+        logger.info(f"  ✅ {name_zh} ({t['slug']}) — ${t['start_price']} 起 / {len(t.get('dates', []))}个团期")
 
     await db.flush()
 
@@ -1604,6 +1836,27 @@ async def seed():
 
             await db.commit()
             logger.info("✅ 种子数据已全部写入数据库。")
+
+            # ── 重建 ES 搜索索引 ──
+            logger.info("")
+            logger.info("🔍 正在重建 Elasticsearch 搜索索引...")
+            try:
+                from app.search.client import get_es, check_es_health
+                from app.search.index import delete_index, create_index, bulk_index_tours
+
+                if await check_es_health():
+                    es = await get_es()
+                    await delete_index(es)
+                    await create_index(es)
+                    count = await bulk_index_tours(db, es)
+                    logger.info(f"✅ ES 搜索索引已重建，共索引 {count} 个文档（{count // 2} 个产品 × 2 语言）")
+                else:
+                    logger.warning("⚠️ Elasticsearch 不可用，跳过搜索索引重建。")
+                    logger.warning("   启动 ES: docker compose up -d elasticsearch")
+                    logger.warning("   手动重建: docker compose exec backend celery -A app.tasks.celery_app call app.tasks.search_tasks.reindex_all_tours")
+            except Exception as es_err:
+                logger.warning(f"⚠️ ES 搜索索引重建失败: {es_err}")
+                logger.warning("   可稍后手动重建索引（见上方命令）。")
 
         except Exception as e:
             await db.rollback()

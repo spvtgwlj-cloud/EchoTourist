@@ -317,8 +317,8 @@ class TestReviewsAPI:
             },
             headers={"Authorization": f"Bearer {token}"},
         )
-        # tour 不存在，可能 200（创建成功但 FK 约束存在）或 404
-        assert resp.status_code in (200, 404, 500)
+        # tour 不存在，可能 200（创建成功但 FK 约束存在）或 404/422
+        assert resp.status_code in (200, 404, 422, 500)
 
     async def test_get_reviews_pagination(self, api_client: AsyncClient):
         """功能测试：分页参数正确传递。"""

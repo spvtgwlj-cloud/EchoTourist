@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { formatPrice, formatDate } from '@/lib/utils';
 import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
+import { WishlistButton } from '@/components/user/WishlistButton';
 import type { Tour, TourDate } from '@/lib/types';
 
 interface TourDetailClientProps {
@@ -47,7 +48,7 @@ export function TourDetailClient({ tour, dates, locale }: TourDetailClientProps)
           <div className="relative aspect-[16/9] overflow-hidden rounded-xl bg-gray-100">
             {tour.images?.length ? (
               <ImageWithFallback
-                src={tour.images[currentImage]}
+                src={tour.images[currentImage]?.url || tour.images[currentImage] as unknown as string}
                 alt={tour.name}
                 className="h-full w-full object-cover"
               />
@@ -77,14 +78,21 @@ export function TourDetailClient({ tour, dates, locale }: TourDetailClientProps)
 
           {/* Tour Info */}
           <div>
-            <div className="flex flex-wrap gap-2 mb-3">
-              <Badge variant="secondary">{tour.difficulty}</Badge>
-              <Badge variant="outline">{tour.category_name}</Badge>
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap gap-2 mb-3">
+                  <Badge variant="secondary">
+                    {tour.difficulty === 'easy' ? t('difficultyEasy') : tour.difficulty === 'moderate' ? t('difficultyModerate') : t('difficultyChallenging')}
+                  </Badge>
+                  <Badge variant="outline">{tour.category_name}</Badge>
+                </div>
+                <h1 className="text-3xl font-bold">{tour.name}</h1>
+                {tour.subtitle && (
+                  <p className="mt-2 text-lg text-muted-foreground">{tour.subtitle}</p>
+                )}
+              </div>
+              <WishlistButton tourId={tour.id} className="mt-1 shrink-0" />
             </div>
-            <h1 className="text-3xl font-bold">{tour.name}</h1>
-            {tour.subtitle && (
-              <p className="mt-2 text-lg text-muted-foreground">{tour.subtitle}</p>
-            )}
 
             <div className="mt-4 flex flex-wrap gap-4 text-sm text-muted-foreground">
               <span className="flex items-center gap-1">
@@ -94,7 +102,7 @@ export function TourDetailClient({ tour, dates, locale }: TourDetailClientProps)
               {tour.max_pax && (
                 <span className="flex items-center gap-1">
                   <Users className="h-4 w-4" />
-                  Max {tour.max_pax} pax
+                  {t('maxPax', { count: tour.max_pax })}
                 </span>
               )}
               <span className="flex items-center gap-1">
@@ -115,7 +123,7 @@ export function TourDetailClient({ tour, dates, locale }: TourDetailClientProps)
           {/* Highlights */}
           {tour.highlights?.length > 0 && (
             <section>
-              <h2 className="text-xl font-semibold mb-3">Highlights</h2>
+              <h2 className="text-xl font-semibold mb-3">{t('highlights')}</h2>
               <ul className="space-y-2">
                 {tour.highlights.map((h, i) => (
                   <li key={i} className="flex items-start gap-2">
@@ -204,7 +212,7 @@ export function TourDetailClient({ tour, dates, locale }: TourDetailClientProps)
                 <div>
                   <span className="text-sm text-muted-foreground">{t('from')}</span>
                   <p className="text-3xl font-bold text-primary">
-                    {formatPrice(selectedDateData?.price_per_pax || tour.start_price, tour.currency)}
+                    {formatPrice(selectedDateData?.price_per_pax || tour.start_price, tour.currency, locale)}
                   </p>
                   <span className="text-sm text-muted-foreground">{t('perPerson')}</span>
                 </div>
@@ -227,7 +235,7 @@ export function TourDetailClient({ tour, dates, locale }: TourDetailClientProps)
                         >
                           <div className="flex justify-between">
                             <span>{formatDate(d.start_date, locale)}</span>
-                            <span className="font-medium">{formatPrice(d.price_per_pax, d.currency)}</span>
+                            <span className="font-medium">{formatPrice(d.price_per_pax, d.currency, locale)}</span>
                           </div>
                           {d.availability <= 3 && d.availability > 0 && (
                             <span className="text-xs text-amber-600">
@@ -264,7 +272,7 @@ export function TourDetailClient({ tour, dates, locale }: TourDetailClientProps)
                 <div className="border-t pt-4">
                   <div className="flex justify-between text-lg font-bold">
                     <span>{t('totalPrice')}</span>
-                    <span className="text-primary">{formatPrice(totalPrice, tour.currency)}</span>
+                    <span className="text-primary">{formatPrice(totalPrice, tour.currency, locale)}</span>
                   </div>
                 </div>
 

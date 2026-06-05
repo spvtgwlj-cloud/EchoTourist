@@ -20,6 +20,7 @@ class AuthService:
                 email=user.email,
                 name=user.name,
                 avatar_url=user.avatar_url,
+                is_admin=user.is_admin or False,
                 created_at=user.created_at.isoformat() if user.created_at else "",
             ),
         )
@@ -49,6 +50,7 @@ class AuthService:
             email=user.email,
             name=user.name,
             avatar_url=user.avatar_url,
+            is_admin=user.is_admin or False,
             created_at=user.created_at.isoformat() if user.created_at else "",
         )
 

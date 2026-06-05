@@ -163,7 +163,7 @@ export default function AuthPage() {
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">or</span>
+              <span className="bg-card px-2 text-muted-foreground">{ct('or')}</span>
             </div>
           </div>
 
@@ -244,7 +244,7 @@ function DevGoogleLogin({ onError }: { onError: (msg: string) => void }) {
             type="email"
             value={devEmail}
             onChange={(e) => setDevEmail(e.target.value)}
-            placeholder="dev@example.com (可选，留空自动生成)"
+            placeholder="dev@example.com (optional, auto-generates if empty)"
             className="w-full rounded-md border border-input bg-background py-2 pl-10 pr-4 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-amber-400"
           />
         </div>
@@ -269,11 +269,11 @@ function DevGoogleLogin({ onError }: { onError: (msg: string) => void }) {
         ) : (
           <Chrome className="h-5 w-5 mr-2" />
         )}
-        {showDevForm ? 'Dev Google 登录' : '🛠️ Dev Google 登录'}
+        {showDevForm ? 'Dev Google Sign-In' : '🛠️ Dev Google Sign-In'}
       </Button>
       {showDevForm && (
         <p className="text-xs text-center text-muted-foreground">
-          输入自定义邮箱，或留空使用随机邮箱登录
+          Enter a custom email or leave blank for a random email login
         </p>
       )}
     </div>

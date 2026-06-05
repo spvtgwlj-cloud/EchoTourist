@@ -27,12 +27,16 @@ class CRUDDestination(CRUDBase[Destination]):
         items = []
         for dest in destinations:
             translation = None
+            fallback_en = None
             for t in (dest.translations or []):
                 if t.locale == locale:
                     translation = t
                     break
+                if t.locale == 'en':
+                    fallback_en = t
             if not translation and dest.translations:
-                translation = dest.translations[0]
+                # 优先回退到英文，再回退到第一个翻译
+                translation = fallback_en or dest.translations[0]
 
             # Count tours for this destination
             if dest.id:
@@ -71,12 +75,16 @@ class CRUDDestination(CRUDBase[Destination]):
             return None
 
         translation = None
+        fallback_en = None
         for t in (dest.translations or []):
             if t.locale == locale:
                 translation = t
                 break
+            if t.locale == 'en':
+                fallback_en = t
         if not translation and dest.translations:
-            translation = dest.translations[0]
+            # 优先回退到英文，再回退到第一个翻译
+            translation = fallback_en or dest.translations[0]
 
         count_result = await db.execute(
             select(func.count(Tour.id)).where(

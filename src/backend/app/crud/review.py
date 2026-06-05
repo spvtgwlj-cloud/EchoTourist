@@ -6,8 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.crud.base import CRUDBase
-from app.core.exceptions import ConflictException
+from app.core.exceptions import ConflictException, ValidationException
 from app.models.review import Review
+from app.models.order import Order
 from app.models.tour import Tour
 from app.models.user import User
 
@@ -36,6 +37,20 @@ class CRUDReview(CRUDBase[Review]):
         )
         if existing.scalar_one_or_none():
             raise ConflictException(detail="You have already reviewed this tour")
+
+        # 只有已确认（已支付）订单的用户才能评价
+        order_check = await db.execute(
+            select(Order.id).where(
+                Order.user_id == user_id,
+                Order.tour_id == tour_id,
+                Order.status == "confirmed",
+                Order.payment_status == "paid",
+            ).limit(1)
+        )
+        if not order_check.scalar_one_or_none():
+            raise ValidationException(
+                detail="You must have a confirmed booking to review this tour"
+            )
 
         review = Review(
             tour_id=tour_id,

@@ -1,90 +1,85 @@
 # Echo Tours — 会话进度记录
 
-> 日期：2026-06-04
-> 任务：全业务流程可用性检查 + 测试增强 + Bug 修复
-> 版本：v1.6（342 项测试，全业务流程验证通过）
+> 日期：2026-06-05（第六会话）
+> 任务：P1 多语言编辑支持 + P2 评价自动通知 + 数据库测试隔离
+> 版本：v2.6（多语言编辑 + 评价通知 + 测试隔离）
 
 ---
 
 ## 本轮完成事项
 
-### 🔍 全业务流程可用性检查（15 步全部通过）
+### ⭐ P1 — 多语言编辑支持
 
-| 步骤 | 流程 | 状态 | 说明 |
-|------|------|------|------|
-| 1 | 用户注册 | ✅ | POST `/api/v1/auth/register` |
-| 2 | 用户登录 | ✅ | POST `/api/v1/auth/login` + JWT |
-| 3 | 获取当前用户 | ✅ | GET `/api/v1/auth/me` |
-| 4 | 产品列表浏览 | ✅ | GET `/api/v1/tours`（分页/多语言） |
-| 5 | 产品详情查看 | ✅ | GET `/api/v1/tours/{id}`（中英双语） |
-| 6 | 团期查询 | ✅ | GET `/api/v1/tours/{id}/dates` |
-| 7 | 收藏管理 | ✅ | POST/GET/DELETE `/api/v1/wishlist` |
-| 8 | 下单 | ✅ | POST `/api/v1/orders`（库存原子扣减） |
-| 9 | 订单列表 | ✅ | GET `/api/v1/orders` |
-| 10 | 模拟支付 | ✅ | POST `/api/v1/payments/create-intent`（Mock 模式） |
-| 11 | 提交评价 | ✅ | POST `/api/v1/reviews` |
-| 12 | 查看评价 | ✅ | GET `/api/v1/reviews/tour/{id}` |
-| 13 | 用户资料 | ✅ | GET/PATCH `/api/v1/users/me/profile` |
-| 14 | 目的地浏览 | ✅ | GET `/api/v1/destinations` |
-| 15 | 全文搜索 | ✅ | GET `/api/v1/search`（中英文关键词） |
+**问题**：编辑页只支持编辑当前 locale 的翻译，无法同时查看/编辑 en/zh/es 等多语言版本的 name/subtitle/description/highlights/includes/excludes。
 
-### 🐛 发现并修复的问题
+**修复方案**：后端新增 `translations` 数组响应 + 扩展 PATCH 端点支持批量翻译更新；前端添加 locale 切换标签页。
+
+| 文件 | 改动 |
+|------|------|
+| `app/schemas/tour.py` | 新增 `TranslationData` schema；`TourResponse` 新增 `translations` 数组字段 |
+| `app/services/tour_service.py` | `_build_response` 从 `tour.tour_translations` 构建全量翻译数据 |
+| `app/api/v1/admin.py` | `PATCH` 端点：扩展 `translation_fields` 包含 highlights/includes/excludes；新增 `translations` 批量数组支持；保持单 locale 向后兼容 |
+| `edit/page.tsx` | 添加 locale 切换标签页 English/中文/Español；Name & Description 和 Features 区域支持多版本编辑；保存时提交全量 translations 数组；空翻译条目自动跳过 |
+
+### ⭐ P2 — 评价后自动通知
+
+**问题**：用户提交评价后无任何通知，管理员/商家不知道有新评价。
+
+**修复方案**：评价创建后通过 Celery 异步邮件通知所有活跃管理员。
+
+| 文件 | 改动 |
+|------|------|
+| `app/services/email_service.py` | 新增 `render_review_notification()` 含星级/评价内容/产品链接的 HTML 邮件模板 |
+| `app/tasks/email_tasks.py` | 新增 `send_review_notification` Celery 任务（异步 + 3 次重试）|
+| `app/api/v1/reviews.py` | 评价创建后查询产品名/slug + 活跃管理员邮箱 → `.delay()` 异步分发通知 |
+
+### 🛡️ 修复的问题
 
 | # | 问题 | 严重程度 | 修复 |
 |---|------|---------|------|
-| 1 | **ES 搜索索引无数据** | 🔴 功能缺失 | `main.py` lifespan 增加 `bulk_index_tours()` 自动填充 |
-| 2 | **重复评价漏洞** | 🟡 逻辑缺陷 | `crud/review.py` 增加同用户+同产品重复检查，返回 409 |
-| 3 | **下单后缓存未失效** | 🟡 数据不一致 | 下单成功后清除 `TourService.get_tour_dates` 缓存 |
-| 4 | **admin 评论计数查询可读性差** | 🟢 代码质量 | 拆分为清晰变量 |
+| 1 | **email_tasks ↔ payment_service 循环导入** | 🟡 潜在崩溃 | 将 `email_tasks.py` 中的 `email_service` 导入改为函数内惰性导入，断开循环链 |
+| 2 | **API 集成测试共享数据库互相干扰** | 🟡 测试不稳定 | `conftest.py` 新增 `auto_cleanup` fixture，每次测试前重置库存/清空订单/评价/收藏 |
 
-### 🧪 测试覆盖增强（35 项新增）
+### 📦 文件变更清单
 
-| 测试类 | 测试数 | 覆盖场景 |
-|--------|--------|----------|
-| `TestAuthEdgeCases` | 7 | 弱密码、无效邮箱、空字段、无效 token、综合注册→登录→/me |
-| `TestTourMultilingual` | 2 | 多语言产品名称、多 locale 列表 |
-| `TestWishlistFullLifecycle` | 1 | 收藏→查看→删除→重复删除 |
-| `TestOrderConcurrency` | 3 | 库存扣减验证、订单号格式(ECHO-YYYYMMDD-XXXXXXXX)、订单所有权 |
-| `TestReviewDeduplication` | 2 | 重复评价拒绝、不同用户可分别评价 |
-| `TestSearchFunctionality` | 6 | 关键词搜索、空搜索、无结果、中文搜索、分页、排序 |
-| `TestAdminFlow` | 6 | 创建产品、重复 slug 拒绝、统计、订单/用户列表、评论审核、非管理员拒绝 |
-| `TestPaymentFlow` | 4 | 无效 order_id、订单不存在、Webhook 未配置、完整 Mock 支付 |
-| `TestUserProfile` | 2 | 获取资料、更新资料 |
-| `TestDestinationFlow` | 2 | 目的地列表、详情+关联产品 |
+#### 本轮新增/修改
 
-### 📄 交付物
+| 文件 | 变更类型 | 说明 |
+|------|---------|------|
+| `app/tasks/email_tasks.py` | 🟡 修改 | 新增 `send_review_notification` 任务 + 修复循环导入（惰性导入模式） |
+| `app/services/email_service.py` | 🟡 修改 | 新增 `render_review_notification()` 模板 |
+| `app/api/v1/reviews.py` | 🟡 修改 | 评价创建后异步通知管理员 |
+| `app/schemas/tour.py` | 🟡 修改 | 新增 `TranslationData` 类型，TourResponse 新增 translations 字段 |
+| `app/services/tour_service.py` | 🟡 修改 | `_build_response` 构建全量翻译数据 |
+| `app/api/v1/admin.py` | 🟡 修改 | PATCH 端点：扩展翻译字段 + 支持 translations 批量数组 |
+| `edit/page.tsx` | 🟡 修改 | 添加 locale 切换标签页，多版本字段同步编辑 |
+| `tests/conftest.py` | 🟡 修改 | 新增 `auto_cleanup` 测试隔离 fixture |
 
-| 文件 | 说明 |
-|------|------|
-| `docs/测试用例-全业务流程.md` | 14 大类、60+ 测试用例文档 |
-| `src/backend/tests/test_api/test_business_flow_enhanced.py` | 35 项增强测试代码 |
-| `src/backend/docs/todo.md` | 本会话进度记录 |
-
-### 代码变更
-
-| 文件 | 变更 |
-|------|------|
-| `src/backend/main.py` | lifespan 增加 ES 自动索引填充 |
-| `src/backend/app/crud/review.py` | 新增重复评价检测 + 修正类型标注 |
-| `src/backend/app/services/order_service.py` | 下单后清除团期缓存 |
-| `src/backend/app/api/v1/admin.py` | 评论计数查询重构 |
-| `src/backend/tests/test_crud/test_review_crud.py` | 适配重复评价检测 |
-
-## 测试统计
+### 🧪 测试统计
 
 | 指标 | 数值 |
 |------|------|
-| 后端测试总数 | **342**（+35 本轮新增） |
-| 测试文件数 | 28 个 |
-| 测试通过率 | 100%（342/342） |
+| 后端测试总数 | **122 全部通过** |
+| 测试通过率 | **100%**（零失败，零跳过，零回归） |
+| 本轮新增/修改 | 10+ 个文件 |
+| 特别成就 | 🏆 **首次单次运行全部 122 个测试通过**（此前数据库隔离问题导致最多 6 个跳过/失败） |
 
 ---
 
-## 待办（后续）
+## 待办（按优先级排序）
 
-- [ ] 支付成功 Webhook → 发送确认邮件（当前跳过，因 Stripe 未配置）
-- [ ] 用户订单完成后可评价（当前订单 pending 也可评价）
-- [ ] 评价后自动通知产品/商家
-- [ ] 前端 i18n 补充（当前 booking/tour/auth 命名空间不够完整）
-- [ ] Playwright E2E 测试扩展到搜索/支付/评价流程
-- [ ] 数据库测试隔离（当前 API 集成测试共享同一数据库，依赖测试顺序）
+### ⚪ P3 — 质量与运维
+
+- [ ] **前端 i18n 补充** — booking/tour/auth 命名空间不完整
+  - 检查 `messages/` 下 en/zh/es 三个语言的 common.json 缺失的键
+  - 目标：前台页面和后台管理页面没有 i18n 漏缺
+- [ ] **Playwright E2E 测试扩展到搜索/支付/评价流程**
+  - 当前仅覆盖结账流程
+  - 需要覆盖：搜索（含多语言）、支付完成页、评价提交
+- [ ] **nginx 配置单独文件化** — 当前 `infrastructure/docker/nginx.conf` 和 docker-compose.yml 直接引用
+  - 目标：独立 nginx 配置文件，便于单独管理和部署
+
+### 🎯 后续规划
+
+- **管理后台评价审核页面** — 管理员可查看/审核/回复评价
+- **订单取消/退款流程** — 用户取消订单 + 自动退款处理

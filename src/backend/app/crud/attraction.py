@@ -66,13 +66,16 @@ class CRUDAttraction(CRUDBase[Attraction]):
 
     @staticmethod
     def _pick_translation(translations, locale: str):
-        """按 locale 匹配翻译，无匹配则回退到第一个。"""
+        """按 locale 匹配翻译，无匹配则回退到英文，再回退到第一个。"""
         if not translations:
             return None
+        fallback_en = None
         for t in translations:
             if t.locale == locale:
                 return t
-        return translations[0]
+            if t.locale == 'en':
+                fallback_en = t
+        return fallback_en or translations[0]
 
 
 crud_attraction = CRUDAttraction()

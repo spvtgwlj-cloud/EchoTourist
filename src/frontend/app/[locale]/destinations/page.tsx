@@ -133,7 +133,7 @@ export default async function DestinationsPage({ params }: Props) {
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground py-8 text-center bg-gray-50 rounded-lg">
-                  No attractions listed yet
+                  {t('noAttractions')}
                 </p>
               )}
             </section>

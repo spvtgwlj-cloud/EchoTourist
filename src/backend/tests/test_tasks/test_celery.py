@@ -44,12 +44,11 @@ class TestEmailTasksSignature:
         assert task.name == "app.tasks.email_tasks.send_booking_confirmation"
         assert task.max_retries == 3
 
-    @pytest.mark.asyncio
-    async def test_booking_confirmation_expected_args(self):
+    def test_booking_confirmation_expected_args(self):
         """验证任务签名匹配实际调用方式。"""
         # The task expects: order_no, tour_name, date, pax, total, currency, user_email
-        # Create a mock task run
-        with patch("app.tasks.email_tasks.send_email") as mock_send:
+        # send_email is imported lazily inside the task body from app.services.email_service
+        with patch("app.services.email_service.send_email") as mock_send:
             mock_send.return_value = True
             result = send_welcome_email("user@example.com", "Alice")
             # In test mode, Celery tasks run synchronously

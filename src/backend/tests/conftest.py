@@ -1,8 +1,9 @@
 """测试夹具（Fixtures）和共享工具。
 
 设计说明：
-- API 集成测试 = 通过 httpx 直接请求运行中的 Docker 服务（http://localhost:8000）
+- API 集成测试通过 httpx 请求运行中的 Docker 服务（http://localhost:8000）
 - 单元测试（CRUD/Service）= 直接使用数据库 session
+- 每个 API 测试函数结束后自动清理可变数据（订单/评价/收藏），互不干扰
 """
 
 import uuid
@@ -13,7 +14,7 @@ from typing import AsyncGenerator
 import pytest
 import pytest_asyncio
 from httpx import AsyncClient
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -50,7 +51,7 @@ async def async_engine():
 
 @pytest_asyncio.fixture
 async def db_session(async_engine) -> AsyncGenerator[AsyncSession, None]:
-    """每个测试一个独立 session。"""
+    """每个测试一个独立 session（CRUD/Service 测试使用）。"""
     async with async_sessionmaker(
         async_engine, class_=AsyncSession, expire_on_commit=False
     )() as session:
@@ -58,7 +59,7 @@ async def db_session(async_engine) -> AsyncGenerator[AsyncSession, None]:
 
 
 # ============================================================
-# API 集成测试客户端（直连运行中的 Docker 服务）
+# API 集成测试客户端
 # ============================================================
 
 @pytest_asyncio.fixture
@@ -66,6 +67,42 @@ async def api_client() -> AsyncGenerator[AsyncClient, None]:
     """使用运行中的 Docker 容器服务进行集成测试。"""
     async with AsyncClient(base_url="http://localhost:8000") as client:
         yield client
+
+
+# ============================================================
+# 自动数据清理 — 解决共享数据库测试隔离问题
+# ============================================================
+
+@pytest_asyncio.fixture(autouse=True)
+async def auto_cleanup():
+    """每个 API 测试执行前重置可变数据到基线状态。
+
+    原因：API 集成测试共享同一个 PostgreSQL 数据库，
+    前一个测试创建的订单/评价/收藏会干扰后一个测试。
+    这个 fixture 在每次测试前重置这些可变数据，
+    确保每个测试看到的是干净的数据库状态。
+
+    重置内容：
+    - 团期库存 → 15（种子数据基线值）
+    - 删除所有订单 / 订单乘客 / 评价 / 收藏
+
+    不受影响的数据：tours, users, destinations（种子数据）。
+    """
+    # 测试前清理：确保每个测试从干净状态开始
+    engine = create_async_engine(settings.database_url, echo=False, pool_size=1)
+    try:
+        async with engine.connect() as conn:
+            await conn.execute(text(
+                "UPDATE tour_dates SET availability = 15 WHERE status = 'available'"
+            ))
+            await conn.execute(text("DELETE FROM order_passengers"))
+            await conn.execute(text("DELETE FROM orders"))
+            await conn.execute(text("DELETE FROM reviews"))
+            await conn.execute(text("DELETE FROM wishlists"))
+            await conn.commit()
+    finally:
+        await engine.dispose()
+    yield
 
 
 # ============================================================

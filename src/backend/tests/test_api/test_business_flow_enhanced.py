@@ -14,17 +14,20 @@
 
 import uuid
 from datetime import date, timedelta
+from unittest.mock import patch
 
 import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, update
 
 from app.models.user import User
 from app.models.review import Review
 from app.models.order import Order
 from app.models.tour import Tour, TourDate
 from app.core.security import hash_password, create_access_token
+from app.config import settings
+from app.services.payment_service import payment_service
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -334,22 +337,51 @@ class TestOrderConcurrency:
 class TestReviewDeduplication:
     """重复评价检测测试。"""
 
+    async def _create_confirmed_order(
+        self, api_client, db_session, token, tour_id, reg_email
+    ):
+        """辅助：创建订单并标记为已确认（满足评价前置条件）。"""
+        resp = await api_client.get(f"/api/v1/tours/{tour_id}/dates")
+        dates = resp.json().get("dates", [])
+        available = [d for d in dates if d["availability"] > 0]
+        if not available:
+            pytest.skip("No available dates for ordering")
+        headers = {"Authorization": f"Bearer {token}"}
+        resp = await api_client.post("/api/v1/orders", json={
+            "tour_id": tour_id,
+            "tour_date_id": available[0]["id"],
+            "pax_count": 1,
+            "contact_name": "Review Prep",
+            "contact_email": reg_email,
+            "locale": "en",
+        }, headers=headers)
+        assert resp.status_code == 200
+        order_id = resp.json()["id"]
+        # 直接通过 DB 将订单标记为已确认
+        await db_session.execute(
+            update(Order).where(Order.id == order_id).values(
+                status="confirmed", payment_status="paid",
+            )
+        )
+        await db_session.commit()
+
     async def test_duplicate_review_rejected(
-        self, api_client: AsyncClient, factory
+        self, api_client: AsyncClient, factory, db_session: AsyncSession
     ):
         """TC-REV-003：同一用户对同一产品重复评价被拒绝。"""
-        # Register user
         reg_data = factory.valid_register_data()
         resp = await api_client.post("/api/v1/auth/register", json=reg_data)
         token = resp.json()["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
 
-        # Get a tour
         resp = await api_client.get("/api/v1/tours?locale=en&page_size=1")
         tours = resp.json().get("tours", [])
         if not tours:
             pytest.skip("No tours available")
         tour_id = tours[0]["id"]
+
+        # 创建已确认订单
+        await self._create_confirmed_order(api_client, db_session, token, tour_id, reg_data["email"])
 
         # Submit first review
         resp = await api_client.post("/api/v1/reviews", json={
@@ -369,39 +401,64 @@ class TestReviewDeduplication:
             "comment": "Still good!",
             "locale": "en",
         }, headers=headers)
-        assert resp.status_code == 409  # Conflict
+        assert resp.status_code == 409
         assert "already reviewed" in resp.json()["detail"].lower()
 
     async def test_different_users_can_review_same_tour(
-        self, api_client: AsyncClient, factory
+        self, api_client: AsyncClient, factory, db_session: AsyncSession
     ):
         """不同用户可以对同一产品分别评价。"""
-        # Get a tour
         resp = await api_client.get("/api/v1/tours?locale=en&page_size=1")
         tours = resp.json().get("tours", [])
         if not tours:
             pytest.skip("No tours available")
         tour_id = tours[0]["id"]
 
-        # User 1 reviews
+        # User 1 registers, orders, reviews
         reg1 = factory.valid_register_data()
         resp = await api_client.post("/api/v1/auth/register", json=reg1)
-        headers1 = {"Authorization": f"Bearer {resp.json()['access_token']}"}
+        token1 = resp.json()["access_token"]
+        headers1 = {"Authorization": f"Bearer {token1}"}
+        await self._create_confirmed_order(api_client, db_session, token1, tour_id, reg1["email"])
 
         resp = await api_client.post("/api/v1/reviews", json={
             "tour_id": tour_id, "rating": 5, "locale": "en",
         }, headers=headers1)
         assert resp.status_code in (200, 201)
 
-        # User 2 reviews (should succeed)
+        # User 2 registers, orders, reviews
         reg2 = factory.valid_register_data()
         resp = await api_client.post("/api/v1/auth/register", json=reg2)
-        headers2 = {"Authorization": f"Bearer {resp.json()['access_token']}"}
+        token2 = resp.json()["access_token"]
+        headers2 = {"Authorization": f"Bearer {token2}"}
+        await self._create_confirmed_order(api_client, db_session, token2, tour_id, reg2["email"])
 
         resp = await api_client.post("/api/v1/reviews", json={
             "tour_id": tour_id, "rating": 3, "locale": "en",
         }, headers=headers2)
         assert resp.status_code in (200, 201)
+
+    async def test_review_without_order_rejected(
+        self, api_client: AsyncClient, factory
+    ):
+        """TC-REV-005：未购买的用户不能评价。"""
+        reg_data = factory.valid_register_data()
+        resp = await api_client.post("/api/v1/auth/register", json=reg_data)
+        token = resp.json()["access_token"]
+        headers = {"Authorization": f"Bearer {token}"}
+
+        resp = await api_client.get("/api/v1/tours?locale=en&page_size=1")
+        tours = resp.json().get("tours", [])
+        if not tours:
+            pytest.skip("No tours available")
+        tour_id = tours[0]["id"]
+
+        # 没有下单，直接评价应被拒绝
+        resp = await api_client.post("/api/v1/reviews", json={
+            "tour_id": tour_id, "rating": 4, "locale": "en",
+        }, headers=headers)
+        assert resp.status_code == 422
+        assert "booking" in resp.json()["detail"].lower()
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -691,6 +748,111 @@ class TestPaymentFlow:
         assert resp.status_code == 200
         payment = resp.json()
         assert payment["session_id"].startswith("mock_")
+
+    async def test_webhook_triggers_booking_email(
+        self, db_session: AsyncSession, test_tour: Tour, test_tour_date: TourDate
+    ):
+        """TC-PAY-005：Webhook 完成支付后触发确认邮件。"""
+        order_no = f"ECHO-{date.today().strftime('%Y%m%d')}-{uuid.uuid4().hex[:8].upper()}"
+        contact_email = f"email_test_{uuid.uuid4().hex[:8]}@example.com"
+        order = Order(
+            id=uuid.uuid4(),
+            order_no=order_no,
+            tour_id=test_tour.id,
+            tour_date_id=test_tour_date.id,
+            status="pending",
+            payment_status="pending",
+            pax_count=2,
+            subtotal=2400,
+            total=2400,
+            currency="USD",
+            contact_name="Email Test",
+            contact_email=contact_email,
+            locale="en",
+            stripe_session_id="cs_test_mock_session_id",
+        )
+        db_session.add(order)
+        await db_session.flush()
+
+        fake_event = {
+            "type": "checkout.session.completed",
+            "data": {"object": {"id": "cs_test_mock_session_id"}},
+        }
+
+        with (
+            patch("app.config.settings.stripe_secret_key", "sk_test"),
+            patch("app.config.settings.stripe_webhook_secret", "whsec_test"),
+            patch("stripe.Webhook.construct_event", return_value=fake_event),
+            patch("app.services.payment_service.send_booking_confirmation.delay") as mock_delay,
+        ):
+            result = await payment_service.handle_webhook(
+                db_session, payload=b"{}", signature="test_sig",
+            )
+
+        assert result["status"] == "received"
+
+        # 验证订单状态已更新
+        await db_session.refresh(order)
+        assert order.status == "confirmed"
+        assert order.payment_status == "paid"
+
+        # 验证确认邮件已被分发
+        mock_delay.assert_called_once_with(
+            order_no=order_no,
+            tour_name="Test Great Tour",
+            date=test_tour_date.start_date.isoformat(),
+            pax=2,
+            total=2400,
+            currency="USD",
+            user_email=contact_email,
+        )
+
+    async def test_webhook_missing_contact_email_skips_email(
+        self, db_session: AsyncSession, test_tour: Tour, test_tour_date: TourDate
+    ):
+        """TC-PAY-006：订单无联系邮箱时不发送邮件。"""
+        order_no = f"ECHO-{date.today().strftime('%Y%m%d')}-{uuid.uuid4().hex[:8].upper()}"
+        order = Order(
+            id=uuid.uuid4(),
+            order_no=order_no,
+            tour_id=test_tour.id,
+            tour_date_id=test_tour_date.id,
+            status="pending",
+            payment_status="pending",
+            pax_count=1,
+            subtotal=1200,
+            total=1200,
+            currency="USD",
+            contact_name="No Email",
+            contact_email="",  # 空邮箱
+            locale="en",
+            stripe_session_id="cs_test_no_email",
+        )
+        db_session.add(order)
+        await db_session.flush()
+
+        fake_event = {
+            "type": "checkout.session.completed",
+            "data": {"object": {"id": "cs_test_no_email"}},
+        }
+
+        with (
+            patch("app.config.settings.stripe_secret_key", "sk_test"),
+            patch("app.config.settings.stripe_webhook_secret", "whsec_test"),
+            patch("stripe.Webhook.construct_event", return_value=fake_event),
+            patch("app.services.payment_service.send_booking_confirmation.delay") as mock_delay,
+        ):
+            result = await payment_service.handle_webhook(
+                db_session, payload=b"{}", signature="test_sig",
+            )
+
+        assert result["status"] == "received"
+        await db_session.refresh(order)
+        assert order.status == "confirmed"
+        assert order.payment_status == "paid"
+
+        # 验证没有发送邮件
+        mock_delay.assert_not_called()
 
 
 # ═══════════════════════════════════════════════════════════════════

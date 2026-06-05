@@ -76,7 +76,7 @@ export default function OrdersPage() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-lg font-bold">{formatPrice(order.total, order.currency)}</p>
+                    <p className="text-lg font-bold">{formatPrice(order.total, order.currency, locale)}</p>
                     <Badge
                       variant={
                         order.status === 'confirmed' || order.status === 'completed'

@@ -24,7 +24,14 @@ export function SearchFilters({
   difficulty, sortBy, onDifficultyChange, onSortByChange, onClear,
 }: SearchFiltersProps) {
   const t = useTranslations('search');
+  const tt = useTranslations('tour');
   const hasFilters = difficulty || sortBy !== 'rating';
+
+  const difficultyLabels: Record<string, string> = {
+    easy: tt('difficultyEasy'),
+    moderate: tt('difficultyModerate'),
+    challenging: tt('difficultyChallenging'),
+  };
 
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -53,7 +60,7 @@ export function SearchFilters({
                 : 'border-input text-muted-foreground hover:border-primary/50'
             }`}
           >
-            {d.charAt(0).toUpperCase() + d.slice(1)}
+            {difficultyLabels[d] || d.charAt(0).toUpperCase() + d.slice(1)}
           </button>
         ))}
       </div>

@@ -10,10 +10,12 @@ from app.core.exceptions import NotFoundException
 from app.cache.decorators import cache_result
 from app.schemas.tour import (
     TourResponse,
+    TourImageResponse,
     TourListResponse,
     TourDateResponse,
     TourDateListResponse,
     ItineraryDay,
+    TranslationData,
 )
 
 
@@ -22,19 +24,58 @@ class TourService:
     async def _build_response(tour, locale: str) -> TourResponse:
         """将 Tour ORM 对象构建为 TourResponse。"""
         translation = None
+        fallback_en = None
         if tour.tour_translations:
             for t in tour.tour_translations:
                 if t.locale == locale:
                     translation = t
                     break
+                if t.locale == 'en':
+                    fallback_en = t
             if not translation:
-                translation = tour.tour_translations[0]
+                # 优先回退到英文，再回退到第一个翻译
+                translation = fallback_en or tour.tour_translations[0]
 
         itinerary = []
         if translation and translation.itinerary:
             itinerary = [ItineraryDay(**day) for day in translation.itinerary]
 
-        images = [img.url for img in (tour.tour_images or [])]
+        images = [TourImageResponse(
+            id=img.id,
+            url=img.url,
+            alt_text=img.alt_text,
+            sort_order=img.sort_order or 0,
+            type="video" if any(img.url.lower().endswith(ext) for ext in ['.mp4','.webm','.mov']) else "image",
+        ) for img in (tour.tour_images or [])]
+
+        # 优先使用翻译级别的 highlights/includes/excludes，再回退到 Tour 级别的
+        # （Tour 级别的字段是不区分语言的原始数据，通常是中文）
+        highlights = (
+            translation.highlights if translation and translation.highlights
+            else tour.highlights or []
+        )
+        includes = (
+            translation.includes if translation and translation.includes
+            else tour.includes or []
+        )
+        excludes = (
+            translation.excludes if translation and translation.excludes
+            else tour.excludes or []
+        )
+
+        # 构建所有语言版本的数据（供管理员编辑页使用）
+        translations_data = []
+        if tour.tour_translations:
+            for t in tour.tour_translations:
+                translations_data.append(TranslationData(
+                    locale=t.locale,
+                    name=t.name or "",
+                    subtitle=t.subtitle,
+                    description=t.description,
+                    highlights=t.highlights or [],
+                    includes=t.includes or [],
+                    excludes=t.excludes or [],
+                ))
 
         return TourResponse(
             id=tour.id,
@@ -52,12 +93,13 @@ class TourService:
             avg_rating=tour.avg_rating or 0,
             review_count=tour.review_count or 0,
             images=images,
-            highlights=tour.highlights or [],
-            includes=tour.includes or [],
-            excludes=tour.excludes or [],
+            highlights=highlights,
+            includes=includes,
+            excludes=excludes,
             itinerary=itinerary,
             status=tour.status,
             locale=locale,
+            translations=translations_data,
         )
 
     @cache_result(ttl=120)

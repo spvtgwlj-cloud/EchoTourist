@@ -62,7 +62,12 @@
     "submitReview": "提交评价",
     "cancel": "取消",
     "noReviews": "暂无评价，成为第一个评价者！",
-    "avgRating": "平均评分"
+    "avgRating": "平均评分",
+    "highlights": "行程亮点",
+    "maxPax": "最多{count}人",
+    "difficultyEasy": "轻松",
+    "difficultyModerate": "适中",
+    "difficultyChallenging": "挑战"
   },
   "search": {
     "placeholder": "搜索目的地、行程...",
@@ -75,7 +80,9 @@
     "clearAll": "清除所有",
     "noResults": "未找到相关行程，请尝试调整筛选条件",
     "results": "找到{count}个行程",
-    "title": "搜索旅游产品"
+    "title": "搜索旅游产品",
+    "allTours": "全部行程",
+    "searching": "搜索中..."
   },
   "auth": {
     "welcomeBack": "欢迎回来",
@@ -104,7 +111,11 @@
     "contactInfo": "联系信息",
     "fullName": "姓名",
     "email": "邮箱",
-    "phone": "电话"
+    "phone": "电话",
+    "tourLabel": "行程",
+    "dateLabel": "日期",
+    "guestsLabel": "人数",
+    "totalLabel": "合计"
   },
   "user": {
     "myProfile": "个人资料",
@@ -127,7 +138,10 @@
     "reviews": "评价",
     "orders": "订单",
     "name": "姓名",
-    "language": "语言"
+    "language": "语言",
+    "languageEn": "English",
+    "languageZh": "中文",
+    "languageEs": "Español"
   },
   "common": {
     "loading": "加载中...",
@@ -145,7 +159,9 @@
     "readMore": "阅读更多",
     "showMore": "展开更多",
     "showLess": "收起",
-    "saved": "保存成功"
+    "saved": "保存成功",
+    "searching": "搜索中...",
+    "or": "或"
   },
   "footer": {
     "aboutUs": "关于我们",
@@ -157,7 +173,9 @@
     "newsletter": "订阅我们的通讯",
     "newsletterPlaceholder": "您的邮箱地址",
     "subscribe": "订阅",
-    "copyright": "© 2026 Echo 旅行。保留所有权利。"
+    "copyright": "© 2026 Echo 旅行。保留所有权利。",
+    "tagline": "精心打造的真实旅行体验。",
+    "newsletterText": "获取旅行灵感和独家优惠。"
   },
   "destinations": {
     "title": "目的地",
@@ -166,7 +184,11 @@
     "tours": "个旅游产品",
     "back": "返回目的地列表",
     "noTours": "该目的地暂无旅游产品",
-    "attractions": "热门景点"
+    "attractions": "热门景点",
+    "noAttractions": "暂未列出景点",
+    "beijing": "北京",
+    "nanjing": "南京",
+    "xian": "西安"
   },
   "wishlist": {},
   "admin": {

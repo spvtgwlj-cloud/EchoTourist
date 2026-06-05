@@ -12,6 +12,27 @@ class ItineraryDay(BaseModel):
     accommodation: Optional[str] = None
 
 
+class TourImageResponse(BaseModel):
+    id: uuid.UUID
+    url: str
+    alt_text: Optional[str] = None
+    sort_order: int = 0
+    type: str = "image"  # "image" | "video"
+
+    model_config = {"from_attributes": True}
+
+
+class TranslationData(BaseModel):
+    """单个翻译版本的数据，供管理编辑页使用。"""
+    locale: str
+    name: str
+    subtitle: Optional[str] = None
+    description: Optional[str] = None
+    highlights: list[str] = []
+    includes: list[str] = []
+    excludes: list[str] = []
+
+
 class TourResponse(BaseModel):
     id: uuid.UUID
     slug: str
@@ -27,7 +48,7 @@ class TourResponse(BaseModel):
     difficulty: str
     avg_rating: float
     review_count: int
-    images: list[str] = []
+    images: list[TourImageResponse] = []
     highlights: list[str] = []
     includes: list[str] = []
     excludes: list[str] = []
@@ -36,6 +57,7 @@ class TourResponse(BaseModel):
     category_name: Optional[str] = None
     status: str
     locale: str
+    translations: list[TranslationData] = []
 
     model_config = {"from_attributes": True}
 

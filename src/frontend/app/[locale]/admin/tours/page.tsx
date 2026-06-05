@@ -7,7 +7,7 @@ import { useLocale } from 'next-intl';
 import { api } from '@/lib/api';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
-import { Plus, Eye } from 'lucide-react';
+import { Plus, Eye, Edit3, CalendarRange } from 'lucide-react';
 import Link from 'next/link';
 import { TableSkeleton } from '@/components/ui/skeletons';
 
@@ -81,9 +81,17 @@ export default function AdminTours() {
                 <td className="p-3">{tour.duration_days}</td>
                 <td className="p-3">{tour.difficulty}</td>
                 <td className="p-3">
-                  <Link href={`/${locale}/tours/${tour.slug}`}>
-                    <Button variant="ghost" size="sm"><Eye className="h-3 w-3 mr-1" /> View</Button>
-                  </Link>
+                  <div className="flex items-center gap-1">
+                    <Link href={`/${locale}/admin/tours/${tour.id}/edit`}>
+                      <Button variant="ghost" size="sm"><Edit3 className="h-3 w-3 mr-1" /> Edit</Button>
+                    </Link>
+                    <Link href={`/${locale}/admin/tours/${tour.id}/dates`}>
+                      <Button variant="ghost" size="sm"><CalendarRange className="h-3 w-3 mr-1" /> Dates</Button>
+                    </Link>
+                    <Link href={`/${locale}/tours/${tour.slug}`}>
+                      <Button variant="ghost" size="sm"><Eye className="h-3 w-3" /></Button>
+                    </Link>
+                  </div>
                 </td>
               </tr>
             ))}

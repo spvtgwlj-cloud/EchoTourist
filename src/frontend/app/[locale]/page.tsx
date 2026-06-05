@@ -27,6 +27,7 @@ export default async function HomePage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'home' });
   const commonT = await getTranslations({ locale, namespace: 'common' });
+  const destT = await getTranslations({ locale, namespace: 'destinations' });
   const tours = await getFeaturedTours(locale);
 
   const features = [
@@ -129,15 +130,19 @@ export default async function HomePage({ params }: Props) {
           <p className="mt-2 text-muted-foreground">{t('whyChooseUsDesc')}</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {['beijing', 'tokyo', 'bali'].map((dest) => (
+          {[
+            { key: 'beijing', slug: 'beijing' },
+            { key: 'nanjing', slug: 'nanjing' },
+            { key: 'xian', slug: 'xian' },
+          ].map((dest) => (
             <Link
-              key={dest}
-              href={`/${locale}/tours?destination=${dest}`}
+              key={dest.key}
+              href={`/${locale}/destinations/${dest.slug}`}
               className="group relative aspect-[4/3] overflow-hidden rounded-xl bg-gray-100"
             >
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-6">
-                <h3 className="text-xl font-bold text-white capitalize">{dest}</h3>
+                <h3 className="text-xl font-bold text-white">{destT(dest.key)}</h3>
                 <p className="text-sm text-white/80">{commonT('viewAll')} →</p>
               </div>
             </Link>

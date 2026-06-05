@@ -86,7 +86,7 @@ class TestTourService:
         """功能测试：返回的产品包含图片列表。"""
         tour = await tour_service.get_tour(db_session, test_tour.slug, "en")
         assert len(tour.images) >= 1
-        assert tour.images[0].startswith("https://")
+        assert tour.images[0].url.startswith("https://") or tour.images[0].url.startswith("/images")
 
     async def test_get_tour_with_itinerary(self, db_session: AsyncSession, test_tour: Tour):
         """功能测试：返回的产品包含行程安排。"""
@@ -111,7 +111,7 @@ class TestTourService:
         """功能测试：价格格式正确。"""
         tour = await tour_service.get_tour(db_session, test_tour.slug, "en")
         assert tour.start_price >= 0
-        assert tour.currency in ("USD", "EUR", "CNY")
+        assert tour.currency == "USD"
         assert isinstance(tour.start_price, float)
 
     async def test_tour_response_rating_format(self, db_session: AsyncSession, test_tour: Tour):

@@ -1,3 +1,5 @@
+import os
+from pathlib import Path
 from pydantic_settings import BaseSettings
 from typing import Optional
 
@@ -43,7 +45,10 @@ class Settings(BaseSettings):
     # Static files
     static_dir: str = "static"
 
-    model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
+    model_config = {
+        "env_file": ".env" if Path(".env").exists() else None,
+        "env_file_encoding": "utf-8",
+    }
 
 
 settings = Settings()

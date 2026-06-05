@@ -27,15 +27,18 @@ export default async function ToursPage({ params, searchParams }: Props) {
   const { locale } = await params;
   const { destination } = await searchParams;
   const t = await getTranslations({ locale, namespace: 'search' });
+  const dt = await getTranslations({ locale, namespace: 'destinations' });
   const { tours, total } = await getTours(locale, destination);
+
+  const destinationTitle = destination
+    ? `${dt(destination as any) || destination.charAt(0).toUpperCase() + destination.slice(1)} Tours`
+    : t('allTours');
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold">
-            {destination ? `${destination.charAt(0).toUpperCase() + destination.slice(1)} Tours` : 'All Tours'}
-          </h1>
+          <h1 className="text-3xl font-bold">{destinationTitle}</h1>
           <p className="mt-1 text-muted-foreground">
             {t('results', { count: total })}
           </p>

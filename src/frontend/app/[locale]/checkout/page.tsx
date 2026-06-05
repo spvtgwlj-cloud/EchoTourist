@@ -135,23 +135,23 @@ export default function CheckoutPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Tour</span>
+              <span className="text-muted-foreground">{t('tourLabel')}</span>
               <span className="font-medium">{tour?.name || ct('loading')}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Date</span>
+              <span className="text-muted-foreground">{t('dateLabel')}</span>
               <span className="font-medium">
                 {dateInfo ? new Date(dateInfo.start_date).toLocaleDateString() : ct('loading')}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Guests</span>
+              <span className="text-muted-foreground">{t('guestsLabel')}</span>
               <span className="font-medium">{pax}</span>
             </div>
             <div className="border-t pt-4">
               <div className="flex justify-between text-lg font-bold">
-                <span>Total</span>
-                <span>{formatPrice(totalPrice, dateInfo?.currency || 'USD')}</span>
+                <span>{t('totalLabel')}</span>
+                <span>{formatPrice(totalPrice, dateInfo?.currency || 'USD', locale)}</span>
               </div>
             </div>
           </CardContent>
@@ -200,7 +200,7 @@ export default function CheckoutPage() {
           disabled={loading || !dateInfo || !contactName || !contactEmail}
         >
           {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
-          {t('payNow')} — {formatPrice(totalPrice, dateInfo?.currency || 'USD')}
+          {t('payNow')} — {formatPrice(totalPrice, dateInfo?.currency || 'USD', locale)}
         </Button>
 
         <p className="mt-4 text-xs text-muted-foreground text-center">

@@ -28,5 +28,9 @@ celery_app.conf.update(
             "task": "app.tasks.maintenance_tasks.cleanup_expired_sessions",
             "schedule": 86400,  # daily
         },
+        "reindex-all-tours": {
+            "task": "app.tasks.search_tasks.reindex_all_tours",
+            "schedule": 86400,  # daily — rebuild ES search index
+        },
     },
 )

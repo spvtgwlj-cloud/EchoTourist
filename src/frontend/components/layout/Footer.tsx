@@ -17,7 +17,7 @@ export function Footer() {
               <span className="text-xl font-light">Tours</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              {t.raw('aboutUs')} — Handcrafted tours and authentic travel experiences.
+              {t.raw('aboutUs')} — {t('tagline')}
             </p>
           </div>
 
@@ -42,7 +42,7 @@ export function Footer() {
           <div>
             <h4 className="font-semibold mb-4">{t('newsletter')}</h4>
             <p className="text-sm text-muted-foreground mb-2">
-              Get travel inspiration and exclusive offers.
+              {t('newsletterText')}
             </p>
             <div className="flex">
               <input

@@ -69,3 +69,36 @@ def render_booking_confirmation(order_no: str, tour_name: str, date: str, pax: i
     </body>
     </html>
     """
+
+
+def render_review_notification(
+    tour_name: str,
+    tour_slug: str,
+    reviewer_name: str,
+    rating: int,
+    title: str | None,
+    comment: str | None,
+) -> str:
+    """生成评价通知的 HTML 邮件内容（管理员/商家收到新评价时）。"""
+    stars = "⭐" * rating + "☆" * (5 - rating)
+    title_html = f"<p><strong>Subject:</strong> {title}</p>" if title else ""
+    comment_html = f"<blockquote style=\"border-left: 4px solid #ddd; margin: 12px 0; padding: 8px 16px; color: #555;\">{comment}</blockquote>" if comment else ""
+
+    return f"""
+    <html>
+    <body style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1>New Review Alert</h1>
+        <p>A customer has left a new review for your tour.</p>
+        <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Tour</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{tour_name}</strong></td></tr>
+            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Reviewer</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{reviewer_name}</strong></td></tr>
+            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Rating</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong style="font-size: 18px;">{stars} {rating}/5</strong></td></tr>
+        </table>
+        {title_html}
+        {comment_html}
+        <p><a href="{settings.frontend_url}/tours/{tour_slug}" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">View Tour</a></p>
+        <hr>
+        <p style="color: #666; font-size: 12px;">Echo Tours — Review Notification</p>
+    </body>
+    </html>
+    """

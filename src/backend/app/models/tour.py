@@ -46,6 +46,9 @@ class TourTranslation(Base):
     subtitle = Column(String(500))
     description = Column(Text)
     itinerary = Column(JSON)
+    highlights = Column(JSON)
+    includes = Column(JSON)
+    excludes = Column(JSON)
     meta_title = Column(String(200))
     meta_description = Column(String(300))
 

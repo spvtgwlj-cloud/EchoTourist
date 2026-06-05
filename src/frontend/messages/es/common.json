@@ -62,7 +62,12 @@
     "submitReview": "Enviar reseña",
     "cancel": "Cancelar",
     "noReviews": "Sin reseñas aún. ¡Sé el primero!",
-    "avgRating": "Puntuación media"
+    "avgRating": "Puntuación media",
+    "highlights": "Aspectos Destacados",
+    "maxPax": "Máx. {count} personas",
+    "difficultyEasy": "Fácil",
+    "difficultyModerate": "Moderado",
+    "difficultyChallenging": "Desafiante"
   },
   "search": {
     "placeholder": "Buscar destinos, tours...",
@@ -75,7 +80,9 @@
     "clearAll": "Limpiar Todo",
     "noResults": "No se encontraron tours. Intenta ajustar los filtros.",
     "results": "{count} tours encontrados",
-    "title": "Buscar Tours"
+    "title": "Buscar Tours",
+    "allTours": "Todos los Tours",
+    "searching": "Buscando..."
   },
   "auth": {
     "welcomeBack": "Bienvenido de Nuevo",
@@ -104,7 +111,11 @@
     "contactInfo": "Información de contacto",
     "fullName": "Nombre completo",
     "email": "Correo electrónico",
-    "phone": "Teléfono"
+    "phone": "Teléfono",
+    "tourLabel": "Tour",
+    "dateLabel": "Fecha",
+    "guestsLabel": "Huéspedes",
+    "totalLabel": "Total"
   },
   "user": {
     "myProfile": "Mi Perfil",
@@ -127,7 +138,10 @@
     "reviews": "Reseñas",
     "orders": "Pedidos",
     "name": "Nombre",
-    "language": "Idioma"
+    "language": "Idioma",
+    "languageEn": "English",
+    "languageZh": "中文",
+    "languageEs": "Español"
   },
   "common": {
     "loading": "Cargando...",
@@ -145,7 +159,9 @@
     "readMore": "Leer Más",
     "showMore": "Mostrar Más",
     "showLess": "Mostrar Menos",
-    "saved": "Guardado exitosamente"
+    "saved": "Guardado exitosamente",
+    "searching": "Buscando...",
+    "or": "o"
   },
   "footer": {
     "aboutUs": "Sobre Nosotros",
@@ -157,7 +173,9 @@
     "newsletter": "Suscríbete a nuestro Boletín",
     "newsletterPlaceholder": "Tu correo electrónico",
     "subscribe": "Suscribirse",
-    "copyright": "© 2026 Echo Tours. Todos los derechos reservados."
+    "copyright": "© 2026 Echo Tours. Todos los derechos reservados.",
+    "tagline": "Viajes artesanales y experiencias auténticas.",
+    "newsletterText": "Recibe inspiración de viaje y ofertas exclusivas."
   },
   "destinations": {
     "title": "Destinos",
@@ -166,7 +184,11 @@
     "tours": "tours",
     "back": "Volver a destinos",
     "noTours": "No se encontraron tours en este destino",
-    "attractions": "Atracciones principales"
+    "attractions": "Atracciones principales",
+    "noAttractions": "Aún no hay atracciones listadas",
+    "beijing": "Pekín",
+    "nanjing": "Nankín",
+    "xian": "Xi'an"
   },
   "wishlist": {},
   "admin": {

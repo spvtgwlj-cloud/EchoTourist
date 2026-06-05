@@ -62,7 +62,12 @@
     "submitReview": "Submit Review",
     "cancel": "Cancel",
     "noReviews": "No reviews yet. Be the first!",
-    "avgRating": "Average Rating"
+    "avgRating": "Average Rating",
+    "highlights": "Highlights",
+    "maxPax": "Max {count} pax",
+    "difficultyEasy": "Easy",
+    "difficultyModerate": "Moderate",
+    "difficultyChallenging": "Challenging"
   },
   "search": {
     "placeholder": "Search destinations, tours...",
@@ -75,7 +80,9 @@
     "clearAll": "Clear All",
     "noResults": "No tours found. Try adjusting your filters.",
     "results": "{count} tours found",
-    "title": "Search Tours"
+    "title": "Search Tours",
+    "allTours": "All Tours",
+    "searching": "Searching..."
   },
   "auth": {
     "welcomeBack": "Welcome Back",
@@ -104,7 +111,11 @@
     "contactInfo": "Contact Information",
     "fullName": "Full Name",
     "email": "Email",
-    "phone": "Phone"
+    "phone": "Phone",
+    "tourLabel": "Tour",
+    "dateLabel": "Date",
+    "guestsLabel": "Guests",
+    "totalLabel": "Total"
   },
   "user": {
     "myProfile": "My Profile",
@@ -127,7 +138,10 @@
     "reviews": "Reviews",
     "orders": "Orders",
     "name": "Name",
-    "language": "Language"
+    "language": "Language",
+    "languageEn": "English",
+    "languageZh": "中文",
+    "languageEs": "Español"
   },
   "common": {
     "loading": "Loading...",
@@ -145,7 +159,9 @@
     "readMore": "Read More",
     "showMore": "Show More",
     "showLess": "Show Less",
-    "saved": "Saved successfully"
+    "saved": "Saved successfully",
+    "searching": "Searching...",
+    "or": "or"
   },
   "footer": {
     "aboutUs": "About Us",
@@ -157,7 +173,9 @@
     "newsletter": "Subscribe to Our Newsletter",
     "newsletterPlaceholder": "Your email address",
     "subscribe": "Subscribe",
-    "copyright": "© 2026 Echo Tours. All rights reserved."
+    "copyright": "© 2026 Echo Tours. All rights reserved.",
+    "tagline": "Handcrafted tours and authentic travel experiences.",
+    "newsletterText": "Get travel inspiration and exclusive offers."
   },
   "destinations": {
     "title": "Destinations",
@@ -166,7 +184,11 @@
     "tours": "tours",
     "back": "Back to destinations",
     "noTours": "No tours found in this destination",
-    "attractions": "Top Attractions"
+    "attractions": "Top Attractions",
+    "noAttractions": "No attractions listed yet",
+    "beijing": "Beijing",
+    "nanjing": "Nanjing",
+    "xian": "Xi'an"
   },
   "wishlist": {},
   "admin": {

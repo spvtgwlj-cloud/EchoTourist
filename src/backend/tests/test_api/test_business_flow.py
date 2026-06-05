@@ -12,7 +12,7 @@ from datetime import date, datetime, timedelta, timezone
 
 import pytest
 from httpx import AsyncClient
-from sqlalchemy import select
+from sqlalchemy import select, update as sa_update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
@@ -141,7 +141,7 @@ class TestFullCustomerFlow:
     def random_email(self):
         return f"flow_{uuid.uuid4().hex[:8]}@example.com"
 
-    async def test_complete_booking_flow(self, api_client: AsyncClient, random_email):
+    async def test_complete_booking_flow(self, api_client: AsyncClient, random_email, db_session: AsyncSession):
         """完整预订流程。"""
         email = random_email
 
@@ -166,14 +166,14 @@ class TestFullCustomerFlow:
         resp = await api_client.get(f"/api/v1/tours/{tour['id']}?locale=en")
         assert resp.status_code == 200
 
-        # Step 4: 获取团期
+        # Step 4: 获取团期（选择有库存的）
         resp = await api_client.get(f"/api/v1/tours/{tour['id']}/dates")
         assert resp.status_code == 200
         dates = resp.json().get("dates", [])
-        if not dates:
+        available = [d for d in dates if d["availability"] > 0]
+        if not available:
             return
-
-        tour_date = dates[0]
+        tour_date = available[0]
 
         # Step 5: 收藏
         tour_id_url = tour['id']
@@ -207,6 +207,14 @@ class TestFullCustomerFlow:
         assert payment_resp.status_code == 200
         payment = payment_resp.json()
         assert payment.get("client_secret") or payment.get("session_id")
+
+        # Step 9.5: 标记订单为已确认（模拟支付成功回调）
+        await db_session.execute(
+            sa_update(Order).where(Order.id == order["id"]).values(
+                status="confirmed", payment_status="paid",
+            )
+        )
+        await db_session.commit()
 
         # Step 10: 评论
         review_resp = await api_client.post("/api/v1/reviews", json={
@@ -333,9 +341,24 @@ class TestEdgeCases:
             await db_session.flush()
         await db_session.rollback()
 
-    async def test_review_zero_rating(self, db_session: AsyncSession, test_user, test_tour):
+    async def test_review_zero_rating(self, db_session: AsyncSession, test_user, test_tour, test_tour_date):
         """边界：评论评分为 0。"""
         from app.crud.review import crud_review
+        # 创建已确认订单作为评价前置条件
+        from app.models.order import Order
+        order = Order(
+            id=uuid.uuid4(),
+            order_no=f"ZR-{uuid.uuid4().hex[:8].upper()}",
+            user_id=test_user.id,
+            tour_id=test_tour.id,
+            tour_date_id=test_tour_date.id,
+            status="confirmed",
+            payment_status="paid",
+            pax_count=1, subtotal=100, total=100,
+        )
+        db_session.add(order)
+        await db_session.flush()
+
         review = await crud_review.create_review(
             db_session, tour_id=test_tour.id, user_id=test_user.id,
             rating=0, title="Zero rating", locale="en",

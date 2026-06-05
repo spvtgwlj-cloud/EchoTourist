@@ -16,7 +16,7 @@ from app.models.user import User
 from app.models.tour import Tour, TourTranslation, TourDate, TourImage
 from app.models.order import Order, OrderPassenger
 from app.models.review import Review
-from app.crud.tour import crud_tour
+from app.crud.tour import crud_tour, crud_tour_date
 from app.schemas.tour import TourResponse, TourListResponse
 from app.schemas.order import OrderResponse, OrderListResponse
 from app.core.exceptions import NotFoundException, ConflictException, ValidationException
@@ -33,6 +33,9 @@ class TourTranslationCreate(BaseModel):
     subtitle: Optional[str] = None
     description: Optional[str] = None
     itinerary: Optional[list[dict]] = None
+    highlights: Optional[list[str]] = None
+    includes: Optional[list[str]] = None
+    excludes: Optional[list[str]] = None
     meta_title: Optional[str] = None
     meta_description: Optional[str] = None
 
@@ -41,6 +44,7 @@ class TourImageCreate(BaseModel):
     url: str
     alt_text: Optional[str] = None
     sort_order: int = 0
+    type: str = "image"
 
 
 class TourDateCreate(BaseModel):
@@ -203,6 +207,9 @@ async def admin_create_tour(
             subtitle=trans.subtitle,
             description=trans.description,
             itinerary=trans.itinerary,
+            highlights=trans.highlights,
+            includes=trans.includes,
+            excludes=trans.excludes,
             meta_title=trans.meta_title,
             meta_description=trans.meta_description,
         )
@@ -276,26 +283,59 @@ async def admin_upload_image(
     file: UploadFile = File(...),
     admin: User = Depends(get_current_admin_user),
 ):
-    """上传旅游产品图片，返回可访问的 URL。"""
+    """上传旅游产品图片或短视频（≤60MB），返回可访问的 URL。"""
     # 校验文件类型
-    allowed_types = {"image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"}
-    if file.content_type and file.content_type not in allowed_types:
-        raise ValidationException(detail=f"Unsupported file type: {file.content_type}")
+    IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"}
+    VIDEO_TYPES = {"video/mp4", "video/webm", "video/quicktime", "video/x-msvideo"}
+    allowed_types = IMAGE_TYPES | VIDEO_TYPES
 
-    # 生成唯一文件名
-    file_ext = Path(file.filename or "image.jpg").suffix
+    if file.content_type and file.content_type not in allowed_types:
+        raise ValidationException(
+            detail=f"Unsupported file type: {file.content_type}. "
+                  f"Allowed: images (jpg/png/webp/gif/svg) and videos (mp4/webm/mov/avi)"
+        )
+
+    # 判断文件类型
+    is_video = file.content_type in VIDEO_TYPES if file.content_type else False
+    file_ext = Path(file.filename or ("video.mp4" if is_video else "image.jpg")).suffix
+
+    # 限制视频大小 60MB
+    MAX_SIZE = 60 * 1024 * 1024
+    content = await file.read()
+    if len(content) > MAX_SIZE:
+        raise ValidationException(detail=f"File too large ({len(content)/1024/1024:.1f}MB). Max: 60MB")
+
+    # 生成唯一文件名并保存
     unique_name = f"{uuid.uuid4().hex}{file_ext}"
     file_path = UPLOAD_DIR / unique_name
-
-    # 保存文件
     try:
         with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+            buffer.write(content)
     except Exception as e:
         raise ValidationException(detail=f"Failed to save file: {str(e)}")
 
-    image_url = f"/static/uploads/tours/{unique_name}"
-    return {"url": image_url, "filename": unique_name}
+    media_url = f"/static/uploads/tours/{unique_name}"
+    return {"url": media_url, "filename": unique_name, "type": "video" if is_video else "image"}
+
+
+@router.delete("/tours/{tour_id}/images/{image_id}")
+async def admin_delete_tour_image(
+    tour_id: uuid.UUID,
+    image_id: uuid.UUID,
+    admin: User = Depends(get_current_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """删除产品图片/视频记录。"""
+    from sqlalchemy import select, delete as sa_delete
+    result = await db.execute(
+        select(TourImage).where(TourImage.id == image_id, TourImage.tour_id == tour_id)
+    )
+    img = result.scalar_one_or_none()
+    if not img:
+        raise NotFoundException(detail="Image not found")
+    await db.delete(img)
+    await db.flush()
+    return {"status": "deleted", "id": str(image_id)}
 
 
 @router.patch("/tours/{tour_id}")
@@ -305,12 +345,209 @@ async def admin_update_tour(
     admin: User = Depends(get_current_admin_user),
     db: AsyncSession = Depends(get_db),
 ):
+    """更新产品基础字段及翻译（支持单 locale 向后兼容 + 多 locale 批量更新）。"""
     tour = await crud_tour.get(db, tour_id)
     if not tour:
         raise NotFoundException(detail="Tour not found")
-    await crud_tour.update(db, db_obj=tour, update_data=body)
+
+    # ── 翻译字段集合 ──────────────────────────────
+    translation_fields = {"name", "subtitle", "description", "highlights", "includes", "excludes"}
+
+    # ── 批量多语言更新（translations 数组） ─────────
+    translations_list = body.get("translations")
+    if translations_list is not None:
+        for trans_data in translations_list:
+            locale = trans_data.get("locale", "en")
+            result = await db.execute(
+                select(TourTranslation).where(
+                    TourTranslation.tour_id == tour_id,
+                    TourTranslation.locale == locale,
+                )
+            )
+            trans = result.scalar_one_or_none()
+            update_fields = {k: v for k, v in trans_data.items() if k in translation_fields and v is not None}
+            if trans:
+                for field, value in update_fields.items():
+                    setattr(trans, field, value)
+            elif update_fields:
+                # 创建新翻译（name 为空时回退到 tour.slug）
+                new_trans = TourTranslation(
+                    id=uuid.uuid4(),
+                    tour_id=tour_id,
+                    locale=locale,
+                    name=update_fields.get("name") or tour.slug,
+                    subtitle=update_fields.get("subtitle"),
+                    description=update_fields.get("description"),
+                    highlights=update_fields.get("highlights"),
+                    includes=update_fields.get("includes"),
+                    excludes=update_fields.get("excludes"),
+                )
+                db.add(new_trans)
+
+    # ── 单 locale 翻译更新（向后兼容） ────────────
+    single_translation_data = {k: v for k, v in body.items() if k in translation_fields and v is not None}
+    if single_translation_data and translations_list is None:
+        locale = body.get("locale", "en")
+        result = await db.execute(
+            select(TourTranslation).where(
+                TourTranslation.tour_id == tour_id,
+                TourTranslation.locale == locale,
+            )
+        )
+        trans = result.scalar_one_or_none()
+        if trans:
+            for field, value in single_translation_data.items():
+                setattr(trans, field, value)
+        else:
+            new_trans = TourTranslation(
+                id=uuid.uuid4(),
+                tour_id=tour_id,
+                locale=locale,
+                name=single_translation_data.get("name", tour.slug),
+                subtitle=single_translation_data.get("subtitle"),
+                description=single_translation_data.get("description"),
+                highlights=single_translation_data.get("highlights"),
+                includes=single_translation_data.get("includes"),
+                excludes=single_translation_data.get("excludes"),
+            )
+            db.add(new_trans)
+
+    # ── 产品基础字段更新 ──────────────────────────
+    exclude_keys = translation_fields | {"locale", "translations"}
+    tour_fields = {k: v for k, v in body.items() if k not in exclude_keys}
+    if tour_fields:
+        await crud_tour.update(db, db_obj=tour, update_data=tour_fields)
+
+    await db.flush()
     await db.refresh(tour)
     return {"status": "ok", "id": str(tour.id)}
+
+
+@router.get("/tours/{tour_id}", response_model=TourResponse)
+async def admin_get_tour(
+    tour_id: uuid.UUID,
+    locale: str = Query("en"),
+    admin: User = Depends(get_current_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """获取完整产品详情（含翻译、图片、团期），供编辑表单使用。"""
+    from app.services.tour_service import tour_service
+    from app.crud.tour import crud_tour
+
+    tour = await crud_tour.get_with_details(db, tour_id, locale)
+    if not tour:
+        raise NotFoundException(detail="Tour not found")
+    return await tour_service._build_response(tour, locale)
+
+
+class TourFullUpdateRequest(BaseModel):
+    """产品完整更新请求（与创建一致，所有字段可选）。"""
+    slug: Optional[str] = None
+    status: Optional[str] = None
+    type: Optional[str] = None
+    duration_days: Optional[int] = None
+    duration_nights: Optional[int] = 0
+    max_pax: Optional[int] = None
+    min_pax: Optional[int] = None
+    start_price: Optional[float] = None
+    currency: Optional[str] = None
+    difficulty: Optional[str] = None
+    highlights: Optional[list[str]] = None
+    includes: Optional[list[str]] = None
+    excludes: Optional[list[str]] = None
+    translations: Optional[list[TourTranslationCreate]] = None
+    images: Optional[list[TourImageCreate]] = None
+    dates: Optional[list[TourDateCreate]] = None
+
+
+@router.put("/tours/{tour_id}")
+async def admin_full_update_tour(
+    tour_id: uuid.UUID,
+    body: TourFullUpdateRequest,
+    admin: User = Depends(get_current_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """完整更新产品信息（含翻译、图片、团期），替换式更新。"""
+    tour = await crud_tour.get(db, tour_id)
+    if not tour:
+        raise NotFoundException(detail="Tour not found")
+
+    # 1. 更新产品基础字段
+    update_data = body.model_dump(exclude_none=True, exclude={"translations", "images", "dates"})
+    if update_data:
+        await crud_tour.update(db, db_obj=tour, update_data=update_data)
+
+    # 2. 替换翻译（删旧加新）
+    if body.translations is not None:
+        await db.execute(
+            sa_delete(TourTranslation).where(TourTranslation.tour_id == tour_id)
+        )
+        for trans in body.translations:
+            db.add(TourTranslation(
+                id=uuid.uuid4(),
+                tour_id=tour_id,
+                locale=trans.locale,
+                name=trans.name,
+                subtitle=trans.subtitle,
+                description=trans.description,
+                itinerary=trans.itinerary,
+                highlights=trans.highlights,
+                includes=trans.includes,
+                excludes=trans.excludes,
+                meta_title=trans.meta_title,
+                meta_description=trans.meta_description,
+            ))
+
+    # 3. 替换图片（删旧加新）
+    if body.images is not None:
+        await db.execute(
+            sa_delete(TourImage).where(TourImage.tour_id == tour_id)
+        )
+        for idx, img in enumerate(body.images):
+            db.add(TourImage(
+                id=uuid.uuid4(),
+                tour_id=tour_id,
+                url=img.url,
+                alt_text=img.alt_text,
+                sort_order=img.sort_order or idx + 1,
+            ))
+
+    # 4. 替换团期（删旧加新）
+    if body.dates is not None:
+        await db.execute(
+            sa_delete(TourDate).where(TourDate.tour_id == tour_id)
+        )
+        for dt in body.dates:
+            db.add(TourDate(
+                id=uuid.uuid4(),
+                tour_id=tour_id,
+                start_date=dt.start_date,
+                end_date=dt.end_date,
+                price_per_pax=dt.price_per_pax,
+                currency=dt.currency,
+                availability=dt.availability,
+                status="available",
+            ))
+
+    await db.flush()
+
+    # 重建返回
+    await db.refresh(tour)
+    tour.tour_translations = (await db.execute(
+        select(TourTranslation).where(TourTranslation.tour_id == tour_id)
+    )).scalars().all()
+    tour.tour_images = (await db.execute(
+        select(TourImage).where(TourImage.tour_id == tour_id).order_by(TourImage.sort_order)
+    )).scalars().all()
+    tour.tour_dates = (await db.execute(
+        select(TourDate).where(TourDate.tour_id == tour_id).order_by(TourDate.start_date)
+    )).scalars().all()
+
+    from app.services.tour_service import tour_service
+    locale = body.translations[0].locale if body.translations else "en"
+    response = await tour_service._build_response(tour, locale)
+
+    return {"status": "ok", "id": str(tour.id), "tour": response}
 
 
 @router.delete("/tours/{tour_id}")
@@ -325,6 +562,124 @@ async def admin_delete_tour(
     # 软删除
     await crud_tour.update(db, db_obj=tour, update_data={"deleted_at": datetime.now(timezone.utc)})
     return {"status": "deleted"}
+
+
+# ============================================================
+# Tour Date Management
+# ============================================================
+
+class TourDateUpdateRequest(BaseModel):
+    """团期更新请求（全部可选，只更新传了的字段）。"""
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
+    price_per_pax: Optional[float] = None
+    availability: Optional[int] = None
+    status: Optional[str] = None
+
+
+@router.get("/tours/{tour_id}/dates")
+async def admin_list_tour_dates(
+    tour_id: uuid.UUID,
+    admin: User = Depends(get_current_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """获取产品所有团期（按日期排序）。"""
+    dates = await crud_tour_date.get_by_tour(db, tour_id)
+    return {
+        "dates": [
+            {
+                "id": str(d.id),
+                "tour_id": str(d.tour_id),
+                "start_date": d.start_date.isoformat(),
+                "end_date": d.end_date.isoformat(),
+                "price_per_pax": d.price_per_pax,
+                "currency": d.currency,
+                "availability": d.availability,
+                "status": d.status,
+            }
+            for d in dates
+        ],
+        "total": len(dates),
+    }
+
+
+@router.post("/tours/{tour_id}/dates", status_code=201)
+async def admin_add_tour_date(
+    tour_id: uuid.UUID,
+    body: TourDateCreate,
+    admin: User = Depends(get_current_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """为产品新增一个团期（即改即生效）。"""
+    tour = await crud_tour.get(db, tour_id)
+    if not tour:
+        raise NotFoundException(detail="Tour not found")
+
+    tour_date = TourDate(
+        id=uuid.uuid4(),
+        tour_id=tour_id,
+        start_date=body.start_date,
+        end_date=body.end_date,
+        price_per_pax=body.price_per_pax,
+        currency=body.currency,
+        availability=body.availability,
+        status="available",
+    )
+    db.add(tour_date)
+    await db.flush()
+
+    return {
+        "status": "created",
+        "id": str(tour_date.id),
+        "start_date": tour_date.start_date.isoformat(),
+        "price_per_pax": tour_date.price_per_pax,
+        "availability": tour_date.availability,
+    }
+
+
+@router.patch("/tours/{tour_id}/dates/{date_id}")
+async def admin_update_tour_date(
+    tour_id: uuid.UUID,
+    date_id: uuid.UUID,
+    body: TourDateUpdateRequest,
+    admin: User = Depends(get_current_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """更新单个团期信息（价格、库存、状态等），即改即生效。"""
+    tour_date = await crud_tour_date.get(db, date_id)
+    if not tour_date or tour_date.tour_id != tour_id:
+        raise NotFoundException(detail="Tour date not found")
+
+    update_data = body.model_dump(exclude_none=True)
+    if update_data:
+        await crud_tour_date.update(db, db_obj=tour_date, update_data=update_data)
+
+    return {
+        "status": "ok",
+        "id": str(date_id),
+        "start_date": tour_date.start_date.isoformat(),
+        "price_per_pax": tour_date.price_per_pax,
+        "availability": tour_date.availability,
+        "status": tour_date.status,
+    }
+
+
+@router.delete("/tours/{tour_id}/dates/{date_id}")
+async def admin_delete_tour_date(
+    tour_id: uuid.UUID,
+    date_id: uuid.UUID,
+    admin: User = Depends(get_current_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """删除团期。"""
+    tour_date = await crud_tour_date.get(db, date_id)
+    if not tour_date or tour_date.tour_id != tour_id:
+        raise NotFoundException(detail="Tour date not found")
+
+    await db.delete(tour_date)
+    await db.flush()
+
+    return {"status": "deleted", "id": str(date_id)}
 
 
 # ============================================================
@@ -497,3 +852,28 @@ async def admin_update_review(
         await db.flush()
 
     return {"status": "ok", "review_id": str(review.id), "new_status": review.status}
+
+
+@router.post("/reindex")
+async def admin_reindex_search(
+    admin: User = Depends(get_current_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """手动重建 ES 搜索索引（同步执行 — 实时索引所有已发布产品）。"""
+    try:
+        from app.search.client import get_es, check_es_health
+        from app.search.index import delete_index, create_index, bulk_index_tours
+
+        if not await check_es_health():
+            return {"status": "error", "detail": "Elasticsearch is not available"}
+        es = await get_es()
+        await delete_index(es)
+        await create_index(es)
+        count = await bulk_index_tours(db, es)
+        return {
+            "status": "ok",
+            "detail": "Search index rebuilt successfully",
+            "indexed_documents": count,
+        }
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}

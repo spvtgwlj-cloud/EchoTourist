@@ -8,6 +8,7 @@ class UserResponse(BaseModel):
     email: str
     name: str
     avatar_url: Optional[str] = None
+    is_admin: bool = False
     created_at: str
 
     model_config = {"from_attributes": True}

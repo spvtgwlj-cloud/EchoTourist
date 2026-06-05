@@ -286,8 +286,6 @@ export default function TourCreateForm() {
               className="w-full border rounded-md px-3 py-2 text-sm"
             >
               <option value="USD">USD</option>
-              <option value="CNY">CNY</option>
-              <option value="EUR">EUR</option>
             </select>
           </div>
           <div>

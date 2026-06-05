@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Star, Clock, Users } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
 import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
+import { WishlistButton } from '@/components/user/WishlistButton';
 import type { Tour } from '@/lib/types';
 
 interface TourCardProps {
@@ -23,7 +24,7 @@ export function TourCard({ tour }: TourCardProps) {
         <div className="relative aspect-[16/9] overflow-hidden bg-gray-100">
           {tour.images?.[0] ? (
             <ImageWithFallback
-              src={tour.images[0]}
+              src={tour.images[0]?.url}
               alt={tour.name}
               className="h-full w-full object-cover transition-transform group-hover:scale-105"
             />
@@ -38,6 +39,9 @@ export function TourCard({ tour }: TourCardProps) {
               {tour.avg_rating.toFixed(1)}
             </div>
           )}
+          <div className="absolute top-3 right-3">
+            <WishlistButton tourId={tour.id} />
+          </div>
         </div>
         <CardContent className="p-4">
           <div className="flex items-start justify-between gap-2">
@@ -68,12 +72,12 @@ export function TourCard({ tour }: TourCardProps) {
             <div>
               <span className="text-xs text-muted-foreground">{t('from')}</span>
               <p className="text-lg font-bold text-primary">
-                {formatPrice(tour.start_price, tour.currency)}
+                {formatPrice(tour.start_price, tour.currency, locale)}
               </p>
               <span className="text-xs text-muted-foreground">{t('perPerson')}</span>
             </div>
             <Badge variant="secondary" className="text-xs">
-              {tour.difficulty === 'easy' ? 'Easy' : tour.difficulty === 'moderate' ? 'Moderate' : 'Challenging'}
+              {tour.difficulty === 'easy' ? t('difficultyEasy') : tour.difficulty === 'moderate' ? t('difficultyModerate') : t('difficultyChallenging')}
             </Badge>
           </div>
         </CardContent>

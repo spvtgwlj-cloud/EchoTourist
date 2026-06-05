@@ -140,6 +140,15 @@ export function Header() {
                   >
                     <User className="h-3.5 w-3.5 inline mr-1" /> {t('myAccount')}
                   </Link>
+                  {user?.is_admin && (
+                    <Link
+                      href={`/${locale}/admin`}
+                      className="block px-4 py-2 text-sm font-medium text-primary hover:bg-accent"
+                      onClick={() => setUserMenuOpen(false)}
+                    >
+                      📊 {t('admin')}
+                    </Link>
+                  )}
                   <button
                     onClick={handleLogout}
                     className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-accent"
@@ -195,6 +204,9 @@ export function Header() {
               <>
                 <Link href={`/${locale}/user/orders`} className="block"><Button variant="outline" className="w-full">{t('myOrders')}</Button></Link>
                 <Link href={`/${locale}/user/profile`} className="block"><Button variant="outline" className="w-full">{t('myAccount')}</Button></Link>
+                {user?.is_admin && (
+                  <Link href={`/${locale}/admin`} className="block"><Button variant="default" className="w-full">📊 {t('admin')}</Button></Link>
+                )}
                 <button onClick={handleLogout} className="w-full"><Button variant="ghost" className="w-full text-red-600">{t('signOut')}</Button></button>
               </>
             ) : (

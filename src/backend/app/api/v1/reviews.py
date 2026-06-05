@@ -1,14 +1,20 @@
 """Review 评价 API。"""
 
+import logging
+
 from fastapi import APIRouter, Depends, Query, Path
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.api.v1.auth import get_current_user
 from app.crud.review import crud_review
 from app.models.user import User
+from app.models.tour import Tour, TourTranslation
 from app.schemas.review import ReviewCreate, ReviewResponse, ReviewListResponse
 from app.core.exceptions import NotFoundException, ValidationException
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/reviews", tags=["reviews"])
 
@@ -30,6 +36,52 @@ async def create_review(
         comment=req.comment,
         locale=req.locale,
     )
+
+    # ── 异步发送评价通知给所有管理员 ────────────────
+    try:
+        # 惰性导入避免与 payment_service 的循环依赖
+        from app.tasks.email_tasks import send_review_notification
+
+        # 获取产品名称
+        trans_result = await db.execute(
+            select(TourTranslation).where(
+                TourTranslation.tour_id == req.tour_id,
+                TourTranslation.locale == "en",
+            )
+        )
+        translation = trans_result.scalar_one_or_none()
+        tour_name = translation.name if translation else f"Tour {str(req.tour_id)[:8]}"
+
+        # 获取产品 slug
+        tour_result = await db.execute(
+            select(Tour.slug).where(Tour.id == req.tour_id)
+        )
+        tour_slug = tour_result.scalar_one_or_none() or str(req.tour_id)
+
+        # 获取所有管理员的邮箱
+        admin_result = await db.execute(
+            select(User.email).where(User.is_admin == True, User.is_active == True)
+        )
+        admin_emails = admin_result.scalars().all()
+
+        for admin_email in admin_emails:
+            send_review_notification.delay(
+                tour_name=tour_name,
+                tour_slug=tour_slug,
+                reviewer_name=user.name or "A customer",
+                rating=req.rating,
+                title=req.title,
+                comment=req.comment,
+                admin_email=admin_email,
+            )
+        if admin_emails:
+            logger.info(
+                "Dispatched review notification for tour %s to %d admin(s)",
+                req.tour_id, len(admin_emails),
+            )
+    except Exception as e:
+        logger.error("Failed to dispatch review notification: %s", e)
+
     return ReviewResponse(
         id=review.id,
         tour_id=review.tour_id,

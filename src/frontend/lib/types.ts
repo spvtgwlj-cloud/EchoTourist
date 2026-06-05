@@ -13,7 +13,7 @@ export interface Tour {
   difficulty: string;
   avg_rating: number;
   review_count: number;
-  images: string[];
+  images: TourImage[];
   highlights: string[];
   includes: string[];
   excludes: string[];
@@ -22,6 +22,14 @@ export interface Tour {
   category_name?: string;
   status: string;
   locale: string;
+}
+
+export interface TourImage {
+  id: string;
+  url: string;
+  alt_text?: string;
+  sort_order: number;
+  type: string;  // "image" | "video"
 }
 
 export interface ItineraryDay {

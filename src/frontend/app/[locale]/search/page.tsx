@@ -77,7 +77,7 @@ export default function SearchPage() {
         <div>
           <div className="flex items-center gap-2 mb-6">
             <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">Searching...</span>
+            <span className="text-sm text-muted-foreground">{t('searching')}</span>
           </div>
           <TourGridSkeleton count={6} />
         </div>
