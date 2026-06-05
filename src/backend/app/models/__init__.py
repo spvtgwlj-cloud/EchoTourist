@@ -4,6 +4,8 @@ from app.models.order import Order, OrderPassenger
 from app.models.review import Review
 from app.models.destination import Destination, DestinationTranslation
 from app.models.wishlist import Wishlist
+from app.models.attraction_wishlist import AttractionWishlist
+from app.models.attraction_ticket import AttractionTicket
 from app.models.attraction import Attraction, AttractionTranslation
 
 __all__ = [
@@ -18,6 +20,8 @@ __all__ = [
     "Destination",
     "DestinationTranslation",
     "Wishlist",
+    "AttractionWishlist",
+    "AttractionTicket",
     "Attraction",
     "AttractionTranslation",
 ]

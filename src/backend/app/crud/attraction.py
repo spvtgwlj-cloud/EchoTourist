@@ -5,9 +5,11 @@ from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.crud.base import CRUDBase
 from app.models.attraction import Attraction
+from app.models.attraction_ticket import AttractionTicket
 from app.models.destination import Destination
 
 
@@ -21,6 +23,7 @@ class CRUDAttraction(CRUDBase[Attraction]):
         """获取指定目的地下的所有活跃景点，按 sort_order 排序。"""
         result = await db.execute(
             select(Attraction)
+            .options(selectinload(Attraction.tickets))
             .where(Attraction.destination_id == destination_id, Attraction.status == "active")
             .order_by(Attraction.sort_order)
         )
@@ -38,6 +41,21 @@ class CRUDAttraction(CRUDBase[Attraction]):
                 "image_url": attr.image_url,
                 "sort_order": attr.sort_order or 0,
                 "rating": attr.rating or 0,
+                "ticket_price": attr.ticket_price or 0,
+                "ticket_currency": attr.ticket_currency or "USD",
+                "tickets": [
+                    {
+                        "id": t.id,
+                        "attraction_id": t.attraction_id,
+                        "ticket_type": t.ticket_type,
+                        "price": t.price,
+                        "currency": t.currency,
+                        "availability": t.availability,
+                        "status": t.status,
+                    }
+                    for t in (attr.tickets or [])
+                    if t.status == "available"
+                ],
             })
         return items
 
@@ -46,7 +64,9 @@ class CRUDAttraction(CRUDBase[Attraction]):
     ) -> Optional[dict]:
         """按 slug 获取景点详情。"""
         result = await db.execute(
-            select(Attraction).where(Attraction.slug == slug, Attraction.status == "active")
+            select(Attraction)
+            .options(selectinload(Attraction.tickets))
+            .where(Attraction.slug == slug, Attraction.status == "active")
         )
         attr = result.scalar_one_or_none()
         if not attr:
@@ -62,6 +82,21 @@ class CRUDAttraction(CRUDBase[Attraction]):
             "image_url": attr.image_url,
             "sort_order": attr.sort_order or 0,
             "rating": attr.rating or 0,
+            "ticket_price": attr.ticket_price or 0,
+            "ticket_currency": attr.ticket_currency or "USD",
+            "tickets": [
+                {
+                    "id": t.id,
+                    "attraction_id": t.attraction_id,
+                    "ticket_type": t.ticket_type,
+                    "price": t.price,
+                    "currency": t.currency,
+                    "availability": t.availability,
+                    "status": t.status,
+                }
+                for t in (attr.tickets or [])
+                if t.status == "available"
+            ],
         }
 
     @staticmethod

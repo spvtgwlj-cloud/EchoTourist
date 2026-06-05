@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { api } from '@/lib/api';
 import { MapPin, Star, ChevronRight } from 'lucide-react';
+import { WishlistButton } from '@/components/user/WishlistButton';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -21,6 +22,8 @@ interface Attraction {
   image_url?: string;
   rating: number;
   slug: string;
+  ticket_price: number;
+  ticket_currency: string;
 }
 
 async function getDestinations(locale: string): Promise<Destination[]> {
@@ -77,7 +80,11 @@ export default async function DestinationsPage({ params }: Props) {
               {/* Destination Header */}
               <div className="mb-6 flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold">{dest.name}</h2>
+                  <Link href={`/${locale}/destinations/${dest.slug}`} className="inline-block group">
+                    <h2 className="text-2xl font-bold group-hover:text-primary transition-colors">
+                      {dest.name}
+                    </h2>
+                  </Link>
                   {dest.description && (
                     <p className="mt-1 text-sm text-muted-foreground max-w-2xl">{dest.description}</p>
                   )}
@@ -97,9 +104,10 @@ export default async function DestinationsPage({ params }: Props) {
               {dest.attractions.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                   {dest.attractions.map((attr) => (
-                    <div
+                    <Link
                       key={attr.id}
-                      className="group relative aspect-[4/3] overflow-hidden rounded-lg bg-gray-100 border border-gray-200 hover:shadow-md transition-shadow"
+                      href={`/${locale}/destinations/${dest.slug}`}
+                      className="group relative aspect-[4/3] overflow-hidden rounded-lg bg-gray-100 border border-gray-200 hover:shadow-md transition-shadow block"
                     >
                       {/* Image Area */}
                       {attr.image_url ? (
@@ -116,19 +124,34 @@ export default async function DestinationsPage({ params }: Props) {
                       )}
                       {/* Gradient Overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                      {/* Wishlist Button */}
+                      <div className="absolute top-1.5 right-1.5 z-10">
+                        <WishlistButton
+                          itemId={attr.id}
+                          itemType="attraction"
+                          className="text-white/80 hover:text-red-400"
+                        />
+                      </div>
                       {/* Content */}
                       <div className="absolute bottom-0 left-0 right-0 p-2.5">
                         <h3 className="text-xs font-semibold text-white leading-tight truncate">
                           {attr.name}
                         </h3>
-                        {attr.rating > 0 && (
-                          <div className="mt-0.5 flex items-center gap-0.5">
-                            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                            <span className="text-[10px] text-white/90">{attr.rating}</span>
-                          </div>
-                        )}
+                        <div className="mt-0.5 flex items-center gap-1.5">
+                          {attr.rating > 0 && (
+                            <div className="flex items-center gap-0.5">
+                              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                              <span className="text-[10px] text-white/90">{attr.rating}</span>
+                            </div>
+                          )}
+                          {attr.ticket_price > 0 && (
+                            <span className="text-[10px] font-medium text-yellow-300 ml-auto">
+                              ${attr.ticket_price}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               ) : (

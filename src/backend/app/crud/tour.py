@@ -49,6 +49,7 @@ class CRUDTour(CRUDBase[Tour]):
         skip: int = 0,
         limit: int = 12,
         difficulty: Optional[str] = None,
+        destination_id: Optional[UUID] = None,
     ) -> tuple[list[Tour], int]:
         query = (
             select(Tour)
@@ -61,6 +62,9 @@ class CRUDTour(CRUDBase[Tour]):
 
         if difficulty:
             query = query.where(Tour.difficulty == difficulty)
+
+        if destination_id:
+            query = query.where(Tour.destination_ids.any(destination_id))
 
         count_query = select(func.count()).select_from(query.subquery())
         total_result = await db.execute(count_query)

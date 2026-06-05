@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import Column, String, Text, SmallInteger, DateTime, ForeignKey
+from sqlalchemy import Column, String, Text, SmallInteger, Integer, Float, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -24,6 +24,9 @@ class Attraction(Base):
     sort_order = Column(SmallInteger, default=0)
     rating = Column(SmallInteger, default=0)  # 1-5
     status = Column(String(20), default="active")
+    # Ticket/ordering fields
+    ticket_price = Column(Float, default=0)  # 展示价格（最低价 or 标准价）
+    ticket_currency = Column(String(3), default="USD")
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at = Column(
         DateTime(timezone=True),
@@ -33,6 +36,7 @@ class Attraction(Base):
 
     translations = relationship("AttractionTranslation", backref="attraction", lazy="selectin")
     destination = relationship("Destination", backref="attractions")
+    tickets = relationship("AttractionTicket", back_populates="attraction", cascade="all, delete-orphan")
 
 
 class AttractionTranslation(Base):

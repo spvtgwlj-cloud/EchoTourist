@@ -10,6 +10,7 @@ from app.models import (
     Tour, TourTranslation, TourDate, TourImage,
     User, Order, OrderPassenger,
     Review, Destination, DestinationTranslation, Wishlist,
+    AttractionWishlist, AttractionTicket,
     Attraction, AttractionTranslation,
 )
 

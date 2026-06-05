@@ -23,6 +23,7 @@ from app.api.v1.search import router as search_router
 from app.api.v1.reviews import router as reviews_router
 from app.api.v1.destinations import router as destinations_router
 from app.api.v1.wishlist import router as wishlist_router
+from app.api.v1.attraction_wishlist import router as attraction_wishlist_router
 from app.api.v1.users import router as users_router
 from app.api.v1.admin import router as admin_router
 from app.api.v1.attractions import router as attractions_router
@@ -116,6 +117,7 @@ app.include_router(search_router, prefix="/api/v1")
 app.include_router(reviews_router, prefix="/api/v1")
 app.include_router(destinations_router, prefix="/api/v1")
 app.include_router(wishlist_router, prefix="/api/v1")
+app.include_router(attraction_wishlist_router, prefix="/api/v1")
 app.include_router(users_router, prefix="/api/v1")
 app.include_router(admin_router, prefix="/api/v1")
 app.include_router(attractions_router, prefix="/api/v1")

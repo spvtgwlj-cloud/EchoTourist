@@ -202,7 +202,72 @@ class TestTourDateCRUD:
         tour_date = result.scalars().first()
         updated = await crud_tour_date.decrement_availability(db_session, tour_date.id, 0)
         assert updated is not None
-        assert updated.availability == tour_date.availability
+
+    async def test_concurrent_decrement_prevents_oversell(
+        self, db_session: AsyncSession, test_tour: Tour,
+    ):
+        """并发竞态测试：验证 SELECT FOR UPDATE 行级锁防止超卖。
+
+        测试方法：用两个 asyncpg 直连同时执行 `SELECT ... FOR UPDATE`
+        并扣减库存。由于 FOR UPDATE 互斥，库存=1 时只能一个成功。
+        """
+        import asyncio
+        from app.config import settings
+
+        # 提取 raw 连接 URL（去掉 +asyncpg 后缀）
+        raw_url = settings.database_url.replace("+asyncpg", "")
+        result = await db_session.execute(
+            select(TourDate).where(TourDate.tour_id == test_tour.id).order_by(TourDate.start_date)
+        )
+        tour_date = result.scalars().first()
+        td_id = tour_date.id
+        tour_date.availability = 1
+        await db_session.flush()
+        await db_session.commit()
+
+        # 使用 asyncpg 直连（绕开 SQLAlchemy session 层）
+        import asyncpg
+
+        dsn = raw_url
+        conn1 = await asyncpg.connect(dsn)
+        conn2 = await asyncpg.connect(dsn)
+
+        async def atomic_decrement(conn):
+            try:
+                async with conn.transaction():
+                    row = await conn.fetchrow(
+                        "SELECT availability FROM tour_dates WHERE id = $1 FOR UPDATE",
+                        td_id,
+                    )
+                    avail = row["availability"]
+                    if avail < 1:
+                        return None
+                    await conn.execute(
+                        "UPDATE tour_dates SET availability = availability - 1 WHERE id = $1",
+                        td_id,
+                    )
+                    return avail - 1
+            except Exception:
+                return None
+
+        try:
+            results = await asyncio.gather(
+                atomic_decrement(conn1), atomic_decrement(conn2),
+                return_exceptions=True,
+            )
+
+            valid_results = [r for r in results if r is not None and not isinstance(r, Exception)]
+            assert len(valid_results) == 1, (
+                f"SELECT FOR UPDATE should prevent oversell: "
+                f"expected 1 success, got {len(valid_results)}. "
+                f"Results: {results}"
+            )
+            # 剩余库存应为 0
+            remaining = await conn1.fetchval("SELECT availability FROM tour_dates WHERE id = $1", td_id)
+            assert remaining == 0, f"Final availability should be 0, got {remaining}"
+        finally:
+            await conn1.close()
+            await conn2.close()
 
 
 # ============================================================

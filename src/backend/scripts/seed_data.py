@@ -56,7 +56,7 @@ from app.models import (  # noqa: E402
     Tour, TourTranslation, TourDate, TourImage,
     User, Review,
     Destination, DestinationTranslation,
-    Attraction, AttractionTranslation,
+    Attraction, AttractionTranslation, AttractionTicket,
 )
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -1559,6 +1559,8 @@ async def clear_existing_data(db):
     await db.execute(text("DELETE FROM tour_images"))
     await db.execute(text("DELETE FROM tour_translations"))
     await db.execute(text("DELETE FROM tours"))
+    await db.execute(text("DELETE FROM attraction_wishlists"))
+    await db.execute(text("DELETE FROM attraction_tickets"))
     await db.execute(text("DELETE FROM attraction_translations"))
     await db.execute(text("DELETE FROM attractions"))
     await db.execute(text("DELETE FROM destination_translations"))
@@ -1767,7 +1769,9 @@ async def seed_attractions(db, dest_slug_to_id: dict):
             logger.warning(f"  ⚠️  目的地 {city_slug} 不存在，跳过")
             continue
 
-        for attr in attractions:
+        for i, attr in enumerate(attractions):
+            # 按排名递减定价（排名越高门票越贵）
+            base_price = max(5, 25 - i * 2)
             attraction = Attraction(
                 id=uuid.uuid4(),
                 slug=attr["slug"],
@@ -1776,6 +1780,8 @@ async def seed_attractions(db, dest_slug_to_id: dict):
                 sort_order=attr["sort_order"],
                 rating=attr["rating"],
                 status="active",
+                ticket_price=base_price,
+                ticket_currency="USD",
             )
             db.add(attraction)
 
@@ -1788,6 +1794,29 @@ async def seed_attractions(db, dest_slug_to_id: dict):
                     description=trans.get("description"),
                 )
                 db.add(translation)
+
+            # 创建默认门票类型（标准票 + VIP 票）
+            standard_ticket = AttractionTicket(
+                id=uuid.uuid4(),
+                attraction_id=attraction.id,
+                ticket_type="standard",
+                price=base_price,
+                currency="USD",
+                availability=500,
+                status="available",
+            )
+            db.add(standard_ticket)
+
+            vip_ticket = AttractionTicket(
+                id=uuid.uuid4(),
+                attraction_id=attraction.id,
+                ticket_type="vip",
+                price=base_price * 2,
+                currency="USD",
+                availability=50,
+                status="available",
+            )
+            db.add(vip_ticket)
 
             count += 1
 

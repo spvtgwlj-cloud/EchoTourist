@@ -65,8 +65,9 @@ test.describe('📄 旅游产品详情 — 完整功能', () => {
 
     const bodyText = await page.locator('body').innerText();
 
-    // 应包含价格信息
-    expect(bodyText).toContain('¥');
+    // 应包含价格信息（$ 或 ¥）
+    const hasPrice = bodyText.includes('$') || bodyText.includes('¥');
+    expect(hasPrice).toBeTruthy();
 
     // 应包含预订/购买按钮
     const hasBookingButton = bodyText.includes('Book') || bodyText.includes('预订')

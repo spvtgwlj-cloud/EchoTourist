@@ -111,6 +111,7 @@ class TourService:
         page: int = 1,
         page_size: int = 12,
         difficulty: Optional[str] = None,
+        destination_id: Optional[UUID] = None,
     ) -> TourListResponse:
         skip = (page - 1) * page_size
         tours, total = await crud_tour.get_published(
@@ -119,6 +120,7 @@ class TourService:
             skip=skip,
             limit=page_size,
             difficulty=difficulty,
+            destination_id=destination_id,
         )
         tour_responses = [await self._build_response(t, locale) for t in tours]
         return TourListResponse(

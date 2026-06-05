@@ -20,13 +20,9 @@ test.describe('🌍 目的地列表', () => {
     const nanjingLink = page.locator('a[href*="/en/destinations/nanjing"]');
     const xianLink = page.locator('a[href*="/en/destinations/xian"]');
 
-    const beijingVisible = await beijingLink.isVisible({ timeout: 5000 }).catch(() => false);
-    const nanjingVisible = await nanjingLink.isVisible({ timeout: 5000 }).catch(() => false);
-    const xianVisible = await xianLink.isVisible({ timeout: 5000 }).catch(() => false);
-
-    // 至少 2 个目的地可见
-    const visibleCount = [beijingVisible, nanjingVisible, xianVisible].filter(Boolean).length;
-    expect(visibleCount).toBeGreaterThanOrEqual(2);
+    await expect(beijingLink.first()).toBeVisible({ timeout: 10000 });
+    await expect(nanjingLink.first()).toBeVisible({ timeout: 5000 });
+    await expect(xianLink.first()).toBeVisible({ timeout: 5000 });
   });
 
   test('目的地卡片可点击进入详情', async ({ page }) => {

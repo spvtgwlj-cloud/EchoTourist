@@ -31,6 +31,9 @@ class PaymentService:
         if not order:
             raise NotFoundException(detail="Order not found")
 
+        if order.payment_status == "paid":
+            raise ValidationException(detail="Order has already been paid")
+
         if not settings.stripe_secret_key:
             return PaymentIntentResponse(
                 client_secret="mock_secret",

@@ -8,17 +8,29 @@ import { useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 
 interface WishlistButtonProps {
-  tourId: string;
+  /** @deprecated Use itemId + itemType instead */
+  tourId?: string;
+  itemId?: string;
+  itemType?: 'tour' | 'attraction';
   initialWishlisted?: boolean;
   className?: string;
 }
 
-export function WishlistButton({ tourId, initialWishlisted = false, className = '' }: WishlistButtonProps) {
+export function WishlistButton({
+  tourId,
+  itemId,
+  itemType = 'tour',
+  initialWishlisted = false,
+  className = '',
+}: WishlistButtonProps) {
   const { token, isAuthenticated } = useAuthStore();
   const router = useRouter();
   const locale = useLocale();
   const [wishlisted, setWishlisted] = useState(initialWishlisted);
   const [animating, setAnimating] = useState(false);
+
+  const id = itemId || tourId;
+  const basePath = itemType === 'attraction' ? '/wishlist/attractions' : '/wishlist';
 
   const handleToggle = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -29,13 +41,15 @@ export function WishlistButton({ tourId, initialWishlisted = false, className = 
       return;
     }
 
+    if (!id) return;
+
     setAnimating(true);
     try {
       if (wishlisted) {
-        await api.delete(`/wishlist/${tourId}`);
+        await api.delete(`${basePath}/${id}`);
         setWishlisted(false);
       } else {
-        await api.post(`/wishlist/${tourId}`, {});
+        await api.post(`${basePath}/${id}`, {});
         setWishlisted(true);
       }
     } catch { /* ignore */ }
@@ -45,7 +59,7 @@ export function WishlistButton({ tourId, initialWishlisted = false, className = 
   return (
     <button
       onClick={handleToggle}
-      disabled={animating}
+      disabled={animating || !id}
       className={`p-2 rounded-full transition-colors ${
         wishlisted ? 'text-red-500' : 'text-gray-400 hover:text-red-400'
       } ${className}`}

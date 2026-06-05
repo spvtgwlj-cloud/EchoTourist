@@ -70,9 +70,11 @@ export interface User {
 export interface Order {
   id: string;
   order_no: string;
-  tour_id: string;
+  tour_id?: string;
   tour_name?: string;
   tour_date: string;
+  attraction_id?: string;
+  attraction_name?: string;
   status: string;
   pax_count: number;
   total: number;
@@ -84,14 +86,26 @@ export interface Order {
 }
 
 export interface BookingRequest {
-  tour_id: string;
-  tour_date_id: string;
+  tour_id?: string;
+  tour_date_id?: string;
+  attraction_id?: string;
+  attraction_ticket_id?: string;
   pax_count: number;
   contact_name: string;
   contact_email: string;
   contact_phone?: string;
   special_requests?: string;
   locale: string;
+}
+
+export interface AttractionTicket {
+  id: string;
+  attraction_id: string;
+  ticket_type: string;
+  price: number;
+  currency: string;
+  availability: number;
+  status: string;
 }
 
 export interface PaymentIntent {

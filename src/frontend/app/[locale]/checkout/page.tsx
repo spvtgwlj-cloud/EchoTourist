@@ -10,7 +10,7 @@ import { useAuthStore } from '@/lib/stores/auth-store';
 import { useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { formatPrice } from '@/lib/utils';
-import { Loader2, AlertCircle, User, Mail, Phone } from 'lucide-react';
+import { Loader2, AlertCircle, User, Mail, Phone, MapPin } from 'lucide-react';
 import type { Tour, TourDate, PaymentIntent, BookingRequest } from '@/lib/types';
 
 export default function CheckoutPage() {
@@ -26,22 +26,47 @@ export default function CheckoutPage() {
   const [tour, setTour] = useState<Tour | null>(null);
   const [dateInfo, setDateInfo] = useState<TourDate | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [authReady, setAuthReady] = useState(false);
 
   // Form fields
   const [contactName, setContactName] = useState('');
   const [contactEmail, setContactEmail] = useState('');
   const [contactPhone, setContactPhone] = useState('');
 
+  // Tour booking params
   const tourId = searchParams.get('tour');
   const dateId = searchParams.get('date');
+
+  // Attraction booking params
+  const attractionId = searchParams.get('attraction_id');
+  const ticketId = searchParams.get('ticket_id');
+  const attractionName = searchParams.get('name');
+  const ticketPrice = parseFloat(searchParams.get('price') || '0');
+  const ticketCurrency = searchParams.get('currency') || 'USD';
+  const ticketType = searchParams.get('ticket_type') || 'standard';
+
   const pax = parseInt(searchParams.get('pax') || '1');
 
+  const isAttractionBooking = !!(attractionId && ticketId);
+
+  // 等待 auth store 从 localStorage 初始化完成
   useEffect(() => {
+    const hasToken = typeof window !== 'undefined' && !!localStorage.getItem('auth_token');
+    if (!hasToken || isAuthenticated) {
+      setAuthReady(true);
+      return;
+    }
+    const timer = setTimeout(() => setAuthReady(true), 500);
+    return () => clearTimeout(timer);
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (!authReady) return;
     if (!isAuthenticated) {
       router.push(`/${locale}/auth`);
       return;
     }
-    if (tourId && dateId) {
+    if (tourId && dateId && !isAttractionBooking) {
       Promise.all([
         api.get<Tour>(`/tours/${tourId}`),
         api.get<{ dates: TourDate[] }>(`/tours/${tourId}/dates`),
@@ -51,24 +76,38 @@ export default function CheckoutPage() {
         if (d) setDateInfo(d);
       }).catch(() => setError('Failed to load booking details'));
     }
-  }, [tourId, dateId, isAuthenticated, locale, router]);
+  }, [tourId, dateId, isAttractionBooking, isAuthenticated, locale, router, authReady]);
 
   const handlePayment = async () => {
-    if (!tourId || !dateId || !token) return;
+    if (!token) return;
     setLoading(true);
     setError('');
 
     try {
-      // Step 1: Create order
-      const orderReq: BookingRequest = {
-        tour_id: tourId,
-        tour_date_id: dateId,
-        pax_count: pax,
-        contact_name: contactName,
-        contact_email: contactEmail,
-        contact_phone: contactPhone || undefined,
-        locale,
-      };
+      let orderReq: BookingRequest;
+
+      if (isAttractionBooking) {
+        orderReq = {
+          attraction_id: attractionId!,
+          attraction_ticket_id: ticketId!,
+          pax_count: pax,
+          contact_name: contactName,
+          contact_email: contactEmail,
+          contact_phone: contactPhone || undefined,
+          locale,
+        };
+      } else {
+        if (!tourId || !dateId) return;
+        orderReq = {
+          tour_id: tourId,
+          tour_date_id: dateId,
+          pax_count: pax,
+          contact_name: contactName,
+          contact_email: contactEmail,
+          contact_phone: contactPhone || undefined,
+          locale,
+        };
+      }
 
       const order = await api.post<{ id: string; order_no: string }>('/orders', orderReq, {
         headers: { Authorization: `Bearer ${token}` },
@@ -83,10 +122,8 @@ export default function CheckoutPage() {
 
       // Step 3: Redirect to Stripe Checkout
       if (intent.session_id && intent.session_id.startsWith('mock_')) {
-        // Mock mode — skip to success
         router.push(`/${locale}/checkout/success?order_no=${order.order_no}`);
       } else if (intent.session_id) {
-        // Check if Stripe public key is configured
         const stripeKey = process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY;
         if (!stripeKey) {
           setError('Stripe payment is not configured. Please set NEXT_PUBLIC_STRIPE_PUBLIC_KEY.');
@@ -116,7 +153,13 @@ export default function CheckoutPage() {
     }
   };
 
-  const totalPrice = dateInfo ? dateInfo.price_per_pax * pax : 0;
+  const totalPrice = isAttractionBooking
+    ? ticketPrice * pax
+    : (dateInfo ? dateInfo.price_per_pax * pax : 0);
+
+  const canSubmit = isAttractionBooking
+    ? !!(attractionId && ticketId && contactName && contactEmail)
+    : !!(dateInfo && contactName && contactEmail);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -135,15 +178,29 @@ export default function CheckoutPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">{t('tourLabel')}</span>
-              <span className="font-medium">{tour?.name || ct('loading')}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">{t('dateLabel')}</span>
+              <span className="text-muted-foreground">
+                {isAttractionBooking ? 'Attraction' : t('tourLabel')}
+              </span>
               <span className="font-medium">
-                {dateInfo ? new Date(dateInfo.start_date).toLocaleDateString() : ct('loading')}
+                {isAttractionBooking
+                  ? (attractionName || ct('loading'))
+                  : (tour?.name || ct('loading'))}
               </span>
             </div>
+            {!isAttractionBooking && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{t('dateLabel')}</span>
+                <span className="font-medium">
+                  {dateInfo ? new Date(dateInfo.start_date).toLocaleDateString() : ct('loading')}
+                </span>
+              </div>
+            )}
+            {isAttractionBooking && ticketType && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Ticket Type</span>
+                <span className="font-medium capitalize">{ticketType}</span>
+              </div>
+            )}
             <div className="flex justify-between">
               <span className="text-muted-foreground">{t('guestsLabel')}</span>
               <span className="font-medium">{pax}</span>
@@ -151,7 +208,7 @@ export default function CheckoutPage() {
             <div className="border-t pt-4">
               <div className="flex justify-between text-lg font-bold">
                 <span>{t('totalLabel')}</span>
-                <span>{formatPrice(totalPrice, dateInfo?.currency || 'USD', locale)}</span>
+                <span>{formatPrice(totalPrice, ticketCurrency || 'USD', locale)}</span>
               </div>
             </div>
           </CardContent>
@@ -197,10 +254,10 @@ export default function CheckoutPage() {
           className="w-full"
           size="xl"
           onClick={handlePayment}
-          disabled={loading || !dateInfo || !contactName || !contactEmail}
+          disabled={loading || !canSubmit}
         >
           {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
-          {t('payNow')} — {formatPrice(totalPrice, dateInfo?.currency || 'USD', locale)}
+          {t('payNow')} — {formatPrice(totalPrice, ticketCurrency || 'USD', locale)}
         </Button>
 
         <p className="mt-4 text-xs text-muted-foreground text-center">

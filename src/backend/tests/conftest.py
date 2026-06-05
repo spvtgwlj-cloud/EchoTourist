@@ -25,6 +25,10 @@ from app.database import Base, get_db
 from app.config import settings
 from app.models.user import User
 from app.models.tour import Tour, TourTranslation, TourDate, TourImage
+from app.models.attraction import Attraction, AttractionTranslation
+from app.models.attraction_ticket import AttractionTicket
+from app.models.attraction_wishlist import AttractionWishlist
+from app.models.destination import Destination
 from app.models.order import Order, OrderPassenger
 from app.core.security import hash_password, create_access_token
 
@@ -99,6 +103,7 @@ async def auto_cleanup():
             await conn.execute(text("DELETE FROM orders"))
             await conn.execute(text("DELETE FROM reviews"))
             await conn.execute(text("DELETE FROM wishlists"))
+            await conn.execute(text("DELETE FROM attraction_wishlists"))
             await conn.commit()
     finally:
         await engine.dispose()
@@ -254,3 +259,78 @@ class TestDataFactory:
 @pytest.fixture
 def factory() -> TestDataFactory:
     return TestDataFactory()
+
+
+# ============================================================
+# 景点（Attraction）相关 fixtures
+# ============================================================
+
+@pytest_asyncio.fixture
+async def test_destination(db_session: AsyncSession) -> Destination:
+    """创建测试目的地。"""
+    dest = Destination(
+        id=uuid.uuid4(),
+        slug=f"test-dest-{uuid.uuid4().hex[:6]}",
+        status="active",
+    )
+    db_session.add(dest)
+    await db_session.flush()
+    return dest
+
+
+@pytest_asyncio.fixture
+async def test_attraction(
+    db_session: AsyncSession, test_destination: Destination
+) -> Attraction:
+    """创建测试景点（含翻译和门票类型）。"""
+    aid = uuid.uuid4()
+    attr = Attraction(
+        id=aid,
+        slug=f"test-attr-{uuid.uuid4().hex[:6]}",
+        destination_id=test_destination.id,
+        image_url="https://example.com/attr.jpg",
+        sort_order=1,
+        rating=4,
+        ticket_price=50.00,
+        ticket_currency="USD",
+        status="active",
+    )
+    db_session.add(attr)
+    # 英文翻译
+    db_session.add(AttractionTranslation(
+        id=uuid.uuid4(),
+        attraction_id=aid,
+        locale="en",
+        name="Test Attraction",
+        description="A test attraction for unit testing",
+        ticket_info="Standard entry",
+    ))
+    # 中文翻译
+    db_session.add(AttractionTranslation(
+        id=uuid.uuid4(),
+        attraction_id=aid,
+        locale="zh",
+        name="测试景点",
+        description="用于单元测试的测试景点",
+    ))
+    # 门票类型 x2
+    db_session.add(AttractionTicket(
+        id=uuid.uuid4(),
+        attraction_id=aid,
+        ticket_type="standard",
+        price=50.00,
+        currency="USD",
+        availability=100,
+        status="available",
+    ))
+    db_session.add(AttractionTicket(
+        id=uuid.uuid4(),
+        attraction_id=aid,
+        ticket_type="vip",
+        price=100.00,
+        currency="USD",
+        availability=20,
+        status="available",
+    ))
+    await db_session.flush()
+    return attr

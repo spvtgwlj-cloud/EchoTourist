@@ -66,7 +66,10 @@ async def get_destination_tours(
     dest = await crud_destination.get_by_slug(db, slug, locale=locale)
     if not dest:
         raise NotFoundException(detail="Destination not found")
-    # Use tour_service which filters by published status and locale
     return await tour_service.list_tours(
-        db, locale=locale, page=page, page_size=page_size
+        db,
+        locale=locale,
+        page=page,
+        page_size=page_size,
+        destination_id=dest["id"],
     )

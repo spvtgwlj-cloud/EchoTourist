@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.schemas.attraction import AttractionResponse, AttractionListResponse
+from app.schemas.attraction import AttractionResponse, AttractionListResponse, AttractionTicketResponse
 from app.crud.attraction import crud_attraction
 from app.crud.destination import crud_destination
 from app.core.exceptions import NotFoundException
@@ -35,6 +35,11 @@ async def list_attractions(
             image_url=item["image_url"],
             sort_order=item["sort_order"],
             rating=item["rating"],
+            ticket_price=item.get("ticket_price", 0),
+            ticket_currency=item.get("ticket_currency", "USD"),
+            tickets=[
+                AttractionTicketResponse(**t) for t in item.get("tickets", [])
+            ],
             locale=locale,
         )
         for item in items
