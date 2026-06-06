@@ -3,11 +3,13 @@
 from typing import Optional
 from uuid import UUID
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.tour import crud_tour, crud_tour_date
 from app.core.exceptions import NotFoundException
 from app.cache.decorators import cache_result
+from app.models.destination import Destination
 from app.schemas.tour import (
     TourResponse,
     TourImageResponse,
@@ -21,7 +23,7 @@ from app.schemas.tour import (
 
 class TourService:
     @staticmethod
-    async def _build_response(tour, locale: str) -> TourResponse:
+    async def _build_response(tour, locale: str, db: AsyncSession | None = None) -> TourResponse:
         """将 Tour ORM 对象构建为 TourResponse。"""
         translation = None
         fallback_en = None
@@ -77,6 +79,15 @@ class TourService:
                     excludes=t.excludes or [],
                 ))
 
+        # 查询目的地区号
+        area_code = None
+        if tour.destination_ids and db:
+            first_dest_id = tour.destination_ids[0]
+            dest_result = await db.execute(
+                select(Destination.area_code).where(Destination.id == first_dest_id)
+            )
+            area_code = dest_result.scalar_one_or_none()
+
         return TourResponse(
             id=tour.id,
             slug=tour.slug,
@@ -90,6 +101,9 @@ class TourService:
             max_pax=tour.max_pax,
             min_pax=tour.min_pax or 1,
             difficulty=tour.difficulty or "easy",
+            sort_order=tour.sort_order or 0,
+            serial_number=tour.serial_number,
+            area_code=area_code,
             avg_rating=tour.avg_rating or 0,
             review_count=tour.review_count or 0,
             images=images,
@@ -122,7 +136,7 @@ class TourService:
             difficulty=difficulty,
             destination_id=destination_id,
         )
-        tour_responses = [await self._build_response(t, locale) for t in tours]
+        tour_responses = [await self._build_response(t, locale, db) for t in tours]
         return TourListResponse(
             tours=tour_responses,
             total=total,
@@ -145,7 +159,7 @@ class TourService:
 
         if not tour:
             raise NotFoundException(detail="Tour not found")
-        return await self._build_response(tour, locale)
+        return await self._build_response(tour, locale, db)
 
     @cache_result(ttl=60)
     async def get_tour_dates(

@@ -139,6 +139,7 @@ async def search_tours(
                 review_count=src.get("review_count", 0),
                 difficulty=src.get("difficulty", "easy"),
                 highlights=src.get("highlights", ""),
+                images=src.get("images", []),
             )
         )
 

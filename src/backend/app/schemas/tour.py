@@ -46,6 +46,9 @@ class TourResponse(BaseModel):
     max_pax: Optional[int] = None
     min_pax: int
     difficulty: str
+    sort_order: int = 0
+    serial_number: Optional[str] = None
+    area_code: Optional[str] = None
     avg_rating: float
     review_count: int
     images: list[TourImageResponse] = []

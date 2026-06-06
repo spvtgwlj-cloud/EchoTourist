@@ -23,6 +23,8 @@ class Tour(Base):
     highlights = Column(PG_ARRAY(Text), default=list)
     includes = Column(PG_ARRAY(Text), default=list)
     excludes = Column(PG_ARRAY(Text), default=list)
+    sort_order = Column(SmallInteger, default=0)
+    serial_number = Column(String(10))  # 4位数字序列号，如 0001
     destination_ids = Column(PG_ARRAY(UUID(as_uuid=True)), default=list)
     avg_rating = Column(Float, default=0)
     review_count = Column(Integer, default=0)

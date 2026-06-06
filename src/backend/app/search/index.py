@@ -52,6 +52,13 @@ INDEX_MAPPING = {
             "locale": {"type": "keyword"},
             "published_at": {"type": "date"},
             "created_at": {"type": "date"},
+            "images": {
+                "type": "nested",
+                "properties": {
+                    "url": {"type": "keyword"},
+                    "alt_text": {"type": "text"},
+                },
+            },
         }
     },
 }
@@ -97,6 +104,10 @@ async def index_tour(es: AsyncElasticsearch, tour: Tour, translation: TourTransl
         "locale": translation.locale,
         "published_at": tour.published_at.isoformat() if tour.published_at else None,
         "created_at": tour.created_at.isoformat() if tour.created_at else None,
+        "images": [
+            {"url": img.url, "alt_text": img.alt_text}
+            for img in (tour.tour_images or [])
+        ],
     }
     # 用 tour_id + locale 作为文档 ID，每个 locale 一条记录
     doc_id = f"{tour.id}-{translation.locale}"
@@ -107,7 +118,7 @@ async def bulk_index_tours(db: AsyncSession, es: AsyncElasticsearch) -> int:
     """将 DB 中所有已发布的 Tour 批量索引到 ES。返回索引条数。"""
     result = await db.execute(
         select(Tour)
-        .options(selectinload(Tour.tour_translations))
+        .options(selectinload(Tour.tour_translations), selectinload(Tour.tour_images))
         .where(Tour.status == "published", Tour.deleted_at.is_(None))
     )
     tours = result.scalars().all()

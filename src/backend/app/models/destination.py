@@ -15,6 +15,7 @@ class Destination(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     slug = Column(String(100), unique=True, nullable=False, index=True)
+    area_code = Column(String(10))  # 城市电话区号，如 010/025/029
     image_url = Column(String(500))
     status = Column(String(20), default="active")
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))

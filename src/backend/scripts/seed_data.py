@@ -49,14 +49,15 @@ logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger("seed")
 
 # ── 数据库 ────────────────────────────────────────────────────────────────
-from sqlalchemy import text  # noqa: E402
+from sqlalchemy import text, select  # noqa: E402
 from app.database import async_session  # noqa: E402
 from app.core.security import hash_password  # noqa: E402
 from app.models import (  # noqa: E402
     Tour, TourTranslation, TourDate, TourImage,
     User, Review,
     Destination, DestinationTranslation,
-    Attraction, AttractionTranslation, AttractionTicket,
+    Attraction, AttractionTranslation, AttractionTicket, AttractionMedia,
+    BaseService,
 )
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -68,6 +69,7 @@ from app.models import (  # noqa: E402
 DESTINATIONS = {
     "beijing": {
         "slug": "beijing",
+        "area_code": "010",
         "image_url": "/images/destinations/beijing.svg",
         "translations": {
             "zh": {"name": "北京", "description": "中国首都，拥有三千多年历史的古都，汇聚了众多世界文化遗产和5A级旅游景区。", "meta_title": "北京旅游攻略 | Echo Tours", "meta_description": "探索北京故宫、长城、颐和园等世界级景点，体验千年古都的魅力与现代活力。"},
@@ -76,6 +78,7 @@ DESTINATIONS = {
     },
     "nanjing": {
         "slug": "nanjing",
+        "area_code": "025",
         "image_url": "/images/destinations/nanjing.svg",
         "translations": {
             "zh": {"name": "南京", "description": "六朝古都，中国东部重要历史文化名城，拥有夫子庙、中山陵等著名景点。", "meta_title": "南京旅游攻略 | Echo Tours", "meta_description": "游六朝古都南京，访中山陵、夫子庙，感受金陵千年文化底蕴。"},
@@ -84,6 +87,7 @@ DESTINATIONS = {
     },
     "xian": {
         "slug": "xian",
+        "area_code": "029",
         "image_url": "/images/destinations/xian.svg",
         "translations": {
             "zh": {"name": "西安", "description": "十三朝古都，世界四大古都之一，以兵马俑和盛唐文化闻名于世。", "meta_title": "西安旅游攻略 | Echo Tours", "meta_description": "参观世界第八大奇迹兵马俑，漫步古城墙，品味盛唐风华。"},
@@ -98,6 +102,7 @@ TOURS = [
     # ═══════════════ 北京-故宫相关 ═══════════════
     {
         "slug": "forbidden-city-royal-walk",
+        "serial_number": "0001",
         "type": "group_tour",
         "status": "published",
         "duration_days": 1,
@@ -170,6 +175,7 @@ TOURS = [
     # ═══════════════ 北京-长城 ═══════════════
     {
         "slug": "great-wall-badaling-hike",
+        "serial_number": "0002",
         "type": "group_tour",
         "status": "published",
         "duration_days": 1,
@@ -240,6 +246,7 @@ TOURS = [
     # ═══════════════ 北京-慕田峪长城 ═══════════════
     {
         "slug": "mutianyu-great-wall-premium",
+        "serial_number": "0003",
         "type": "private_tour",
         "status": "published",
         "duration_days": 1,
@@ -309,6 +316,7 @@ TOURS = [
     # ═══════════════ 北京-天坛 ═══════════════
     {
         "slug": "temple-of-heaven-cultural",
+        "serial_number": "0004",
         "type": "group_tour",
         "status": "published",
         "duration_days": 0.5,
@@ -377,6 +385,7 @@ TOURS = [
     # ═══════════════ 北京-颐和园 ═══════════════
     {
         "slug": "summer-palace-royal-garden",
+        "serial_number": "0005",
         "type": "group_tour",
         "status": "published",
         "duration_days": 1,
@@ -447,6 +456,7 @@ TOURS = [
     # ═══════════════ 北京-恭王府 ═══════════════
     {
         "slug": "prince-gong-mansion-hutong",
+        "serial_number": "0006",
         "type": "group_tour",
         "status": "published",
         "duration_days": 0.5,
@@ -514,6 +524,7 @@ TOURS = [
     # ═══════════════ 北京-奥林匹克公园 ═══════════════
     {
         "slug": "olympic-park-modern-beijing",
+        "serial_number": "0007",
         "type": "group_tour",
         "status": "published",
         "duration_days": 0.5,
@@ -582,6 +593,7 @@ TOURS = [
     # ═══════════════ 北京-圆明园 ═══════════════
     {
         "slug": "old-summer-palace-history",
+        "serial_number": "0008",
         "type": "group_tour",
         "status": "published",
         "duration_days": 0.5,
@@ -648,6 +660,7 @@ TOURS = [
     # ═══════════════ 北京-明十三陵 ═══════════════
     {
         "slug": "ming-tombs-royal-cemetery",
+        "serial_number": "0009",
         "type": "group_tour",
         "status": "published",
         "duration_days": 0.5,
@@ -714,6 +727,7 @@ TOURS = [
     # ═══════════════ 北京-多日深度游 ═══════════════
     {
         "slug": "beijing-essence-3-day",
+        "serial_number": "0010",
         "type": "group_tour",
         "status": "published",
         "duration_days": 3,
@@ -790,6 +804,7 @@ TOURS = [
     # ═══════════════ 南京 ═══════════════
     {
         "slug": "nanjing-historical-essence",
+        "serial_number": "0001",
         "type": "group_tour",
         "status": "published",
         "duration_days": 2,
@@ -858,6 +873,7 @@ TOURS = [
     # ═══════════════ 西安 ═══════════════
     {
         "slug": "xian-terracotta-warriors-2day",
+        "serial_number": "0001",
         "type": "group_tour",
         "status": "published",
         "duration_days": 2,
@@ -1559,6 +1575,12 @@ async def clear_existing_data(db):
     await db.execute(text("DELETE FROM tour_images"))
     await db.execute(text("DELETE FROM tour_translations"))
     await db.execute(text("DELETE FROM tours"))
+    await db.execute(text("DELETE FROM custom_tour_services"))
+    await db.execute(text("DELETE FROM custom_tour_attractions"))
+    await db.execute(text("DELETE FROM custom_tour_segment_tours"))
+    await db.execute(text("DELETE FROM custom_tour_segments"))
+    await db.execute(text("DELETE FROM custom_tour_requests"))
+    await db.execute(text("DELETE FROM base_services"))
     await db.execute(text("DELETE FROM attraction_wishlists"))
     await db.execute(text("DELETE FROM attraction_tickets"))
     await db.execute(text("DELETE FROM attraction_translations"))
@@ -1580,6 +1602,7 @@ async def seed_destinations(db) -> dict[str, uuid.UUID]:
         dest = Destination(
             id=uuid.uuid4(),
             slug=data["slug"],
+            area_code=data.get("area_code"),
             image_url=data["image_url"],
             status="active",
         )
@@ -1656,6 +1679,7 @@ async def seed_tours(db, dest_slug_to_id: dict, email_to_id: dict) -> dict[str, 
             highlights=t.get("highlights", []),
             includes=t.get("includes", []),
             excludes=t.get("excludes", []),
+            serial_number=t.get("serial_number"),
             destination_ids=[dest_slug_to_id[s] for s in t["destination_slugs"]],
             avg_rating=0.0,
             review_count=0,
@@ -1818,10 +1842,197 @@ async def seed_attractions(db, dest_slug_to_id: dict):
             )
             db.add(vip_ticket)
 
+            # 创建景点媒体资源（照片/短视频），每个景点 4~6 个
+            media_count = min(6, 4 + i % 3)  # 4~6 个
+            for mi in range(media_count):
+                media_url = attr["image_url"].replace(".svg", f"-{mi+1}.svg") if mi > 0 else attr["image_url"]
+                media = AttractionMedia(
+                    id=uuid.uuid4(),
+                    attraction_id=attraction.id,
+                    url=media_url,
+                    media_type="image",
+                    alt_text=f"{attr['translations'].get('en', {}).get('name', attr['slug'])} - View {mi+1}",
+                    sort_order=mi,
+                )
+                db.add(media)
+
             count += 1
 
     await db.flush()
     logger.info(f"  ✅ 共创建 {count} 个景点（城市: {len(ATTRACTIONS)}）")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 基础服务种子数据（超管可编辑）
+# ═══════════════════════════════════════════════════════════════════════════
+
+BASE_SERVICES = [
+    {
+        "name": "One-way Airport Transfer",
+        "name_zh": "单程接送机",
+        "name_es": "Traslado Aeropuerto (Ida)",
+        "name_fr": "Transfert Aéroport (Simple)",
+        "description": "Private one-way transfer between airport and hotel. Includes meet & greet and luggage assistance.",
+        "description_zh": "机场与酒店之间的单程专车接送，含接机举牌和行李协助。",
+        "description_es": "Traslado privado de ida entre el aeropuerto y el hotel. Incluye recepción y asistencia con equipaje.",
+        "description_fr": "Transfert privé simple entre l'aéroport et l'hôtel. Accueil personnalisé et assistance bagages.",
+        "unit_type": "per_trip",
+        "unit_price": 60.0,
+        "category": "transport",
+        "sort_order": 1,
+    },
+    {
+        "name": "One-way Train Station Transfer",
+        "name_zh": "单程接送火车站",
+        "name_es": "Traslado Estación de Tren (Ida)",
+        "name_fr": "Transfert Gare (Simple)",
+        "description": "Private one-way transfer between train station and hotel. Includes luggage assistance.",
+        "description_zh": "火车站与酒店之间的单程专车接送，含行李协助。",
+        "description_es": "Traslado privado de ida entre la estación de tren y el hotel. Incluye asistencia con equipaje.",
+        "description_fr": "Transfert privé simple entre la gare et l'hôtel. Assistance bagages incluse.",
+        "unit_type": "per_trip",
+        "unit_price": 40.0,
+        "category": "transport",
+        "sort_order": 2,
+    },
+    {
+        "name": "English Guide Service (per day)",
+        "name_zh": "一天英语导游服务",
+        "name_es": "Guía de Habla Inglesa (por día)",
+        "name_fr": "Guide Anglophone (par jour)",
+        "description": "Professional English-speaking guide for a full day (8 hours). Includes expert commentary and local insights.",
+        "description_zh": "专业英语导游全天服务（8小时），含专业讲解和当地文化分享。",
+        "description_es": "Guía profesional de habla inglesa por un día completo (8 horas). Incluye comentarios expertos y conocimientos locales.",
+        "description_fr": "Guide professionnel anglophone pour une journée complète (8 heures). Commentaires d'expert et connaissances locales.",
+        "unit_type": "per_day",
+        "unit_price": 120.0,
+        "category": "guide",
+        "sort_order": 3,
+    },
+    {
+        "name": "Spanish Guide Service (per day)",
+        "name_zh": "一天西班牙语导游服务",
+        "name_es": "Guía de Habla Española (por día)",
+        "name_fr": "Guide Hispanophone (par jour)",
+        "description": "Professional Spanish-speaking guide for a full day (8 hours). Native-level fluency and cultural expertise.",
+        "description_zh": "专业西班牙语导游全天服务（8小时），母语级别流利度及文化专业讲解。",
+        "description_es": "Guía profesional de habla española por un día completo (8 horas). Fluidez nativa y experiencia cultural.",
+        "description_fr": "Guide professionnel hispanophone pour une journée complète (8 heures). Niveau natif et expertise culturelle.",
+        "unit_type": "per_day",
+        "unit_price": 140.0,
+        "category": "guide",
+        "sort_order": 4,
+    },
+    {
+        "name": "French Guide Service (per day)",
+        "name_zh": "一天法语导游服务",
+        "name_es": "Guía de Habla Francesa (por día)",
+        "name_fr": "Guide Francophone (par jour)",
+        "description": "Professional French-speaking guide for a full day (8 hours). Native-level fluency and cultural expertise.",
+        "description_zh": "专业法语导游全天服务（8小时），母语级别流利度及文化专业讲解。",
+        "description_es": "Guía profesional de habla francesa por un día completo (8 horas). Fluidez nativa y experiencia cultural.",
+        "description_fr": "Guide professionnel francophone pour une journée complète (8 heures). Niveau natif et expertise culturelle.",
+        "unit_type": "per_day",
+        "unit_price": 140.0,
+        "category": "guide",
+        "sort_order": 5,
+    },
+    {
+        "name": "Vehicle Service (per person per day)",
+        "name_zh": "每人每天车辆服务",
+        "name_es": "Servicio de Vehículo (por persona por día)",
+        "name_fr": "Service Véhicule (par personne par jour)",
+        "description": "Air-conditioned private vehicle with driver for a full day (8 hours). Cost shared per person.",
+        "description_zh": "空调专车含司机全天服务（8小时），费用按人均摊。",
+        "description_es": "Vehículo privado con aire acondicionado y conductor por un día completo (8 horas). Costo compartido por persona.",
+        "description_fr": "Véhicule privé climatisé avec chauffeur pour une journée complète (8 heures). Coût réparti par personne.",
+        "unit_type": "per_pax",
+        "unit_price": 35.0,
+        "category": "transport",
+        "sort_order": 6,
+    },
+    {
+        "name": "Hotel Service (per night)",
+        "name_zh": "每人每晚酒店住宿",
+        "name_es": "Servicio de Hotel (por noche)",
+        "name_fr": "Service Hôtel (par nuit)",
+        "description": "Standard 3-4 star hotel accommodation per person per night, twin share basis.",
+        "description_zh": "标准3-4星级酒店住宿，每人每晚，双人共享。",
+        "description_es": "Alojamiento en hotel estándar de 3-4 estrellas por persona por noche, en habitación compartida.",
+        "description_fr": "Hébergement hôtelier standard 3-4 étoiles par personne par nuit, base partagée.",
+        "unit_type": "per_pax",
+        "unit_price": 65.0,
+        "category": "hotel",
+        "sort_order": 7,
+    },
+    {
+        "name": "Lunch Service (per person)",
+        "name_zh": "每人午餐服务",
+        "name_es": "Servicio de Almuerzo (por persona)",
+        "name_fr": "Service Déjeuner (par personne)",
+        "description": "Set lunch at a local restaurant. Includes one main dish, rice, and a drink.",
+        "description_zh": "当地餐厅套餐午餐，含一道主菜、米饭和饮品。",
+        "description_es": "Almuerzo conjunto en un restaurante local. Incluye un plato principal, arroz y una bebida.",
+        "description_fr": "Déjeuner fixe dans un restaurant local. Comprend un plat principal, riz et une boisson.",
+        "unit_type": "per_pax",
+        "unit_price": 15.0,
+        "category": "meal",
+        "sort_order": 8,
+    },
+    {
+        "name": "Dinner Service (per person)",
+        "name_zh": "每人晚餐服务",
+        "name_es": "Servicio de Cena (por persona)",
+        "name_fr": "Service Dîner (par personne)",
+        "description": "Set dinner at a local restaurant. Three-course meal with beverage.",
+        "description_zh": "当地餐厅套餐晚餐，三道式含饮品。",
+        "description_es": "Cena conjunto en un restaurante local. Menú de tres platos con bebida.",
+        "description_fr": "Dîner fixe dans un restaurant local. Menu trois plats avec boisson.",
+        "unit_type": "per_pax",
+        "unit_price": 25.0,
+        "category": "meal",
+        "sort_order": 9,
+    },
+]
+
+
+async def seed_base_services(db):
+    """创建基础服务种子数据。"""
+    logger.info("=" * 50)
+    logger.info("创建基础服务...")
+
+    count = 0
+    for svc in BASE_SERVICES:
+        existing = await db.execute(
+            select(BaseService).where(BaseService.name == svc["name"])
+        )
+        if existing.scalar_one_or_none():
+            logger.info(f"  ⏭️  跳过（已存在）: {svc['name']}")
+            continue
+
+        service = BaseService(
+            id=uuid.uuid4(),
+            name=svc["name"],
+            name_zh=svc.get("name_zh"),
+            name_es=svc.get("name_es"),
+            name_fr=svc.get("name_fr"),
+            description=svc.get("description"),
+            description_zh=svc.get("description_zh"),
+            description_es=svc.get("description_es"),
+            description_fr=svc.get("description_fr"),
+            unit_type=svc["unit_type"],
+            unit_price=svc["unit_price"],
+            currency="USD",
+            category=svc.get("category"),
+            sort_order=svc.get("sort_order", 0),
+            status="active",
+        )
+        db.add(service)
+        count += 1
+        logger.info(f"  ✅ {svc['name']} (${svc['unit_price']}/{svc['unit_type']})")
+
+    await db.flush()
+    logger.info(f"  ✅ 共创建 {count} 个基础服务")
 
 
 async def seed():
@@ -1840,6 +2051,7 @@ async def seed():
             email_to_id = await seed_users(db)
             tour_map = await seed_tours(db, dest_map, email_to_id)
             await seed_attractions(db, dest_map)
+            await seed_base_services(db)
 
             # ── 汇总 ──
             logger.info("")
@@ -1848,6 +2060,7 @@ async def seed():
             logger.info(f"   🏙️  目的地:      {len(DESTINATIONS)} 个")
             logger.info(f"   🏛️  旅游产品:    {len(TOURS)} 个")
             logger.info(f"   🏛️  景点:        {sum(len(v) for v in ATTRACTIONS.values())} 个")
+            logger.info(f"   🔧  基础服务:    {len(BASE_SERVICES)} 个")
             logger.info(f"   👤  用户:        {len(USERS)} 个")
             logger.info(f"   💬 评论:        {len(REVIEWS_DATA)} 条")
 

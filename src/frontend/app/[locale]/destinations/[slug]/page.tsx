@@ -88,25 +88,20 @@ export default async function DestinationDetailPage({ params }: Props) {
               return (
               <div
                 key={attr.id}
-                className="group relative aspect-[4/3] overflow-hidden rounded-xl bg-gray-100 block"
+                className="group relative aspect-[4/3] overflow-hidden rounded-xl bg-gray-100"
               >
-                <Link
-                  href={`/${locale}/destinations/${slug}`}
-                  className="absolute inset-0 z-0"
-                >
-                  {attr.image_url ? (
-                    <ImageWithFallback
-                      src={attr.image_url}
-                      alt={attr.name}
-                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center text-muted-foreground">
-                      <MapPin className="h-10 w-10" />
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                </Link>
+                {attr.image_url ? (
+                  <ImageWithFallback
+                    src={attr.image_url}
+                    alt={attr.name}
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-muted-foreground">
+                    <MapPin className="h-10 w-10" />
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                 {/* Wishlist Button */}
                 <div className="absolute top-2 right-2 z-10">
                   <WishlistButton
@@ -134,10 +129,9 @@ export default async function DestinationDetailPage({ params }: Props) {
                 {firstTicket && (
                   <Link
                     href={`/${locale}/checkout?attraction_id=${attr.id}&ticket_id=${firstTicket.id}&name=${encodeURIComponent(attr.name)}&price=${firstTicket.price}&currency=${firstTicket.currency}&ticket_type=${firstTicket.ticket_type}`}
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20
                       px-4 py-2 rounded-lg bg-white/90 text-sm font-semibold text-gray-900
                       opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white shadow-lg"
-                    onClick={(e) => e.stopPropagation()}
                   >
                     Book Now
                   </Link>
