@@ -185,6 +185,7 @@ export interface CustomTourSegmentItem {
   segment_order: number;
   destination_id: string;
   destination_name: string;
+  custom_destination?: string;
   start_date: string;
   end_date: string;
   attractions: { id: string; attraction_id: string; attraction_name: string; sort_order: number }[];

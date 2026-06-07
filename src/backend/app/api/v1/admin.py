@@ -1868,6 +1868,40 @@ async def admin_update_custom_tour_request(
             setattr(request, field, body[field])
 
     await db.flush()
+
+    # 当状态变为 quoted 且已设置确认价格时，发送邮件通知客户
+    if request.status == "quoted" and request.confirmed_price is not None:
+        try:
+            # 计算总天数
+            from app.models.custom_tour import CustomTourSegment
+            seg_result = await db.execute(
+                select(CustomTourSegment)
+                .where(CustomTourSegment.request_id == request.id)
+            )
+            segments = list(seg_result.scalars().all())
+            total_days = sum(
+                max(1, (seg.end_date - seg.start_date).days)
+                for seg in segments
+            ) if segments else 0
+
+            # 异步发送邮件
+            from app.tasks.email_tasks import send_custom_tour_notification
+            send_custom_tour_notification.delay(
+                user_email=request.contact_email,
+                contact_name=request.contact_name,
+                request_no=request.request_no,
+                pax_count=request.pax_count,
+                subtotal=request.subtotal or 0,
+                confirmed_price=request.confirmed_price,
+                currency=request.currency or "USD",
+                segments_count=len(segments),
+                total_days=total_days,
+            )
+        except Exception as e:
+            # 邮件发送失败不应阻塞主流程
+            import logging
+            logging.getLogger(__name__).warning(f"Failed to trigger custom tour email: {e}")
+
     return {
         "status": "ok",
         "id": str(request.id),

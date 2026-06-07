@@ -90,3 +90,51 @@ def send_review_notification(
         return False
     finally:
         loop.close()
+
+
+@shared_task(
+    name="app.tasks.email_tasks.send_custom_tour_notification",
+    max_retries=3,
+    default_retry_delay=30,
+)
+def send_custom_tour_notification(
+    user_email: str,
+    contact_name: str,
+    request_no: str,
+    pax_count: int,
+    subtotal: float,
+    confirmed_price: float | None,
+    currency: str,
+    segments_count: int,
+    total_days: int,
+) -> bool:
+    """异步发送定制旅程报价确认邮件给客户。"""
+    import asyncio
+    from app.services.email_service import send_email, render_custom_tour_notification
+
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        html = render_custom_tour_notification(
+            request_no=request_no,
+            contact_name=contact_name,
+            pax_count=pax_count,
+            subtotal=subtotal,
+            confirmed_price=confirmed_price,
+            currency=currency,
+            segments_count=segments_count,
+            total_days=total_days,
+        )
+        result = loop.run_until_complete(
+            send_email(
+                user_email,
+                f"Your Custom Tour Quote — {request_no}",
+                html,
+            )
+        )
+        return result
+    except Exception as e:
+        logger.error(f"Failed to send custom tour notification: {e}")
+        return False
+    finally:
+        loop.close()

@@ -301,7 +301,7 @@ export default function CustomTourPage() {
         <h1 className="text-3xl font-bold mb-4">{t('submitted')}</h1>
         <p className="text-muted-foreground mb-6 max-w-md mx-auto">{t('submittedDesc')}</p>
         <div className="flex justify-center gap-4">
-          <Button onClick={() => router.push(`/${locale}/user/orders`)}>{t('viewRequest')}</Button>
+          <Button onClick={() => router.push(`/${locale}/user/custom-requests`)}>{t('viewRequest')}</Button>
           <Link href={`/${locale}`}><Button variant="outline">{t('backToHome')}</Button></Link>
         </div>
       </div>

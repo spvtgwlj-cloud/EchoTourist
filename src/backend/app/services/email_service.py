@@ -102,3 +102,43 @@ def render_review_notification(
     </body>
     </html>
     """
+
+
+def render_custom_tour_notification(
+    request_no: str,
+    contact_name: str,
+    pax_count: int,
+    subtotal: float,
+    confirmed_price: float | None,
+    currency: str,
+    segments_count: int,
+    total_days: int,
+) -> str:
+    """生成定制旅程报价通知的 HTML 邮件内容（管理员确认价格后发送给客户）。"""
+    price_html = ""
+    if confirmed_price is not None:
+        currency_symbol = "$" if currency == "USD" else currency
+        price_html = f"""
+        <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Request</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{request_no}</strong></td></tr>
+            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Estimated Price</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{currency_symbol}{subtotal:.2f}</strong></td></tr>
+            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Confirmed Price</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong style="font-size: 18px; color: #16a34a;">{currency_symbol}{confirmed_price:.2f}</strong></td></tr>
+            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Travelers</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{pax_count}</strong></td></tr>
+            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Itinerary</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{segments_count} segment(s), {total_days} days</strong></td></tr>
+        </table>"""
+
+    return f"""
+    <html>
+    <body style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1>Your Custom Tour Quote is Ready!</h1>
+        <p>Dear {contact_name},</p>
+        <p>Great news! Our team has reviewed your custom tour request and the price has been confirmed.</p>
+        {price_html}
+        <p>You can view the full details of your custom itinerary by logging into your account.</p>
+        <p><a href="{settings.frontend_url}/user/custom-requests" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">View My Requests</a></p>
+        <p style="color: #666; font-size: 13px;">If you have any questions, please don't hesitate to contact us.</p>
+        <hr>
+        <p style="color: #666; font-size: 12px;">Echo Tours — Your Journey, Our Passion</p>
+    </body>
+    </html>
+    """
