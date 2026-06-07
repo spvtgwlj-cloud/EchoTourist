@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { TourCard } from '@/components/tours/TourCard';
 import { api } from '@/lib/api';
 import type { Tour } from '@/lib/types';
-import { Search, Shield, MapPin, HeadphonesIcon } from 'lucide-react';
+import { Search, Shield, MapPin, HeadphonesIcon, Compass } from 'lucide-react';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -69,8 +69,14 @@ export default async function HomePage({ params }: Props) {
               <Link href={`/${locale}/tours`}>
                 <Button size="xl">{t('cta')}</Button>
               </Link>
+              <Link href={`/${locale}/custom-tour`}>
+                <Button size="xl" variant="outline" className="gap-2">
+                  <Compass className="h-5 w-5" />
+                  {t('customizeTour')}
+                </Button>
+              </Link>
               <Link href={`/${locale}/tours`}>
-                <Button size="xl" variant="outline">
+                <Button size="xl" variant="secondary">
                   {commonT('viewAll')}
                 </Button>
               </Link>
@@ -166,6 +172,7 @@ export default async function HomePage({ params }: Props) {
           </Link>
         </div>
       </section>
+
     </div>
   );
 }

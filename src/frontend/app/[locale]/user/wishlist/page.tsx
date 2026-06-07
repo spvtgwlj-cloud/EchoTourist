@@ -69,6 +69,7 @@ export default function WishlistPage() {
                 duration_days: 0,
                 duration_nights: 0,
                 difficulty: 'easy',
+                theme: item.theme || 'citywalk',
                 images: item.tour_image ? [{ id: '', url: item.tour_image, alt_text: item.tour_name || '', sort_order: 0, type: 'image' }] : [],
                 min_pax: 1,
                 highlights: [],

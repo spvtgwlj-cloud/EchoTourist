@@ -29,6 +29,7 @@ interface TourDetail {
   duration_days: number; duration_nights: number;
   max_pax?: number; min_pax: number;
   start_price: number; currency: string; difficulty: string;
+  sort_order?: number;
   highlights: string[]; includes: string[]; excludes: string[];
   images: TourImage[];
   translations: TranslationData[];
@@ -80,6 +81,7 @@ export default function EditTourPage() {
   // ── 产品基础字段 ──────────────────────────────
   const [status, setStatus] = useState('draft');
   const [type, setType] = useState('group_tour');
+  const [sortOrder, setSortOrder] = useState(0);
   const [durationDays, setDurationDays] = useState(1);
   const [durationNights, setDurationNights] = useState(0);
   const [maxPax, setMaxPax] = useState(20);
@@ -87,6 +89,7 @@ export default function EditTourPage() {
   const [startPrice, setStartPrice] = useState(0);
   const [currency, setCurrency] = useState('USD');
   const [difficulty, setDifficulty] = useState('easy');
+  const [theme, setTheme] = useState('citywalk');
   const [images, setImages] = useState<TourImage[]>([]);
 
   // ── 多语言翻译数据 ────────────────────────────
@@ -129,9 +132,11 @@ export default function EditTourPage() {
       .then((data) => {
         setTour(data);
         setStatus(data.status); setType(data.type);
+        setSortOrder(data.sort_order ?? 0);
         setDurationDays(data.duration_days); setDurationNights(data.duration_nights);
         setMaxPax(data.max_pax || 20); setMinPax(data.min_pax || 1);
         setStartPrice(data.start_price); setCurrency(data.currency); setDifficulty(data.difficulty);
+        setTheme((data as any).theme || 'citywalk');
         setImages(data.images || []);
 
         // 构建多语言翻译映射
@@ -173,9 +178,10 @@ export default function EditTourPage() {
 
       await api.patch(`/admin/tours/${id}`, {
         status, type,
+        sort_order: sortOrder,
         duration_days: durationDays, duration_nights: durationNights,
         max_pax: maxPax, min_pax: minPax,
-        start_price: startPrice, currency, difficulty,
+        start_price: startPrice, currency, difficulty, theme,
         translations: allTranslations,
       });
       const fresh = await api.get<TourDetail>(`/admin/tours/${id}?locale=${pageLocale}`);
@@ -298,6 +304,11 @@ export default function EditTourPage() {
                 <option value="draft">Draft</option><option value="published">Published</option>
               </select>
             </div>
+            <div><label className="block text-sm font-medium mb-1">Sort Order</label>
+              <input type="number" min={0} step={1} value={sortOrder}
+                onChange={(e) => setSortOrder(Number(e.target.value))}
+                className="w-full border rounded-md px-3 py-2 text-sm" />
+            </div>
             <div><label className="block text-sm font-medium mb-1">Type</label>
               <select value={type} onChange={(e) => setType(e.target.value)} className="w-full border rounded-md px-3 py-2 text-sm">
                 <option value="group_tour">Group Tour</option><option value="private_tour">Private Tour</option>
@@ -306,6 +317,22 @@ export default function EditTourPage() {
             <div><label className="block text-sm font-medium mb-1">Difficulty</label>
               <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)} className="w-full border rounded-md px-3 py-2 text-sm">
                 <option value="easy">Easy</option><option value="moderate">Moderate</option><option value="challenging">Challenging</option>
+              </select>
+            </div>
+            <div><label className="block text-sm font-medium mb-1">Theme</label>
+              <select value={theme} onChange={(e) => setTheme(e.target.value)} className="w-full border rounded-md px-3 py-2 text-sm">
+                <option value="citywalk">City Walk</option>
+                <option value="culture_history">Culture & History</option>
+                <option value="nature">Nature & Scenery</option>
+                <option value="food">Food & Culinary</option>
+                <option value="honeymoon">Honeymoon & Romance</option>
+                <option value="family">Family</option>
+                <option value="luxury">Luxury</option>
+                <option value="adventure">Adventure</option>
+                <option value="photography">Photography</option>
+                <option value="wellness">Wellness & Spa</option>
+                <option value="hidden_gems">Hidden Gems</option>
+                <option value="festival">Festival & Events</option>
               </select>
             </div>
             <div><label className="block text-sm font-medium mb-1">Duration (Days)</label>

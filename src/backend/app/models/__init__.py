@@ -7,6 +7,16 @@ from app.models.wishlist import Wishlist
 from app.models.attraction_wishlist import AttractionWishlist
 from app.models.attraction_ticket import AttractionTicket
 from app.models.attraction import Attraction, AttractionTranslation
+from app.models.attraction_media import AttractionMedia
+from app.models.enquiry import Enquiry
+from app.models.custom_tour import (
+    BaseService,
+    CustomTourRequest,
+    CustomTourSegment,
+    CustomTourSegmentTour,
+    CustomTourAttraction,
+    CustomTourService,
+)
 
 __all__ = [
     "Tour",
@@ -24,4 +34,12 @@ __all__ = [
     "AttractionTicket",
     "Attraction",
     "AttractionTranslation",
+    "AttractionMedia",
+    "Enquiry",
+    "BaseService",
+    "CustomTourRequest",
+    "CustomTourSegment",
+    "CustomTourSegmentTour",
+    "CustomTourAttraction",
+    "CustomTourService",
 ]

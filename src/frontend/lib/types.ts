@@ -11,6 +11,8 @@ export interface Tour {
   max_pax?: number;
   min_pax: number;
   difficulty: string;
+  theme: string;
+  sort_order?: number;
   avg_rating: number;
   review_count: number;
   images: TourImage[];
@@ -123,4 +125,100 @@ export interface ApiResponse<T> {
   code: number;
   data: T;
   message: string;
+}
+
+// ── 自定制旅程 Types（支持多段行程）─────────────────────────
+
+export interface BaseService {
+  id: string;
+  name: string;
+  name_zh?: string;
+  name_es?: string;
+  name_fr?: string;
+  description?: string;
+  description_zh?: string;
+  description_es?: string;
+  description_fr?: string;
+  unit_type: 'per_day' | 'per_pax' | 'per_trip';
+  unit_price: number;
+  currency: string;
+  category?: string;
+  sort_order: number;
+  status: string;
+}
+
+export interface CustomTourServiceInput {
+  service_id: string;
+  quantity: number;
+}
+
+/** 一段行程的输入 */
+export interface CustomTourSegmentInput {
+  destination_id?: string;
+  custom_destination?: string;
+  start_date: string;
+  end_date: string;
+  attraction_ids: string[];
+  tour_ids: string[];
+}
+
+export interface CustomTourCreateRequest {
+  segments: CustomTourSegmentInput[];
+  pax_count: number;
+  guide_language?: string;
+  services: CustomTourServiceInput[];
+  contact_name: string;
+  contact_email: string;
+  contact_phone?: string;
+  special_requests?: string;
+  locale: string;
+}
+
+export interface CustomTourSegmentTour {
+  id: string;
+  tour_id: string;
+  tour_name: string;
+}
+
+export interface CustomTourSegmentItem {
+  id: string;
+  segment_order: number;
+  destination_id: string;
+  destination_name: string;
+  start_date: string;
+  end_date: string;
+  attractions: { id: string; attraction_id: string; attraction_name: string; sort_order: number }[];
+  selected_tours: CustomTourSegmentTour[];
+}
+
+export interface CustomTourServiceItem {
+  id: string;
+  service_id: string;
+  service_name: string;
+  unit_type: string;
+  quantity: number;
+  unit_price_snapshot: number;
+  subtotal: number;
+}
+
+export interface CustomTourRequest {
+  id: string;
+  request_no: string;
+  user_id?: string;
+  pax_count: number;
+  guide_language?: string;
+  contact_name: string;
+  contact_email: string;
+  contact_phone?: string;
+  special_requests?: string;
+  subtotal: number;
+  confirmed_price?: number;
+  currency: string;
+  status: string;
+  admin_notes?: string;
+  locale: string;
+  segments: CustomTourSegmentItem[];
+  services: CustomTourServiceItem[];
+  created_at: string;
+  updated_at: string;
 }

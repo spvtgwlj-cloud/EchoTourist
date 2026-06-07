@@ -4,15 +4,48 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.schemas.attraction import AttractionResponse, AttractionListResponse, AttractionTicketResponse
+from app.schemas.attraction import AttractionResponse, AttractionListResponse, AttractionTicketResponse, AttractionMediaResponse
 from app.crud.attraction import crud_attraction
 from app.crud.destination import crud_destination
 from app.core.exceptions import NotFoundException
 
-router = APIRouter(prefix="/destinations", tags=["attractions"])
+router = APIRouter(prefix="", tags=["attractions"])
 
 
-@router.get("/{slug}/attractions", response_model=AttractionListResponse)
+@router.get("/attractions", response_model=AttractionListResponse)
+async def list_all_attractions(
+    locale: str = Query("en"),
+    destination_id: str | None = Query(None),
+    db: AsyncSession = Depends(get_db),
+):
+    """获取所有活跃景点列表（不限于特定目的地）。"""
+    items = await crud_attraction.get_all_active(db, locale, destination_id=destination_id)
+    attractions = [
+        AttractionResponse(
+            id=item["id"],
+            slug=item["slug"],
+            destination_id=item["destination_id"],
+            name=item["name"],
+            description=item["description"],
+            image_url=item["image_url"],
+            sort_order=item["sort_order"],
+            rating=item["rating"],
+            ticket_price=item.get("ticket_price", 0),
+            ticket_currency=item.get("ticket_currency", "USD"),
+            tickets=[
+                AttractionTicketResponse(**t) for t in item.get("tickets", [])
+            ],
+            media=[
+                AttractionMediaResponse(**m) for m in item.get("media", [])
+            ],
+            locale=locale,
+        )
+        for item in items
+    ]
+    return AttractionListResponse(attractions=attractions)
+
+
+@router.get("/destinations/{slug}/attractions", response_model=AttractionListResponse)
 async def list_attractions(
     slug: str,
     locale: str = Query("en"),
@@ -39,6 +72,9 @@ async def list_attractions(
             ticket_currency=item.get("ticket_currency", "USD"),
             tickets=[
                 AttractionTicketResponse(**t) for t in item.get("tickets", [])
+            ],
+            media=[
+                AttractionMediaResponse(**m) for m in item.get("media", [])
             ],
             locale=locale,
         )

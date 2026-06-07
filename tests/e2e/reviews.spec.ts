@@ -117,7 +117,7 @@ test.describe('⭐ 评价提交与显示流程', () => {
 
 test.describe('⭐ 评价显示组件验证', () => {
   test('旅游产品详情页显示评价区域', async ({ page }) => {
-    await page.goto('/zh/tours/forbidden-city-royal-walk');
+    await page.goto('/zh/tours/mutianyu-great-wall-premium');
     await page.waitForLoadState('networkidle');
 
     const bodyText = await page.locator('body').innerText();
@@ -155,7 +155,7 @@ test.describe('⭐ 评价显示组件验证', () => {
 
   test('产品详情页有 WishlistButton（❤️ 收藏按钮）', async ({ page }) => {
     // 验证 WishlistButton 已成功集成到 TourDetailClient
-    for (const slug of ['forbidden-city-royal-walk', 'great-wall-badaling-hike']) {
+    for (const slug of ['mutianyu-great-wall-premium', 'temple-of-heaven-cultural']) {
       await page.goto(`/zh/tours/${slug}`);
       await page.waitForLoadState('networkidle');
 

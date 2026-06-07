@@ -8,6 +8,7 @@
 
 import uuid
 import asyncio
+import redis as sync_redis
 from datetime import datetime, date, timedelta, timezone
 from typing import AsyncGenerator
 
@@ -89,6 +90,7 @@ async def auto_cleanup():
     重置内容：
     - 团期库存 → 15（种子数据基线值）
     - 删除所有订单 / 订单乘客 / 评价 / 收藏
+    - 清空 Redis 缓存（避免跨测试的过期 tour list 缓存）
 
     不受影响的数据：tours, users, destinations（种子数据）。
     """
@@ -107,6 +109,18 @@ async def auto_cleanup():
             await conn.commit()
     finally:
         await engine.dispose()
+
+    # 清空 Redis 缓存，防止 @cache_result 返回过期数据干扰测试
+    # 注意：使用同步 Redis 客户端避免 async event loop 生命周期问题
+    try:
+        sr = sync_redis.from_url(settings.redis_url)
+        keys = sr.keys("cache:*")
+        if keys:
+            sr.delete(*keys)
+        sr.close()
+    except Exception as e:
+        print(f"[auto_cleanup] Redis cache clear failed: {e}")
+
     yield
 
 
@@ -173,6 +187,7 @@ async def test_tour(db_session: AsyncSession) -> Tour:
         start_price=1200.00,
         currency="USD",
         difficulty="moderate",
+        theme="adventure",
         highlights=["Mountain hiking", "Cultural experience"],
         includes=["Hotel", "Guide"],
         excludes=["Flights"],

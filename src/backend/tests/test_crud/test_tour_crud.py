@@ -139,6 +139,105 @@ class TestTourCRUD:
         # tour_translations 应为 selectinload eager loaded
         assert hasattr(tour, "tour_translations")
 
+    async def test_create_tour_sort_order(self, db_session: AsyncSession):
+        """功能测试：创建旅游产品时指定 sort_order。"""
+        tour_id = uuid.uuid4()
+        tour = await crud_tour.create(
+            db_session,
+            id=tour_id,
+            slug="sort-order-test-tour",
+            status="draft",
+            type="private_tour",
+            duration_days=3,
+            duration_nights=2,
+            max_pax=4,
+            start_price=500.00,
+            currency="USD",
+            sort_order=10,
+        )
+        assert tour.sort_order == 10
+
+        # 默认值为 0
+        tour2_id = uuid.uuid4()
+        tour2 = await crud_tour.create(
+            db_session,
+            id=tour2_id,
+            slug="sort-order-default-tour",
+            status="draft",
+            type="group_tour",
+            duration_days=2,
+            duration_nights=1,
+            max_pax=8,
+            start_price=300.00,
+            currency="USD",
+        )
+        assert tour2.sort_order == 0
+
+    async def test_tour_get_published_ordered_by_sort_order(
+        self, db_session: AsyncSession, test_tour: Tour
+    ):
+        """功能测试：get_published 按 sort_order ASC 排序。"""
+        # test_tour 的 sort_order 为 0（默认），再创建两个 tour 分别设置 sort_order
+        from datetime import datetime, timezone
+
+        tour_high = await crud_tour.create(
+            db_session,
+            id=uuid.uuid4(),
+            slug=f"high-priority-{uuid.uuid4().hex[:4]}",
+            status="published",
+            type="group_tour",
+            duration_days=3,
+            duration_nights=2,
+            max_pax=4,
+            start_price=500.00,
+            currency="USD",
+            sort_order=1,
+            avg_rating=4.0,
+            review_count=5,
+            published_at=datetime.now(timezone.utc),
+        )
+        tour_low = await crud_tour.create(
+            db_session,
+            id=uuid.uuid4(),
+            slug=f"low-priority-{uuid.uuid4().hex[:4]}",
+            status="published",
+            type="group_tour",
+            duration_days=3,
+            duration_nights=2,
+            max_pax=4,
+            start_price=400.00,
+            currency="USD",
+            sort_order=5,
+            avg_rating=3.0,
+            review_count=3,
+            published_at=datetime.now(timezone.utc),
+        )
+        await db_session.flush()
+
+        tours, total = await crud_tour.get_published(db_session, locale="en")
+        assert total >= 3
+
+        # 收集所有 tour 的 sort_order
+        tour_orders = [(t.id, t.sort_order or 0) for t in tours]
+        # 验证排序：sort_order 应升序排列
+        orders_only = [o[1] for o in tour_orders if o[0] in (tour_high.id, tour_low.id, test_tour.id)]
+        assert orders_only == sorted(orders_only), (
+            f"Expected sort_order ascending, got: {orders_only}"
+        )
+
+    async def test_update_tour_sort_order(self, db_session: AsyncSession, test_tour: Tour):
+        """功能测试：更新产品的 sort_order。"""
+        updated = await crud_tour.update(
+            db_session,
+            db_obj=test_tour,
+            update_data={"sort_order": 99},
+        )
+        assert updated.sort_order == 99
+
+        # 再次确认从数据库读取的值
+        fetched = await crud_tour.get(db_session, test_tour.id)
+        assert fetched.sort_order == 99
+
     async def test_soft_delete(self, db_session: AsyncSession, test_tour: Tour):
         """功能测试：软删除（标记 deleted_at）。"""
         now = datetime.now(timezone.utc)

@@ -101,6 +101,7 @@ class TourService:
             max_pax=tour.max_pax,
             min_pax=tour.min_pax or 1,
             difficulty=tour.difficulty or "easy",
+            theme=tour.theme or "citywalk",
             sort_order=tour.sort_order or 0,
             serial_number=tour.serial_number,
             area_code=area_code,
@@ -125,6 +126,7 @@ class TourService:
         page: int = 1,
         page_size: int = 12,
         difficulty: Optional[str] = None,
+        theme: Optional[str] = None,
         destination_id: Optional[UUID] = None,
     ) -> TourListResponse:
         skip = (page - 1) * page_size
@@ -134,6 +136,7 @@ class TourService:
             skip=skip,
             limit=page_size,
             difficulty=difficulty,
+            theme=theme,
             destination_id=destination_id,
         )
         tour_responses = [await self._build_response(t, locale, db) for t in tours]

@@ -8,6 +8,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.crud.attraction import crud_attraction
 from app.models.attraction import Attraction, AttractionTranslation
+from app.models.attraction_media import AttractionMedia
 from app.models.destination import Destination
 
 
@@ -153,3 +154,80 @@ class TestAttractionCRUD:
                 id=uuid.uuid4(), slug=slug, destination_id=dest.id, rating=5,
             ))
             await db_session.flush()
+
+    async def test_create_attraction_media(self, db_session: AsyncSession):
+        """功能测试：创建景点媒体资源。"""
+        dest = await self._create_destination(db_session)
+        aid = uuid.uuid4()
+        db_session.add(Attraction(
+            id=aid, slug=f"media-test-{uuid.uuid4().hex[:4]}",
+            destination_id=dest.id, rating=4,
+        ))
+        await db_session.flush()
+
+        # 添加 3 个媒体记录
+        for i in range(3):
+            db_session.add(AttractionMedia(
+                id=uuid.uuid4(), attraction_id=aid,
+                url=f"https://example.com/media/{i}.jpg",
+                media_type="image", alt_text=f"Photo {i}",
+                sort_order=i,
+            ))
+        await db_session.flush()
+
+        result = await db_session.execute(
+            select(AttractionMedia).where(AttractionMedia.attraction_id == aid)
+            .order_by(AttractionMedia.sort_order)
+        )
+        media_list = result.scalars().all()
+        assert len(media_list) == 3
+        assert media_list[0].sort_order == 0
+        assert media_list[2].url.endswith("2.jpg")
+
+    async def test_get_by_destination_includes_media(self, db_session: AsyncSession):
+        """功能测试：get_by_destination 返回结果包含 media 数据。"""
+        dest = await self._create_destination(db_session)
+        aid = uuid.uuid4()
+        db_session.add(Attraction(
+            id=aid, slug=f"media-dest-{uuid.uuid4().hex[:4]}",
+            destination_id=dest.id, rating=4, status="active",
+        ))
+        await db_session.flush()
+        for i in range(2):
+            db_session.add(AttractionMedia(
+                id=uuid.uuid4(), attraction_id=aid,
+                url=f"https://example.com/m/{i}.jpg",
+                media_type="image", sort_order=i,
+            ))
+        await db_session.flush()
+
+        items = await crud_attraction.get_by_destination(db_session, dest.id)
+        assert len(items) == 1
+        result = items[0]
+        assert "media" in result
+        assert len(result["media"]) == 2
+        assert result["media"][0]["url"].endswith("0.jpg")
+        assert result["media"][1]["sort_order"] == 1
+
+    async def test_get_by_slug_includes_media(self, db_session: AsyncSession):
+        """功能测试：get_by_slug 返回结果包含 media 数据。"""
+        dest = await self._create_destination(db_session)
+        slug = f"media-slug-{uuid.uuid4().hex[:4]}"
+        aid = uuid.uuid4()
+        db_session.add(Attraction(
+            id=aid, slug=slug,
+            destination_id=dest.id, rating=5, status="active",
+        ))
+        await db_session.flush()
+        db_session.add(AttractionMedia(
+            id=uuid.uuid4(), attraction_id=aid,
+            url="https://example.com/hero.jpg",
+            media_type="image", sort_order=0,
+        ))
+        await db_session.flush()
+
+        result = await crud_attraction.get_by_slug(db_session, slug)
+        assert result is not None
+        assert "media" in result
+        assert len(result["media"]) == 1
+        assert result["media"][0]["url"] == "https://example.com/hero.jpg"

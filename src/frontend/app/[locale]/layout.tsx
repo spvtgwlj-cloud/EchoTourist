@@ -4,6 +4,7 @@ import { getMessages, getTranslations } from 'next-intl/server';
 import { Inter } from 'next/font/google';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { InquiryForm } from '@/components/enquiry/InquiryForm';
 import { Toaster } from 'sonner';
 import '../globals.css';
 
@@ -34,6 +35,7 @@ export default async function LocaleLayout({ children, params }: Props) {
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />
+          <InquiryForm />
           <Toaster position="top-center" richColors />
         </NextIntlClientProvider>
       </body>

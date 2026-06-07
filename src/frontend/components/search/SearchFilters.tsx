@@ -6,13 +6,29 @@ import { X } from 'lucide-react';
 
 interface SearchFiltersProps {
   difficulty: string;
+  theme: string;
   sortBy: string;
   onDifficultyChange: (d: string) => void;
+  onThemeChange: (t: string) => void;
   onSortByChange: (s: string) => void;
   onClear: () => void;
 }
 
 const difficulties = ['easy', 'moderate', 'challenging'];
+const themeOptions = [
+  { value: 'citywalk', labelKey: 'themes.citywalk' },
+  { value: 'culture_history', labelKey: 'themes.culture_history' },
+  { value: 'nature', labelKey: 'themes.nature' },
+  { value: 'food', labelKey: 'themes.food' },
+  { value: 'honeymoon', labelKey: 'themes.honeymoon' },
+  { value: 'family', labelKey: 'themes.family' },
+  { value: 'adventure', labelKey: 'themes.adventure' },
+  { value: 'photography', labelKey: 'themes.photography' },
+  { value: 'luxury', labelKey: 'themes.luxury' },
+  { value: 'wellness', labelKey: 'themes.wellness' },
+  { value: 'hidden_gems', labelKey: 'themes.hidden_gems' },
+  { value: 'festival', labelKey: 'themes.festival' },
+];
 const sortOptions = [
   { value: 'rating', key: 'rating' },
   { value: 'price_asc', key: 'priceLowToHigh' },
@@ -21,11 +37,12 @@ const sortOptions = [
 ];
 
 export function SearchFilters({
-  difficulty, sortBy, onDifficultyChange, onSortByChange, onClear,
+  difficulty, theme, sortBy,
+  onDifficultyChange, onThemeChange, onSortByChange, onClear,
 }: SearchFiltersProps) {
   const t = useTranslations('search');
   const tt = useTranslations('tour');
-  const hasFilters = difficulty || sortBy !== 'rating';
+  const hasFilters = difficulty || theme || sortBy !== 'rating';
 
   const difficultyLabels: Record<string, string> = {
     easy: tt('difficultyEasy'),
@@ -49,7 +66,7 @@ export function SearchFilters({
       </select>
 
       {/* Difficulty */}
-      <div className="flex gap-1">
+      <div className="flex gap-1 flex-wrap">
         {difficulties.map((d) => (
           <button
             key={d}
@@ -64,6 +81,20 @@ export function SearchFilters({
           </button>
         ))}
       </div>
+
+      {/* Theme */}
+      <select
+        value={theme}
+        onChange={(e) => onThemeChange(e.target.value)}
+        className="rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+      >
+        <option value="">{tt('theme')}</option>
+        {themeOptions.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {tt(opt.labelKey as any)}
+          </option>
+        ))}
+      </select>
 
       {hasFilters && (
         <Button variant="ghost" size="sm" onClick={onClear}>

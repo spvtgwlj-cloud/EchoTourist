@@ -3,16 +3,20 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api';
 import { TourCard } from '@/components/tours/TourCard';
-import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
-import { WishlistButton } from '@/components/user/WishlistButton';
+import AttractionsGridClient from '@/components/attractions/AttractionsGridClient';
 import type { Tour } from '@/lib/types';
-import { ChevronLeft, MapPin } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
 interface DestinationDetail {
   id: string; slug: string; name: string; description?: string;
   image_url?: string; tour_count: number;
+}
+
+interface AttractionMediaItem {
+  id: string; url: string; media_type: string;
+  alt_text?: string; sort_order: number;
 }
 
 interface AttractionTicket {
@@ -26,6 +30,7 @@ interface Attraction {
   ticket_price: number;
   ticket_currency: string;
   tickets: AttractionTicket[];
+  media: AttractionMediaItem[];
 }
 
 async function getDestination(locale: string, slug: string): Promise<DestinationDetail | null> {
@@ -77,68 +82,15 @@ export default async function DestinationDetailPage({ params }: Props) {
         <p className="mt-1 text-sm text-muted-foreground">{dest.tour_count} {t('tours')}</p>
       </div>
 
-      {/* Attractions Grid */}
+      {/* Attractions Grid — now uses client component with More Information modal */}
       {attractions.length > 0 && (
         <section className="mb-12">
           <h2 className="text-2xl font-bold mb-6">{t('attractions')}</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-            {attractions.map((attr) => {
-              const firstTicket = attr.ticket_price > 0 && attr.tickets && attr.tickets.length > 0
-                ? attr.tickets[0] : null;
-              return (
-              <div
-                key={attr.id}
-                className="group relative aspect-[4/3] overflow-hidden rounded-xl bg-gray-100"
-              >
-                {attr.image_url ? (
-                  <ImageWithFallback
-                    src={attr.image_url}
-                    alt={attr.name}
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center text-muted-foreground">
-                    <MapPin className="h-10 w-10" />
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                {/* Wishlist Button */}
-                <div className="absolute top-2 right-2 z-10">
-                  <WishlistButton
-                    itemId={attr.id}
-                    itemType="attraction"
-                    className="text-white/80 hover:text-red-400"
-                  />
-                </div>
-                <div className="absolute bottom-0 left-0 right-0 p-3 z-10">
-                  <h3 className="text-sm font-semibold text-white leading-tight">{attr.name}</h3>
-                  <div className="mt-1 flex items-center justify-between">
-                    <div className="flex items-center gap-1">
-                      {attr.rating > 0 && (
-                        <span className="text-yellow-400 text-xs">{'⭐'.repeat(attr.rating)}</span>
-                      )}
-                    </div>
-                    {attr.ticket_price > 0 && (
-                      <span className="text-xs font-semibold text-yellow-300">
-                        From ${attr.ticket_price}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                {/* Book Now Button */}
-                {firstTicket && (
-                  <Link
-                    href={`/${locale}/checkout?attraction_id=${attr.id}&ticket_id=${firstTicket.id}&name=${encodeURIComponent(attr.name)}&price=${firstTicket.price}&currency=${firstTicket.currency}&ticket_type=${firstTicket.ticket_type}`}
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20
-                      px-4 py-2 rounded-lg bg-white/90 text-sm font-semibold text-gray-900
-                      opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white shadow-lg"
-                  >
-                    Book Now
-                  </Link>
-                )}
-              </div>
-            )})}
-          </div>
+          <AttractionsGridClient
+            attractions={attractions}
+            locale={locale}
+            moreInfoLabel={ct('moreInformation')}
+          />
         </section>
       )}
 

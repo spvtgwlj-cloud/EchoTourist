@@ -42,8 +42,10 @@ class TestSearchQuery:
                             "avg_rating": 4.0,
                             "review_count": 10,
                             "difficulty": "easy",
+                            "theme": "citywalk",
                             "highlights": "Hiking",
                             "subtitle": "Fun trip",
+                            "sort_order": 3,
                         }
                     }
                 ],
@@ -138,6 +140,29 @@ class TestSearchQuery:
         body = call_args[1]["body"]
         # 不应抛出异常
         assert body is not None
+
+    @pytest.mark.asyncio
+    async def test_search_sort_by_sort_order(self):
+        """功能测试：按 sort_order 排序。"""
+        mock_es = AsyncMock()
+        mock_es.search.return_value = {
+            "hits": {"hits": [], "total": {"value": 0}},
+            "aggregations": {},
+        }
+
+        await search_tours(mock_es, sort_by="sort_order", locale="en")
+        call_args = mock_es.search.call_args
+        body = call_args[1]["body"]
+        # 验证排序字段包含 sort_order
+        sort = body["sort"]
+        if isinstance(sort, list):
+            assert any("sort_order" in s for s in sort), (
+                f"Expected sort_order in sort criteria, got: {sort}"
+            )
+        else:
+            assert "sort_order" in str(sort), (
+                f"Expected sort_order in sort criteria, got: {sort}"
+            )
 
     @pytest.mark.asyncio
     async def test_search_large_page_size_clamped(self):

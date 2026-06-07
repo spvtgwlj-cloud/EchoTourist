@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
-import { Menu, X, Globe, ChevronDown, Search, Heart, User, LogOut } from 'lucide-react';
+import { Menu, X, Globe, ChevronDown, Search, Heart, User, LogOut, Phone } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/stores/auth-store';
 
@@ -31,6 +31,7 @@ export function Header() {
   const navLinks = [
     { href: `/${locale}`, label: t('home') },
     { href: `/${locale}/tours`, label: t('tours') },
+    { href: `/${locale}/custom-tour`, label: t('customTour') || 'Custom Tour' },
     { href: `/${locale}/destinations`, label: t('destinations') },
     { href: `/${locale}/search`, label: t('search') || 'Search' },
   ];
@@ -70,6 +71,12 @@ export function Header() {
             </Link>
           ))}
         </nav>
+
+        {/* 24/7 Phone */}
+        <a href="tel:+861088888888" className="hidden md:flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary mr-3">
+          <Phone className="h-3.5 w-3.5" />
+          <span>+86 10-8888-8888</span>
+        </a>
 
         <div className="hidden md:flex items-center space-x-3">
           {/* Language Switcher */}

@@ -46,6 +46,7 @@ class TourResponse(BaseModel):
     max_pax: Optional[int] = None
     min_pax: int
     difficulty: str
+    theme: str = "citywalk"
     sort_order: int = 0
     serial_number: Optional[str] = None
     area_code: Optional[str] = None

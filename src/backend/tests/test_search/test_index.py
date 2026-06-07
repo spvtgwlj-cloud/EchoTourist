@@ -31,7 +31,7 @@ class TestIndexDefinition:
         """功能测试：映射包含必要的核心字段。"""
         props = INDEX_MAPPING["mappings"]["properties"]
         for field in ["id", "slug", "name", "description", "duration_days",
-                       "start_price", "difficulty", "locale", "status"]:
+                       "start_price", "difficulty", "locale", "status", "sort_order"]:
             assert field in props, f"Missing field: {field}"
 
     def test_index_mapping_name_is_text(self):
@@ -130,11 +130,13 @@ class TestIndexOperations:
         mock_tour.avg_rating = 4.5
         mock_tour.review_count = 10
         mock_tour.difficulty = "moderate"
+        mock_tour.theme = "adventure"
         mock_tour.max_pax = 20
         mock_tour.destination_ids = ["uuid-1", "uuid-2"]
         mock_tour.highlights = ["Hiking", "Culture"]
         mock_tour.published_at = None
         mock_tour.created_at = None
+        mock_tour.sort_order = 5
 
         mock_translation = MagicMock()
         mock_translation.locale = "en"
@@ -151,6 +153,7 @@ class TestIndexOperations:
         doc = kwargs["document"]
         assert doc["name"] == "Test Tour"
         assert doc["locale"] == "en"
+        assert doc["sort_order"] == 5
 
 
 class TestBulkIndex:

@@ -49,6 +49,7 @@ class CRUDTour(CRUDBase[Tour]):
         skip: int = 0,
         limit: int = 12,
         difficulty: Optional[str] = None,
+        theme: Optional[str] = None,
         destination_id: Optional[UUID] = None,
     ) -> tuple[list[Tour], int]:
         query = (
@@ -63,6 +64,9 @@ class CRUDTour(CRUDBase[Tour]):
         if difficulty:
             query = query.where(Tour.difficulty == difficulty)
 
+        if theme:
+            query = query.where(Tour.theme == theme)
+
         if destination_id:
             query = query.where(Tour.destination_ids.any(destination_id))
 
@@ -70,7 +74,7 @@ class CRUDTour(CRUDBase[Tour]):
         total_result = await db.execute(count_query)
         total = total_result.scalar() or 0
 
-        query = query.order_by(Tour.avg_rating.desc().nullslast())
+        query = query.order_by(Tour.sort_order.asc().nullslast(), Tour.avg_rating.desc().nullslast())
         query = query.offset(skip).limit(limit)
         result = await db.execute(query)
         return list(result.scalars().all()), total

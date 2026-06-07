@@ -79,8 +79,8 @@ test.describe('🛒 预订流程 — 完整业务闭环', () => {
   });
 
   test('产品详情页有预订按钮', async ({ page }) => {
-    const tours = ['xian-terracotta-warriors-2day', 'great-wall-badaling-hike',
-      'forbidden-city-royal-walk', 'beijing-essence-3-day'];
+    const tours = ['nanjing-historical-essence', 'mutianyu-great-wall-premium',
+      'temple-of-heaven-cultural', 'beijing-essence-5-day'];
 
     for (const slug of tours) {
       await page.goto(`/zh/tours/${slug}`);
@@ -108,7 +108,7 @@ test.describe('🛒 预订流程 — 完整业务闭环', () => {
 
   test('产品详情页预订按钮可交互', async ({ page }) => {
     // 从产品详情尝试寻找预订入口
-    await page.goto('/zh/tours/forbidden-city-royal-walk');
+    await page.goto('/zh/tours/mutianyu-great-wall-premium');
     await page.waitForLoadState('networkidle');
 
     const bookBtn = page.locator('button:has-text("Book"), button:has-text("预订"), a:has-text("Book"), a:has-text("预订")').first();

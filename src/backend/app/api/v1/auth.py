@@ -33,6 +33,19 @@ async def get_current_user(
     return user
 
 
+async def get_current_user_optional(
+    credentials: HTTPAuthorizationCredentials | None = Depends(HTTPBearer(auto_error=False)),
+    db: AsyncSession = Depends(get_db),
+) -> User | None:
+    """可选的用户认证 — 未提供 token 时返回 None。"""
+    if not credentials:
+        return None
+    try:
+        return await get_current_user(credentials, db)
+    except HTTPException:
+        return None
+
+
 @router.post("/register", response_model=AuthResponse)
 async def register(req: RegisterRequest, db: AsyncSession = Depends(get_db)):
     return await auth_service.register(

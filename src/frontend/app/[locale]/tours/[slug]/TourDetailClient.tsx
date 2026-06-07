@@ -84,6 +84,11 @@ export function TourDetailClient({ tour, dates, locale }: TourDetailClientProps)
                   <Badge variant="secondary">
                     {tour.difficulty === 'easy' ? t('difficultyEasy') : tour.difficulty === 'moderate' ? t('difficultyModerate') : t('difficultyChallenging')}
                   </Badge>
+                  {tour.theme && (
+                    <Badge variant="default" className="bg-amber-600 hover:bg-amber-700">
+                      {t(`themes.${tour.theme}` as any)}
+                    </Badge>
+                  )}
                   <Badge variant="outline">{tour.category_name}</Badge>
                 </div>
                 <h1 className="text-3xl font-bold">{tour.name}</h1>

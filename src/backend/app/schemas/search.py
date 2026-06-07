@@ -18,9 +18,11 @@ class SearchTourItem(BaseModel):
     duration_nights: int = 0
     start_price: float
     currency: str = "USD"
+    sort_order: int = 0
     avg_rating: float = 0
     review_count: int = 0
     difficulty: str = "easy"
+    theme: str = "citywalk"
     max_pax: Optional[int] = None
     highlights: str = ""
     images: list[SearchImageItem] = []

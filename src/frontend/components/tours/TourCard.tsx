@@ -4,7 +4,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Star, Clock, Users } from 'lucide-react';
+import { Star, Clock, Users, MapPin } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
 import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
 import { WishlistButton } from '@/components/user/WishlistButton';
@@ -14,9 +14,27 @@ interface TourCardProps {
   tour: Tour;
 }
 
+/** 主题 → 颜色映射，覆盖主流分类并兼顾年轻人审美 */
+const THEME_COLORS: Record<string, string> = {
+  citywalk: 'bg-rose-500 hover:bg-rose-600',
+  culture_history: 'bg-amber-600 hover:bg-amber-700',
+  nature: 'bg-emerald-600 hover:bg-emerald-700',
+  food: 'bg-orange-500 hover:bg-orange-600',
+  honeymoon: 'bg-pink-500 hover:bg-pink-600',
+  family: 'bg-sky-500 hover:bg-sky-600',
+  luxury: 'bg-purple-600 hover:bg-purple-700',
+  adventure: 'bg-red-600 hover:bg-red-700',
+  photography: 'bg-indigo-500 hover:bg-indigo-600',
+  wellness: 'bg-teal-500 hover:bg-teal-600',
+  hidden_gems: 'bg-violet-500 hover:bg-violet-600',
+  festival: 'bg-fuchsia-500 hover:bg-fuchsia-600',
+};
+
 export function TourCard({ tour }: TourCardProps) {
   const t = useTranslations('tour');
   const locale = useLocale();
+  const themeLabel = t(`themes.${tour.theme}` as any);
+  const themeColor = THEME_COLORS[tour.theme] || 'bg-gray-500';
 
   return (
     <Link href={`/${locale}/tours/${tour.slug}`}>
@@ -30,15 +48,21 @@ export function TourCard({ tour }: TourCardProps) {
             />
           ) : (
             <div className="flex h-full items-center justify-center text-muted-foreground">
-              <Clock className="h-12 w-12" />
+              <MapPin className="h-12 w-12" />
             </div>
           )}
-          {tour.avg_rating > 0 && (
-            <div className="absolute top-3 left-3 flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-sm font-medium">
-              <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
-              {tour.avg_rating.toFixed(1)}
-            </div>
-          )}
+          {/* 主题标签 — 最佳位置：图片左上角，与评分同排 */}
+          <div className="absolute top-3 left-3 flex items-center gap-2">
+            <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold text-white shadow-sm ${themeColor}`}>
+              {themeLabel || tour.theme}
+            </span>
+            {tour.avg_rating > 0 && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium shadow-sm">
+                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                {tour.avg_rating.toFixed(1)}
+              </span>
+            )}
+          </div>
           <div className="absolute top-3 right-3">
             <WishlistButton tourId={tour.id} />
           </div>

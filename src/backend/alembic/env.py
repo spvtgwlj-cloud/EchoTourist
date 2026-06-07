@@ -11,7 +11,8 @@ from app.models import (
     User, Order, OrderPassenger,
     Review, Destination, DestinationTranslation, Wishlist,
     AttractionWishlist, AttractionTicket,
-    Attraction, AttractionTranslation,
+    Attraction, AttractionTranslation, AttractionMedia,
+    BaseService, CustomTourRequest, CustomTourSegment, CustomTourSegmentTour, CustomTourAttraction, CustomTourService,
 )
 
 config = context.config

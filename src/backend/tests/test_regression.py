@@ -189,13 +189,20 @@ class TestRegressionTourModule:
 
         验证：翻译更新后对应语言的 API 请求正常返回，数据结构完整。
         """
-        # 找一个有翻译的产品
+        # 找一个有翻译且未被软删除的已发布产品
         result = await db_session.execute(
-            select(TourTranslation).where(TourTranslation.locale == "en").limit(1)
+            select(TourTranslation)
+            .join(Tour, TourTranslation.tour_id == Tour.id)
+            .where(
+                TourTranslation.locale == "en",
+                Tour.deleted_at.is_(None),
+                Tour.status == "published",
+            )
+            .limit(1)
         )
         trans = result.scalar_one_or_none()
         if not trans:
-            pytest.skip("No English translation found")
+            pytest.skip("No published English tour found")
 
         # 验证 API 可正常返回该产品
         resp = await api_client.get(

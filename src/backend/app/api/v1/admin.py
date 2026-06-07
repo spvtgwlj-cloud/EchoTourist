@@ -72,6 +72,7 @@ class TourCreateRequest(BaseModel):
     start_price: float = 0
     currency: str = "USD"
     difficulty: str = "easy"
+    theme: str = "citywalk"
     highlights: list[str] = []
     includes: list[str] = []
     excludes: list[str] = []
@@ -209,6 +210,7 @@ async def admin_create_tour(
         start_price=body.start_price,
         currency=body.currency,
         difficulty=body.difficulty,
+        theme=body.theme or "citywalk",
         highlights=body.highlights or [],
         includes=body.includes or [],
         excludes=body.excludes or [],
@@ -477,6 +479,7 @@ class TourFullUpdateRequest(BaseModel):
     start_price: Optional[float] = None
     currency: Optional[str] = None
     difficulty: Optional[str] = None
+    theme: Optional[str] = None
     highlights: Optional[list[str]] = None
     includes: Optional[list[str]] = None
     excludes: Optional[list[str]] = None
@@ -1871,3 +1874,109 @@ async def admin_update_custom_tour_request(
         "new_status": request.status,
         "confirmed_price": request.confirmed_price,
     }
+
+
+# ============================================================
+# Enquiries Management
+# ============================================================
+
+
+@router.get("/enquiries")
+async def admin_list_enquiries(
+    status: str | None = Query(None),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    admin: User = Depends(get_current_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """管理员：查询咨询列表。"""
+    from app.models.enquiry import Enquiry
+
+    filters = {}
+    if status:
+        filters["status"] = status
+    skip = (page - 1) * page_size
+    query = select(Enquiry)
+    if status:
+        query = query.where(Enquiry.status == status)
+    query = query.order_by(Enquiry.created_at.desc()).offset(skip).limit(page_size)
+    result = await db.execute(query)
+    enquiries = list(result.scalars().all())
+    count_query = select(func.count()).select_from(Enquiry)
+    if status:
+        count_query = count_query.where(Enquiry.status == status)
+    total = (await db.execute(count_query)).scalar() or 0
+    return {
+        "enquiries": [{"id": str(e.id), "name": e.name, "email": e.email, "phone": e.phone, "destination": e.destination, "pax_count": e.pax_count, "message": e.message, "status": e.status, "admin_notes": e.admin_notes, "created_at": e.created_at.isoformat()} for e in enquiries],
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+    }
+
+
+@router.get("/enquiries/{enquiry_id}")
+async def admin_get_enquiry(
+    enquiry_id: uuid.UUID,
+    admin: User = Depends(get_current_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """管理员：获取咨询详情。"""
+    from app.models.enquiry import Enquiry
+
+    result = await db.execute(select(Enquiry).where(Enquiry.id == enquiry_id))
+    enquiry = result.scalar_one_or_none()
+    if not enquiry:
+        raise NotFoundException(detail="Enquiry not found")
+    return {
+        "id": str(enquiry.id),
+        "name": enquiry.name,
+        "email": enquiry.email,
+        "phone": enquiry.phone,
+        "destination": enquiry.destination,
+        "pax_count": enquiry.pax_count,
+        "message": enquiry.message,
+        "status": enquiry.status,
+        "admin_notes": enquiry.admin_notes,
+        "created_at": enquiry.created_at.isoformat(),
+        "updated_at": enquiry.updated_at.isoformat() if enquiry.updated_at else None,
+    }
+
+
+@router.patch("/enquiries/{enquiry_id}")
+async def admin_update_enquiry(
+    enquiry_id: uuid.UUID,
+    body: dict,
+    admin: User = Depends(get_current_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """管理员：更新咨询状态/备注。"""
+    from app.models.enquiry import Enquiry
+
+    result = await db.execute(select(Enquiry).where(Enquiry.id == enquiry_id))
+    enquiry = result.scalar_one_or_none()
+    if not enquiry:
+        raise NotFoundException(detail="Enquiry not found")
+    allowed = {"status", "admin_notes"}
+    for field in allowed:
+        if field in body and body[field] is not None:
+            setattr(enquiry, field, body[field])
+    await db.flush()
+    return {"status": "ok", "id": str(enquiry.id)}
+
+
+@router.delete("/enquiries/{enquiry_id}")
+async def admin_delete_enquiry(
+    enquiry_id: uuid.UUID,
+    admin: User = Depends(get_current_admin_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """管理员：删除咨询记录。"""
+    from app.models.enquiry import Enquiry
+
+    result = await db.execute(select(Enquiry).where(Enquiry.id == enquiry_id))
+    enquiry = result.scalar_one_or_none()
+    if not enquiry:
+        raise NotFoundException(detail="Enquiry not found")
+    await db.delete(enquiry)
+    await db.flush()
+    return {"status": "ok", "detail": "Enquiry deleted"}

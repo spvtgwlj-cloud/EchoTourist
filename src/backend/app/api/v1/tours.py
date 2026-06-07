@@ -15,6 +15,7 @@ async def list_tours(
     page: int = Query(1, ge=1),
     page_size: int = Query(12, ge=1, le=50),
     difficulty: Optional[str] = None,
+    theme: Optional[str] = None,
     db: AsyncSession = Depends(get_db),
 ):
     return await tour_service.list_tours(
@@ -23,6 +24,7 @@ async def list_tours(
         page=page,
         page_size=page_size,
         difficulty=difficulty,
+        theme=theme,
     )
 
 

@@ -48,6 +48,7 @@ export default function TourCreateForm() {
   const [slug, setSlug] = useState('');
   const [status, setStatus] = useState('draft');
   const [type, setType] = useState('group_tour');
+  const [sortOrder, setSortOrder] = useState(0);
   const [durationDays, setDurationDays] = useState(1);
   const [durationNights, setDurationNights] = useState(0);
   const [maxPax, setMaxPax] = useState(20);
@@ -55,6 +56,22 @@ export default function TourCreateForm() {
   const [startPrice, setStartPrice] = useState(0);
   const [currency, setCurrency] = useState('USD');
   const [difficulty, setDifficulty] = useState('easy');
+  const [theme, setTheme] = useState('citywalk');
+
+  const THEME_OPTIONS = [
+    { value: 'citywalk', label: 'City Walk' },
+    { value: 'culture_history', label: 'Culture & History' },
+    { value: 'nature', label: 'Nature & Scenery' },
+    { value: 'food', label: 'Food & Culinary' },
+    { value: 'honeymoon', label: 'Honeymoon & Romance' },
+    { value: 'family', label: 'Family' },
+    { value: 'luxury', label: 'Luxury' },
+    { value: 'adventure', label: 'Adventure' },
+    { value: 'photography', label: 'Photography' },
+    { value: 'wellness', label: 'Wellness & Spa' },
+    { value: 'hidden_gems', label: 'Hidden Gems' },
+    { value: 'festival', label: 'Festival & Events' },
+  ];
 
   // Arrays
   const [highlights, setHighlights] = useState<string[]>(['']);
@@ -157,6 +174,7 @@ export default function TourCreateForm() {
         slug,
         status,
         type,
+        sort_order: sortOrder,
         duration_days: durationDays,
         duration_nights: durationNights,
         max_pax: maxPax || undefined,
@@ -164,6 +182,7 @@ export default function TourCreateForm() {
         start_price: startPrice,
         currency,
         difficulty,
+        theme,
         highlights: highlights.filter(Boolean),
         includes: includes.filter(Boolean),
         excludes: excludes.filter(Boolean),
@@ -229,6 +248,16 @@ export default function TourCreateForm() {
             </select>
           </div>
           <div>
+            <label className="block text-sm font-medium mb-1">Sort Order</label>
+            <input
+              type="number" min={0} step={1}
+              value={sortOrder}
+              onChange={(e) => setSortOrder(Number(e.target.value))}
+              className="w-full border rounded-md px-3 py-2 text-sm"
+              placeholder="Display order on pages"
+            />
+          </div>
+          <div>
             <label className="block text-sm font-medium mb-1">Type</label>
             <select
               value={type}
@@ -249,6 +278,18 @@ export default function TourCreateForm() {
               <option value="easy">Easy</option>
               <option value="moderate">Moderate</option>
               <option value="challenging">Challenging</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Theme</label>
+            <select
+              value={theme}
+              onChange={(e) => setTheme(e.target.value)}
+              className="w-full border rounded-md px-3 py-2 text-sm"
+            >
+              {THEME_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
             </select>
           </div>
           <div>

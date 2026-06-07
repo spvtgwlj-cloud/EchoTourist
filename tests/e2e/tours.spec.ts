@@ -41,10 +41,10 @@ test.describe('🏛️ 旅游产品列表', () => {
 
 test.describe('📄 旅游产品详情 — 完整功能', () => {
   const KNOWN_TOURS = [
-    'forbidden-city-royal-walk',
-    'great-wall-badaling-hike',
-    'beijing-essence-3-day',
-    'xian-terracotta-warriors-2day',
+    'mutianyu-great-wall-premium',
+    'temple-of-heaven-cultural',
+    'beijing-essence-5-day',
+    'nanjing-historical-essence',
   ];
 
   for (const slug of KNOWN_TOURS) {
@@ -60,7 +60,7 @@ test.describe('📄 旅游产品详情 — 完整功能', () => {
   }
 
   test('产品详情页显示核心信息', async ({ page }) => {
-    await page.goto('/zh/tours/forbidden-city-royal-walk');
+    await page.goto('/zh/tours/mutianyu-great-wall-premium');
     await page.waitForLoadState('networkidle');
 
     const bodyText = await page.locator('body').innerText();
@@ -76,7 +76,7 @@ test.describe('📄 旅游产品详情 — 完整功能', () => {
   });
 
   test('产品详情页有选择日期选项', async ({ page }) => {
-    await page.goto('/zh/tours/beijing-essence-3-day');
+    await page.goto('/zh/tours/beijing-essence-5-day');
     await page.waitForLoadState('networkidle');
 
     const bodyText = await page.locator('body').innerText();
@@ -97,7 +97,7 @@ test.describe('📄 旅游产品详情 — 完整功能', () => {
   });
 
   test('英文产品详情页正常工作', async ({ page }) => {
-    await page.goto('/en/tours/forbidden-city-royal-walk');
+    await page.goto('/en/tours/mutianyu-great-wall-premium');
     await page.waitForLoadState('networkidle');
     await expect(page.locator('body')).toBeVisible();
 

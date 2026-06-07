@@ -5,7 +5,7 @@ import { useLocale } from 'next-intl';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, Map, ShoppingCart, Users, Star, LogOut } from 'lucide-react';
+import { LayoutDashboard, Map, ShoppingCart, Users, Star, Landmark, Wrench, ClipboardList, MapPin, MessageCircle, LogOut } from 'lucide-react';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -14,8 +14,13 @@ interface AdminLayoutProps {
 const navItems = [
   { href: '/admin', label: 'dashboard', icon: LayoutDashboard },
   { href: '/admin/tours', label: 'tours', icon: Map },
+  { href: '/admin/destinations', label: 'destinations', icon: MapPin },
+  { href: '/admin/attractions', label: 'attractions', icon: Landmark },
   { href: '/admin/orders', label: 'orders', icon: ShoppingCart },
   { href: '/admin/reviews', label: 'reviews', icon: Star },
+  { href: '/admin/enquiries', label: 'enquiries', icon: MessageCircle },
+  { href: '/admin/base-services', label: 'baseServices', icon: Wrench },
+  { href: '/admin/custom-tours', label: 'customTours', icon: ClipboardList },
 ];
 
 export function AdminLayout({ children }: AdminLayoutProps) {

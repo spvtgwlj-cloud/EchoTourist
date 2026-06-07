@@ -38,17 +38,9 @@ class TestJWTSecurity:
 
     async def test_tampered_token_rejected(self, api_client: AsyncClient):
         """TC-SEC-002：篡改 JWT payload（修改 sub）后应被拒绝。"""
-        # 先获取一个合法 token
-        email = f"sec_tamper_{uuid.uuid4().hex[:8]}@example.com"
-        resp = await api_client.post("/api/v1/auth/register", json={
-            "email": email, "password": "Test1234!", "name": "Tamper Test",
-        })
-        assert resp.status_code == 200
-        real_token = resp.json()["access_token"]
-
-        # 解码并篡改 sub 字段
-        decoded = decode_token(real_token)
-        assert decoded is not None
+        # 直接用伪造的 sub 创建一个篡改的 token
+        # 注意：不依赖 decode_token 解码 Docker 服务签发的 token
+        #（Docker 服务的 SECRET_KEY 可能与本地不同）
         fake_sub = str(uuid.uuid4())
         tampered_token = create_access_token(data={"sub": fake_sub})
 

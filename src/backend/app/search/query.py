@@ -11,12 +11,39 @@ from app.search.index import INDEX_NAME
 logger = logging.getLogger(__name__)
 
 
+def _parse_hits(hits: list[dict]) -> list[SearchTourItem]:
+    """将 ES hit 列表解析为 SearchTourItem 列表。"""
+    tours = []
+    for hit in hits:
+        src = hit["_source"]
+        tours.append(
+            SearchTourItem(
+                id=src["id"],
+                slug=src["slug"],
+                name=src["name"],
+                subtitle=src.get("subtitle"),
+                duration_days=src["duration_days"],
+                start_price=src["start_price"],
+                currency=src.get("currency", "USD"),
+                sort_order=src.get("sort_order", 0),
+                avg_rating=src.get("avg_rating", 0),
+                review_count=src.get("review_count", 0),
+                difficulty=src.get("difficulty", "easy"),
+                theme=src.get("theme", "citywalk"),
+                highlights=src.get("highlights", ""),
+                images=src.get("images", []),
+            )
+        )
+    return tours
+
+
 async def search_tours(
     es: AsyncElasticsearch,
     *,
     query: Optional[str] = None,
     locale: str = "en",
     difficulty: Optional[str] = None,
+    theme: Optional[str] = None,
     min_price: Optional[float] = None,
     max_price: Optional[float] = None,
     min_duration: Optional[int] = None,
@@ -50,6 +77,9 @@ async def search_tours(
     if difficulty:
         filter_clauses.append({"term": {"difficulty": difficulty}})
 
+    if theme:
+        filter_clauses.append({"term": {"theme": theme}})
+
     if min_price is not None or max_price is not None:
         price_range = {}
         if min_price is not None:
@@ -73,6 +103,7 @@ async def search_tours(
         "price_desc": {"start_price": {"order": "desc"}},
         "duration": {"duration_days": {"order": "asc"}},
         "newest": {"published_at": {"order": "desc", "missing": "_last"}},
+        "sort_order": {"sort_order": {"order": "asc", "missing": "_last"}},
     }
     sort = sort_field_map.get(sort_by, sort_field_map["rating"])
     # 如果无搜索词，纯按评分排序；有搜索词时，ES 的 _score 优先
@@ -92,6 +123,9 @@ async def search_tours(
         "aggs": {
             "difficulties": {
                 "terms": {"field": "difficulty", "size": 10}
+            },
+            "themes": {
+                "terms": {"field": "theme", "size": 20}
             },
             "price_ranges": {
                 "range": {
@@ -117,31 +151,24 @@ async def search_tours(
     try:
         response = await es.search(index=INDEX_NAME, body=body)
     except Exception as e:
-        logger.error(f"ES search failed: {e}")
-        return SearchResponse(tours=[], total=0, page=page, page_size=page_size)
+        # 如果聚合失败（如 mapping 不一致），降级重试不含聚合的查询
+        logger.warning(f"ES search failed (with aggs), retrying without: {e}")
+        no_agg_body = {k: v for k, v in body.items() if k != "aggs"}
+        try:
+            response = await es.search(index=INDEX_NAME, body=no_agg_body)
+            # 降级成功 — 返回结果但不含 facets
+            hits = response["hits"]["hits"]
+            total = response["hits"]["total"]["value"]
+            return SearchResponse(
+                tours=_parse_hits(hits), total=total, page=page, page_size=page_size
+            )
+        except Exception as e2:
+            logger.error(f"ES search failed (no aggs): {e2}")
+            return SearchResponse(tours=[], total=0, page=page, page_size=page_size)
 
     hits = response["hits"]["hits"]
     total = response["hits"]["total"]["value"]
-
-    tours = []
-    for hit in hits:
-        src = hit["_source"]
-        tours.append(
-            SearchTourItem(
-                id=src["id"],
-                slug=src["slug"],
-                name=src["name"],
-                subtitle=src.get("subtitle"),
-                duration_days=src["duration_days"],
-                start_price=src["start_price"],
-                currency=src.get("currency", "USD"),
-                avg_rating=src.get("avg_rating", 0),
-                review_count=src.get("review_count", 0),
-                difficulty=src.get("difficulty", "easy"),
-                highlights=src.get("highlights", ""),
-                images=src.get("images", []),
-            )
-        )
+    tours = _parse_hits(hits)
 
     # 提取聚合
     aggregations = response.get("aggregations", {})

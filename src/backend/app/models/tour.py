@@ -20,6 +20,7 @@ class Tour(Base):
     start_price = Column(Float, default=0)
     currency = Column(String(3), default="USD")
     difficulty = Column(String(20), default="easy")
+    theme = Column(String(30), default="citywalk")  # 旅行主题标签
     highlights = Column(PG_ARRAY(Text), default=list)
     includes = Column(PG_ARRAY(Text), default=list)
     excludes = Column(PG_ARRAY(Text), default=list)

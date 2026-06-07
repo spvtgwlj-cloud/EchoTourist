@@ -26,12 +26,13 @@ export default function SearchPage() {
 
   const [query, setQuery] = useState(searchParams.get('q') || '');
   const [difficulty, setDifficulty] = useState(searchParams.get('difficulty') || '');
+  const [theme, setTheme] = useState(searchParams.get('theme') || '');
   const [sortBy, setSortBy] = useState(searchParams.get('sort_by') || 'rating');
   const [results, setResults] = useState<SearchResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const doSearch = useCallback(async (q: string, diff: string, sort: string) => {
+  const doSearch = useCallback(async (q: string, diff: string, thm: string, sort: string) => {
     setLoading(true);
     setError('');
     try {
@@ -40,6 +41,7 @@ export default function SearchPage() {
       });
       if (q) params.set('q', q);
       if (diff) params.set('difficulty', diff);
+      if (thm) params.set('theme', thm);
       const res = await api.get<SearchResult>(`/search?${params}`);
       setResults(res);
     } catch (err: unknown) {
@@ -50,11 +52,11 @@ export default function SearchPage() {
   }, [locale]);
 
   useEffect(() => {
-    const timer = setTimeout(() => doSearch(query, difficulty, sortBy), 300);
+    const timer = setTimeout(() => doSearch(query, difficulty, theme, sortBy), 300);
     return () => clearTimeout(timer);
-  }, [query, difficulty, sortBy, doSearch]);
+  }, [query, difficulty, theme, sortBy, doSearch]);
 
-  const handleClear = () => { setQuery(''); setDifficulty(''); setSortBy('rating'); };
+  const handleClear = () => { setQuery(''); setDifficulty(''); setTheme(''); setSortBy('rating'); };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -66,8 +68,10 @@ export default function SearchPage() {
       <div className="mb-6">
         <SearchFilters
           difficulty={difficulty}
+          theme={theme}
           sortBy={sortBy}
           onDifficultyChange={setDifficulty}
+          onThemeChange={setTheme}
           onSortByChange={setSortBy}
           onClear={handleClear}
         />

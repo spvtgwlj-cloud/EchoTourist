@@ -27,6 +27,8 @@ from app.api.v1.attraction_wishlist import router as attraction_wishlist_router
 from app.api.v1.users import router as users_router
 from app.api.v1.admin import router as admin_router
 from app.api.v1.attractions import router as attractions_router
+from app.api.v1.custom_tours import router as custom_tours_router
+from app.api.v1.enquiries import router as enquiries_router
 
 logger = logging.getLogger(__name__)
 
@@ -120,7 +122,9 @@ app.include_router(wishlist_router, prefix="/api/v1")
 app.include_router(attraction_wishlist_router, prefix="/api/v1")
 app.include_router(users_router, prefix="/api/v1")
 app.include_router(admin_router, prefix="/api/v1")
+app.include_router(enquiries_router, prefix="/api/v1")
 app.include_router(attractions_router, prefix="/api/v1")
+app.include_router(custom_tours_router, prefix="/api/v1")
 
 
 @app.get("/health")

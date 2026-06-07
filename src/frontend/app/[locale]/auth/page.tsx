@@ -12,6 +12,7 @@ import { useAuthStore } from '@/lib/stores/auth-store';
 export default function AuthPage() {
   const t = useTranslations('auth');
   const ct = useTranslations('common');
+  const nt = useTranslations('nav');
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -111,6 +112,32 @@ export default function AuthPage() {
             {mode === 'signin' ? t('welcomeBack') : t('signUpAgreement')}
           </CardDescription>
         </CardHeader>
+        <div className="px-6 pb-4">
+          <div className="flex rounded-lg border p-1 bg-muted/50">
+            <button
+              type="button"
+              onClick={() => { setMode('signin'); setError(''); }}
+              className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-all ${
+                mode === 'signin'
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {nt('signIn')}
+            </button>
+            <button
+              type="button"
+              onClick={() => { setMode('signup'); setError(''); }}
+              className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-all ${
+                mode === 'signup'
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {nt('signUp')}
+            </button>
+          </div>
+        </div>
         <CardContent>
           {error && (
             <div className="mb-4 flex items-center gap-2 rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-600">

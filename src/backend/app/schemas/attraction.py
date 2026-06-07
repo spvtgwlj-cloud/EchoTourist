@@ -5,6 +5,16 @@ from typing import Optional
 import uuid
 
 
+class AttractionMediaResponse(BaseModel):
+    id: uuid.UUID
+    url: str
+    media_type: str = "image"
+    alt_text: Optional[str] = None
+    sort_order: int = 0
+
+    model_config = {"from_attributes": True}
+
+
 class AttractionTicketResponse(BaseModel):
     id: uuid.UUID
     attraction_id: uuid.UUID
@@ -29,6 +39,7 @@ class AttractionResponse(BaseModel):
     ticket_price: float = 0
     ticket_currency: str = "USD"
     tickets: list[AttractionTicketResponse] = []
+    media: list[AttractionMediaResponse] = []
     locale: str = "en"
 
     model_config = {"from_attributes": True}

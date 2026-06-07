@@ -37,6 +37,7 @@ class Attraction(Base):
     translations = relationship("AttractionTranslation", backref="attraction", lazy="selectin")
     destination = relationship("Destination", backref="attractions")
     tickets = relationship("AttractionTicket", back_populates="attraction", cascade="all, delete-orphan")
+    media = relationship("AttractionMedia", back_populates="attraction", cascade="all, delete-orphan", order_by="AttractionMedia.sort_order")
 
 
 class AttractionTranslation(Base):

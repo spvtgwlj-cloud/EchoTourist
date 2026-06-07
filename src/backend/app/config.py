@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     elasticsearch_url: str = "http://localhost:9200"
 
     # Auth
-    secret_key: str = "change-me-in-production-use-a-long-random-string"
+    secret_key: str = "dev-secret-key-change-in-production"
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 24  # 24 hours
 

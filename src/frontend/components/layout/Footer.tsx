@@ -2,6 +2,7 @@
 
 import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
+import { Phone } from 'lucide-react';
 
 export function Footer() {
   const t = useTranslations('footer');
@@ -27,6 +28,13 @@ export function Footer() {
               <li><Link href={`/${locale}`}>{t('aboutUs')}</Link></li>
               <li><Link href={`/${locale}`}>{t('contactUs')}</Link></li>
               <li><Link href={`/${locale}`}>{t('faq')}</Link></li>
+              <li>
+                <a href="tel:+861088888888" className="flex items-center gap-1.5 text-primary hover:underline">
+                  <Phone className="h-3.5 w-3.5" />
+                  <span>{t('phone')}</span>
+                </a>
+              </li>
+              <li className="text-xs text-green-600">✓ {t('support247')}</li>
             </ul>
           </div>
 

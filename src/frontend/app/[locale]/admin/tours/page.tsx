@@ -14,6 +14,7 @@ import { TableSkeleton } from '@/components/ui/skeletons';
 interface TourItem {
   id: string; slug: string; name: string; status: string;
   start_price: number; duration_days: number; difficulty: string;
+  theme: string;
   sort_order?: number;
   serial_number?: string;
   area_code?: string;
@@ -86,12 +87,13 @@ export default function AdminTours() {
               <th className="text-left p-3 font-medium">Price</th>
               <th className="text-left p-3 font-medium">Days</th>
               <th className="text-left p-3 font-medium">Difficulty</th>
+              <th className="text-left p-3 font-medium">Theme</th>
               <th className="text-left p-3 font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
             {tours.length === 0 ? (
-              <tr><td colSpan={8} className="p-6 text-center text-muted-foreground">No tours found</td></tr>
+              <tr><td colSpan={9} className="p-6 text-center text-muted-foreground">No tours found</td></tr>
             ) : tours.map((tour) => (
               <tr key={tour.id} className="border-b hover:bg-gray-50/50">
                 <td className="p-3 font-mono text-xs text-muted-foreground">
@@ -111,6 +113,7 @@ export default function AdminTours() {
                 <td className="p-3">${tour.start_price}</td>
                 <td className="p-3">{tour.duration_days}</td>
                 <td className="p-3">{tour.difficulty}</td>
+                <td className="p-3"><span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-blue-50 text-blue-700">{tour.theme || 'citywalk'}</span></td>
                 <td className="p-3">
                   <div className="flex items-center gap-1">
                     <Link href={`/${locale}/admin/tours/${tour.id}/edit`}>
