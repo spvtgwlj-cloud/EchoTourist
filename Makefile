@@ -101,6 +101,9 @@ redis: check-docker
 
 seed: check-docker
 	@docker compose -f docker-compose.prod.yml exec backend python scripts/seed_data.py
+	@docker compose -f docker-compose.prod.yml restart frontend
+	@echo ""
+	@echo "⚠️  演示数据已填充，请刷新浏览器（Cmd+Shift+R 强制刷新）以加载最新数据"
 
 test: check-docker
 	@docker compose -f docker-compose.prod.yml run --rm --no-deps backend pytest

@@ -32,7 +32,7 @@ export default function AdminEnquiries() {
   const fetchEnquiries = (status: string) => {
     setLoading(true);
     const params = status ? `?status=${status}` : '';
-    api.get<{ enquiries: EnquiryItem[]; total: number }>(`/admin/enquiries${params}`)
+    api.get<{ enquiries: EnquiryItem[]; total: number }>(`/admin/enquiries${params}`, { cache: 'no-store' })
       .then((res) => { setEnquiries(res.enquiries || []); setTotal(res.total); })
       .catch(() => {})
       .finally(() => setLoading(false));

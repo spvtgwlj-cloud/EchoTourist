@@ -25,7 +25,7 @@ export default function AdminOrders() {
 
   useEffect(() => {
     if (!isAuthenticated || !user?.is_admin) { router.push(`/${locale}/auth`); return; }
-    api.get<{ orders: OrderItem[]; total: number }>('/admin/orders')
+    api.get<{ orders: OrderItem[]; total: number }>('/admin/orders', { cache: 'no-store' })
       .then((res) => { setOrders(res.orders || []); setTotal(res.total); })
       .catch(() => {})
       .finally(() => setLoading(false));

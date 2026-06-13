@@ -12,15 +12,15 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
   const url = `${API_BASE_URL}/api/v1${endpoint}`;
   const { method = 'GET', body, headers = {}, cache, next } = options;
 
-  // 默认不缓存，保证后台编辑后立即生效
+  // 不设置默认缓存策略，由各调用方按需控制
   const config: RequestInit = {
     method,
     headers: {
       'Content-Type': 'application/json',
       ...headers,
     },
-    cache: cache || 'no-store',
-    next,
+    ...(cache ? { cache } : {}),
+    ...(next ? { next } : {}),
   };
 
   if (body && method !== 'GET') {

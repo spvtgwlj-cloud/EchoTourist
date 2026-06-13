@@ -64,7 +64,7 @@ export default function AdminBaseServices() {
 
   const loadServices = () => {
     setLoading(true);
-    api.get<{ services: ServiceItem[]; total: number }>('/admin/base-services')
+    api.get<{ services: ServiceItem[]; total: number }>('/admin/base-services', { cache: 'no-store' })
       .then((res) => { setServices(res.services || []); setTotal(res.total); })
       .catch(() => {})
       .finally(() => setLoading(false));

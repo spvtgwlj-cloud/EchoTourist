@@ -54,7 +54,7 @@ export default function AdminCustomTours() {
   const loadRequests = () => {
     setLoading(true);
     const endpoint = '/admin/custom-tours' + (statusFilter ? `?status=${statusFilter}` : '');
-    api.get<{ requests: CustomTourRequestItem[]; total: number }>(endpoint)
+    api.get<{ requests: CustomTourRequestItem[]; total: number }>(endpoint, { cache: 'no-store' })
       .then((res) => { setRequests(res.requests || []); setTotal(res.total); })
       .catch(() => {})
       .finally(() => setLoading(false));

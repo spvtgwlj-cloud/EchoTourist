@@ -104,7 +104,7 @@ export default function EditAttractionPage() {
 
   useEffect(() => {
     if (!isAuthenticated || !user?.is_admin) { router.push(`/${pageLocale}/auth`); return; }
-    api.get<AttractionDetail>(`/admin/attractions/${id}`)
+    api.get<AttractionDetail>(`/admin/attractions/${id}`, { cache: 'no-store' })
       .then((data) => {
         setAttraction(data);
         setStatus(data.status || 'active');

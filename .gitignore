@@ -21,3 +21,7 @@ esdata/
 # 临时文件
 *.bak
 random_test_runner.py
+reading
+[internal]
+=
+tool-results/

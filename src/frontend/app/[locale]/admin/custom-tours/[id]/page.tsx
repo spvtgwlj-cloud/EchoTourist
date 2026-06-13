@@ -74,7 +74,7 @@ export default function AdminCustomTourDetail() {
 
   const loadDetail = () => {
     setLoading(true);
-    api.get<DetailData>(`/admin/custom-tours/${params.id}`)
+    api.get<DetailData>(`/admin/custom-tours/${params.id}`, { cache: 'no-store' })
       .then((res) => {
         setData(res);
         setConfirmedPrice(res.confirmed_price ?? null);

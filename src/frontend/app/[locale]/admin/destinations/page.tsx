@@ -36,7 +36,8 @@ export default function AdminDestinationsPage() {
     setLoading(true);
     try {
       const res = await api.get<{ destinations: DestinationItem[]; total: number }>(
-        `/admin/destinations?page_size=200`
+        `/admin/destinations?page_size=200`,
+        { cache: 'no-store' }
       );
       setDestinations(res.destinations || []);
       setTotal(res.total || 0);

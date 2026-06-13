@@ -31,7 +31,7 @@ export default function AdminTours() {
 
   const fetchTours = useCallback(() => {
     setLoading(true);
-    api.get<{ tours: TourItem[]; total: number }>('/admin/tours')
+    api.get<{ tours: TourItem[]; total: number }>('/admin/tours', { cache: 'no-store' })
       .then((res) => { setTours(res.tours || []); setTotal(res.total); })
       .catch(() => {})
       .finally(() => setLoading(false));

@@ -27,7 +27,7 @@ export default function AdminReviews() {
 
   const fetchReviews = (status: string) => {
     setLoading(true);
-    api.get<{ reviews: ReviewItem[]; total: number }>(`/admin/reviews?status=${status}`)
+    api.get<{ reviews: ReviewItem[]; total: number }>(`/admin/reviews?status=${status}`, { cache: 'no-store' })
       .then((res) => { setReviews(res.reviews || []); setTotal(res.total); })
       .catch(() => {})
       .finally(() => setLoading(false));

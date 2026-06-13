@@ -27,7 +27,7 @@ export default function AdminAttractions() {
 
   useEffect(() => {
     if (!isAuthenticated || !user?.is_admin) { router.push(`/${locale}/auth`); return; }
-    api.get<{ attractions: AttractionItem[]; total: number }>('/admin/attractions')
+    api.get<{ attractions: AttractionItem[]; total: number }>('/admin/attractions', { cache: 'no-store' })
       .then((res) => { setAttractions(res.attractions || []); setTotal(res.total); })
       .catch(() => {})
       .finally(() => setLoading(false));

@@ -31,7 +31,7 @@ export default function AdminDashboard() {
       router.push(`/${locale}/auth`);
       return;
     }
-    api.get<AdminStats>('/admin/stats')
+    api.get<AdminStats>('/admin/stats', { cache: 'no-store' })
       .then(setStats)
       .catch(() => {})
       .finally(() => setLoading(false));

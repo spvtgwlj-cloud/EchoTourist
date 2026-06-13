@@ -95,8 +95,8 @@ export default function TourDatesPage() {
   const loadDates = useCallback(async () => {
     try {
       const [tourData, datesData] = await Promise.all([
-        api.get<any>(`/admin/tours/${id}?locale=${locale}`),
-        api.get<{ dates: TourDateItem[] }>(`/admin/tours/${id}/dates`),
+        api.get<any>(`/admin/tours/${id}?locale=${locale}`, { cache: 'no-store' }),
+        api.get<{ dates: TourDateItem[] }>(`/admin/tours/${id}/dates`, { cache: 'no-store' }),
       ]);
       setTourName(tourData.name || tourData.slug);
       setDates(datesData.dates.map((d) => ({

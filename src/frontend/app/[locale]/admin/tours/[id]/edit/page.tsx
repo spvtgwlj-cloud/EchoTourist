@@ -128,7 +128,7 @@ export default function EditTourPage() {
   // ── 初始加载 ──────────────────────────────────
   useEffect(() => {
     if (!isAuthenticated || !user?.is_admin) { router.push(`/${pageLocale}/auth`); return; }
-    api.get<TourDetail>(`/admin/tours/${id}?locale=${pageLocale}`)
+    api.get<TourDetail>(`/admin/tours/${id}?locale=${pageLocale}`, { cache: 'no-store' })
       .then((data) => {
         setTour(data);
         setStatus(data.status); setType(data.type);

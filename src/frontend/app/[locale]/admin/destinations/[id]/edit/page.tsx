@@ -41,7 +41,7 @@ export default function AdminEditDestinationPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const data = await api.get<any>(`/admin/destinations/${destId}`);
+        const data = await api.get<any>(`/admin/destinations/${destId}`, { cache: 'no-store' });
         setSlug(data.slug || '');
         setImageUrl(data.image_url || '');
         setStatus(data.status || 'active');

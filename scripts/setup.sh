@@ -256,6 +256,8 @@ if [[ "$WITH_SEED" == "true" ]]; then
     $COMPOSE_CMD -f "$COMPOSE_FILE" exec -T backend python scripts/seed_data.py 2>/dev/null \
         && echo -e "  ${GREEN}✓${NC} 演示数据已填充" \
         || echo -e "  ${YELLOW}⚠ 演示数据填充失败（可稍后手动执行: make seed）${NC}"
+    $COMPOSE_CMD -f "$COMPOSE_FILE" restart frontend 2>/dev/null || true
+    echo -e "  ${YELLOW}⚠ 请刷新浏览器（Cmd+Shift+R 强制刷新）以加载最新数据${NC}"
 fi
 
 # ── 显示访问地址 ──────────────────────────────
