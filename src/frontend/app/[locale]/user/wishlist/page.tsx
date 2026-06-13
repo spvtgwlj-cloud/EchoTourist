@@ -14,7 +14,7 @@ import Link from 'next/link';
 interface WishlistItem {
   id: string; tour_id: string; tour_name?: string; tour_slug?: string;
   tour_image?: string; start_price: number; currency: string;
-  avg_rating: number;
+  avg_rating: number; theme?: string;
 }
 
 export default function WishlistPage() {
