@@ -3,5 +3,4 @@
 from app.crud.base import CRUDBase
 from app.models.enquiry import Enquiry
 
-
 crud_enquiry = CRUDBase(Enquiry)

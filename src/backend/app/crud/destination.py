@@ -1,14 +1,12 @@
 """Destination CRUD 操作。"""
 
-import uuid
 from typing import Optional
 
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 
 from app.crud.base import CRUDBase
-from app.models.destination import Destination, DestinationTranslation
+from app.models.destination import Destination
 from app.models.tour import Tour
 
 

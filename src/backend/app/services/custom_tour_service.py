@@ -1,26 +1,23 @@
 """自定制旅程业务逻辑服务（支持多段行程）。"""
 
-from datetime import datetime, timezone
-from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud.custom_tour import crud_base_service, crud_custom_tour_request
-from app.models.tour import Tour, TourTranslation
-from app.models.attraction import Attraction, AttractionTranslation
-from app.models.destination import Destination, DestinationTranslation
+from app.crud.custom_tour import crud_custom_tour_request
+from app.models.attraction import AttractionTranslation
 from app.models.custom_tour import BaseService, CustomTourRequest
+from app.models.destination import DestinationTranslation
+from app.models.tour import TourTranslation
 from app.models.user import User
 from app.schemas.custom_tour import (
     CustomTourCreateRequest,
     CustomTourRequestResponse,
-    SegmentResponse,
-    SegmentAttractionResponse,
-    SegmentTourResponse,
     CustomTourServiceResponse,
+    SegmentAttractionResponse,
+    SegmentResponse,
+    SegmentTourResponse,
 )
-from app.core.exceptions import NotFoundException
 
 
 class CustomTourService:

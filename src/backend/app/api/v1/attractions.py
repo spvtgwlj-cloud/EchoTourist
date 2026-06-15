@@ -3,11 +3,16 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import get_db
-from app.schemas.attraction import AttractionResponse, AttractionListResponse, AttractionTicketResponse, AttractionMediaResponse
+from app.core.exceptions import NotFoundException
 from app.crud.attraction import crud_attraction
 from app.crud.destination import crud_destination
-from app.core.exceptions import NotFoundException
+from app.database import get_db
+from app.schemas.attraction import (
+    AttractionListResponse,
+    AttractionMediaResponse,
+    AttractionResponse,
+    AttractionTicketResponse,
+)
 
 router = APIRouter(prefix="", tags=["attractions"])
 

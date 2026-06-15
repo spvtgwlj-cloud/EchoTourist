@@ -1,7 +1,8 @@
 """搜索 API 的请求和响应模型。"""
 
-from pydantic import BaseModel
 from typing import Optional
+
+from pydantic import BaseModel
 
 
 class SearchImageItem(BaseModel):

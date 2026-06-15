@@ -115,7 +115,6 @@ def _serialize_result(result: Any) -> Any:
 def _rebuild_response(func: Callable, data: Any) -> Any:
     """从缓存数据重建 Pydantic 响应对象。"""
     if isinstance(data, dict) and "__pydantic__" in data:
-        import importlib
 
         # 从返回注解推断模型类
         hints = func.__annotations__

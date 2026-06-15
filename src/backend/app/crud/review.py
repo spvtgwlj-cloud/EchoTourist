@@ -1,14 +1,14 @@
 """Review CRUD 操作。"""
 
 import uuid
-from sqlalchemy import select, func
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
-from app.crud.base import CRUDBase
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.core.exceptions import ConflictException, ValidationException
-from app.models.review import Review
+from app.crud.base import CRUDBase
 from app.models.order import Order
+from app.models.review import Review
 from app.models.tour import Tour
 from app.models.user import User
 

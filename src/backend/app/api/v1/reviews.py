@@ -2,17 +2,17 @@
 
 import logging
 
-from fastapi import APIRouter, Depends, Query, Path
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import get_db
 from app.api.v1.auth import get_current_user
+from app.core.exceptions import ValidationException
 from app.crud.review import crud_review
-from app.models.user import User
+from app.database import get_db
 from app.models.tour import Tour, TourTranslation
-from app.schemas.review import ReviewCreate, ReviewResponse, ReviewListResponse
-from app.core.exceptions import NotFoundException, ValidationException
+from app.models.user import User
+from app.schemas.review import ReviewCreate, ReviewListResponse, ReviewResponse
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +60,7 @@ async def create_review(
 
         # 获取所有管理员的邮箱
         admin_result = await db.execute(
-            select(User.email).where(User.is_admin == True, User.is_active == True)
+            select(User.email).where(User.is_admin.is_(True), User.is_active.is_(True))
         )
         admin_emails = admin_result.scalars().all()
 

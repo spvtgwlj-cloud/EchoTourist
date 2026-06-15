@@ -1,21 +1,20 @@
 """自定制旅程 CRUD 操作（支持多段行程）。"""
 
-from uuid import UUID
 from datetime import datetime, timezone
+from uuid import UUID
 
-from sqlalchemy import select, func
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.base import CRUDBase
 from app.models.custom_tour import (
     BaseService,
+    CustomTourAttraction,
     CustomTourRequest,
     CustomTourSegment,
     CustomTourSegmentTour,
-    CustomTourAttraction,
     CustomTourService,
 )
-
 
 crud_base_service = CRUDBase(BaseService)
 crud_custom_tour = CRUDBase(CustomTourRequest)

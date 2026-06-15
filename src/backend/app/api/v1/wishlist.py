@@ -2,14 +2,14 @@
 
 import uuid
 
-from fastapi import APIRouter, Depends, Path
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import get_db
 from app.api.v1.auth import get_current_user
 from app.crud.wishlist import crud_wishlist
+from app.database import get_db
 from app.models.user import User
-from app.schemas.wishlist import WishlistResponse, WishlistItemResponse
+from app.schemas.wishlist import WishlistItemResponse, WishlistResponse
 
 router = APIRouter(prefix="/wishlist", tags=["wishlist"])
 

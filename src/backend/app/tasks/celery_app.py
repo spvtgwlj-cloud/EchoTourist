@@ -1,6 +1,7 @@
 """Celery 异步任务配置。"""
 
 from celery import Celery
+
 from app.config import settings
 
 celery_app = Celery(

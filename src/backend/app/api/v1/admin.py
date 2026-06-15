@@ -2,32 +2,37 @@
 
 import uuid
 from datetime import date, datetime, timezone
+from pathlib import Path
+from typing import Optional
 
 from fastapi import APIRouter, Depends, File, Query, UploadFile
 from pydantic import BaseModel
-from typing import Optional
-from sqlalchemy import select, func, update, delete as sa_delete
+from sqlalchemy import delete as sa_delete
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.database import get_db
 from app.api.dependencies import get_current_admin_user
-from app.models.user import User
-from app.models.tour import Tour, TourTranslation, TourDate, TourImage
-from app.models.order import Order, OrderPassenger
-from app.models.review import Review
+from app.config import settings
+from app.core.exceptions import ConflictException, NotFoundException, ValidationException
+from app.crud.tour import crud_tour, crud_tour_date
+from app.database import get_db
 from app.models.attraction import Attraction, AttractionTranslation
 from app.models.attraction_media import AttractionMedia
+from app.models.custom_tour import (
+    BaseService,
+    CustomTourAttraction,
+    CustomTourRequest,
+    CustomTourSegment,
+    CustomTourSegmentTour,
+    CustomTourService,
+)
 from app.models.destination import Destination, DestinationTranslation
-from app.models.custom_tour import BaseService, CustomTourRequest, CustomTourSegment, CustomTourSegmentTour, CustomTourAttraction, CustomTourService
-from app.crud.tour import crud_tour, crud_tour_date
-from app.schemas.tour import TourResponse, TourListResponse
-from app.schemas.order import OrderResponse, OrderListResponse
-from app.core.exceptions import NotFoundException, ConflictException, ValidationException
-from app.config import settings
-import shutil
-from pathlib import Path
-
+from app.models.order import Order
+from app.models.review import Review
+from app.models.tour import Tour, TourDate, TourImage, TourTranslation
+from app.models.user import User
+from app.schemas.tour import TourListResponse, TourResponse
 
 # ── Tour 创建请求 Schema ─────────────────────────────────────────────────
 
@@ -351,7 +356,7 @@ async def admin_delete_tour_image(
     db: AsyncSession = Depends(get_db),
 ):
     """删除产品图片/视频记录。"""
-    from sqlalchemy import select, delete as sa_delete
+    from sqlalchemy import select
     result = await db.execute(
         select(TourImage).where(TourImage.id == image_id, TourImage.tour_id == tour_id)
     )
@@ -456,8 +461,8 @@ async def admin_get_tour(
     db: AsyncSession = Depends(get_db),
 ):
     """获取完整产品详情（含翻译、图片、团期），供编辑表单使用。"""
-    from app.services.tour_service import tour_service
     from app.crud.tour import crud_tour
+    from app.services.tour_service import tour_service
 
     tour = await crud_tour.get_with_details(db, tour_id, locale)
     if not tour:
@@ -688,7 +693,7 @@ async def admin_update_tour_date(
         "start_date": tour_date.start_date.isoformat(),
         "price_per_pax": tour_date.price_per_pax,
         "availability": tour_date.availability,
-        "status": tour_date.status,
+        "date_status": tour_date.status,
     }
 
 
@@ -889,8 +894,8 @@ async def admin_reindex_search(
 ):
     """手动重建 ES 搜索索引（同步执行 — 实时索引所有已发布产品）。"""
     try:
-        from app.search.client import get_es, check_es_health
-        from app.search.index import delete_index, create_index, bulk_index_tours
+        from app.search.client import check_es_health, get_es
+        from app.search.index import bulk_index_tours, create_index, delete_index
 
         if not await check_es_health():
             return {"status": "error", "detail": "Elasticsearch is not available"}
@@ -1707,7 +1712,6 @@ async def admin_get_custom_tour_request(
     db: AsyncSession = Depends(get_db),
 ):
     """获取自定制旅程请求详情（含多段行程、景点、产品、服务）。"""
-    from app.services.custom_tour_service import custom_tour_service
 
     result = await db.execute(
         select(CustomTourRequest).where(CustomTourRequest.id == request_id)
@@ -1941,7 +1945,16 @@ async def admin_list_enquiries(
         count_query = count_query.where(Enquiry.status == status)
     total = (await db.execute(count_query)).scalar() or 0
     return {
-        "enquiries": [{"id": str(e.id), "name": e.name, "email": e.email, "phone": e.phone, "destination": e.destination, "pax_count": e.pax_count, "message": e.message, "status": e.status, "admin_notes": e.admin_notes, "created_at": e.created_at.isoformat()} for e in enquiries],
+        "enquiries": [
+            {
+                "id": str(e.id), "name": e.name, "email": e.email,
+                "phone": e.phone, "destination": e.destination,
+                "pax_count": e.pax_count, "message": e.message,
+                "status": e.status, "admin_notes": e.admin_notes,
+                "created_at": e.created_at.isoformat(),
+            }
+            for e in enquiries
+        ],
         "total": total,
         "page": page,
         "page_size": page_size,

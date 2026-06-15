@@ -1,9 +1,9 @@
 """User 用户 Profile Schema。"""
 
-from pydantic import BaseModel
-from typing import Optional
-from datetime import datetime
 import uuid
+from typing import Optional
+
+from pydantic import BaseModel
 
 
 class UserProfileUpdate(BaseModel):

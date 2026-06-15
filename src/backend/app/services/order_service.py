@@ -3,18 +3,18 @@
 from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
-from sqlalchemy import select, func
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.exceptions import InsufficientStockException, NotFoundException, ValidationException
+from app.crud.attraction_ticket import crud_attraction_ticket
 from app.crud.order import crud_order
 from app.crud.tour import crud_tour, crud_tour_date
-from app.crud.attraction_ticket import crud_attraction_ticket
-from app.core.exceptions import NotFoundException, InsufficientStockException, ValidationException
+from app.models.attraction import Attraction
 from app.models.order import Order
 from app.models.tour import TourDate, TourTranslation
-from app.models.attraction import Attraction
 from app.models.user import User
-from app.schemas.order import BookingRequest, OrderResponse, OrderListResponse
+from app.schemas.order import BookingRequest, OrderListResponse, OrderResponse
 
 
 class OrderService:

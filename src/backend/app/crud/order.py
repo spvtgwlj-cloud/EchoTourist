@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.crud.base import CRUDBase
-from app.models.order import Order, OrderPassenger
+from app.models.order import Order
 
 
 class CRUDOrder(CRUDBase[Order]):

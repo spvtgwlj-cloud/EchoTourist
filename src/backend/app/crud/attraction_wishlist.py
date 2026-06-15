@@ -2,12 +2,12 @@
 
 import uuid
 
-from sqlalchemy import select, delete, func
+from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.base import CRUDBase
-from app.models.attraction_wishlist import AttractionWishlist
 from app.models.attraction import Attraction
+from app.models.attraction_wishlist import AttractionWishlist
 
 
 class CRUDAttractionWishlist(CRUDBase[AttractionWishlist]):

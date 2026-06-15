@@ -1,16 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+import requests
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from jose import jwk
+from jose import jwt as jose_jwt
 from pydantic import BaseModel
-from app.config import settings
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.config import settings
+from app.core.security import decode_token
 from app.database import get_db
 from app.models.user import User
-from app.schemas.auth import LoginRequest, RegisterRequest, AuthResponse, UserResponse
-from app.core.security import decode_token
+from app.schemas.auth import AuthResponse, LoginRequest, RegisterRequest, UserResponse
 from app.services.auth_service import auth_service
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-import requests
-from jose import jwk, jwt as jose_jwt
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 security = HTTPBearer()
@@ -197,7 +199,6 @@ async def google_auth(
         await db.flush()
     else:
         # 创建新用户
-        from app.core.security import hash_password
         import uuid
         user = User(
             id=uuid.uuid4(),

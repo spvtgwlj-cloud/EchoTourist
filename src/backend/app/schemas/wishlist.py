@@ -1,9 +1,9 @@
 """Wishlist 收藏 Schema。"""
 
-from pydantic import BaseModel
-from typing import Optional
-from datetime import datetime
 import uuid
+from typing import Optional
+
+from pydantic import BaseModel
 
 
 class WishlistItemResponse(BaseModel):

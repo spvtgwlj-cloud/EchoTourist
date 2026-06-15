@@ -1,10 +1,11 @@
-import os
 import asyncio
-import subprocess
 import logging
+import os
+import subprocess
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
+
 from app.config import settings
 
 logger = logging.getLogger(__name__)

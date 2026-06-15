@@ -36,7 +36,7 @@ async def check_es_health() -> bool:
     """检查 ES 是否可用。"""
     try:
         es = await get_es()
-        info = await es.info()
+        await es.info()
         return True
     except Exception:
         logger.warning("Elasticsearch is not available; search will be disabled")

@@ -9,9 +9,7 @@ from sqlalchemy.orm import selectinload
 
 from app.crud.base import CRUDBase
 from app.models.attraction import Attraction
-from app.models.attraction_ticket import AttractionTicket
 from app.models.attraction_media import AttractionMedia
-from app.models.destination import Destination
 
 
 class CRUDAttraction(CRUDBase[Attraction]):

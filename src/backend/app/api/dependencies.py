@@ -1,7 +1,8 @@
 """可复用 API 依赖项。"""
 
 from fastapi import Depends
-from app.api.v1.auth import get_current_user, get_current_user_optional
+
+from app.api.v1.auth import get_current_user
 from app.core.exceptions import PermissionDeniedException
 from app.models.user import User
 

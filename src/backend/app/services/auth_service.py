@@ -2,9 +2,9 @@
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud.user import crud_user
 from app.core.exceptions import AuthenticationException, ConflictException
-from app.core.security import verify_password, create_access_token
+from app.core.security import create_access_token, verify_password
+from app.crud.user import crud_user
 from app.models.user import User
 from app.schemas.auth import AuthResponse, UserResponse
 

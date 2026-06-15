@@ -1,15 +1,14 @@
 """Wishlist CRUD 操作。"""
 
 import uuid
-from typing import Optional
 
-from sqlalchemy import select, delete, func
+from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.crud.base import CRUDBase
+from app.models.tour import Tour
 from app.models.wishlist import Wishlist
-from app.models.tour import Tour, TourImage, TourTranslation
 
 
 class CRUDWishlist(CRUDBase[Wishlist]):

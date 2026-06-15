@@ -1,9 +1,10 @@
 """自定制旅程 Pydantic schemas（支持多段行程）。"""
 
-from pydantic import BaseModel, Field
-from typing import Optional
-from datetime import date, datetime
 import uuid
+from datetime import date
+from typing import Optional
+
+from pydantic import BaseModel, Field
 
 
 class BaseServiceResponse(BaseModel):

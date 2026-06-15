@@ -3,12 +3,12 @@
 from typing import Optional
 from uuid import UUID
 
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.crud.base import CRUDBase
-from app.models.tour import Tour, TourTranslation, TourDate, TourImage
+from app.models.tour import Tour, TourDate
 
 
 class CRUDTour(CRUDBase[Tour]):

@@ -1,9 +1,10 @@
 """Enquiry 咨询表单的请求和响应模型。"""
 
-from pydantic import BaseModel, EmailStr
-from typing import Optional
-from datetime import datetime
 import uuid
+from datetime import datetime
+from typing import Optional
+
+from pydantic import BaseModel
 
 
 class EnquiryCreate(BaseModel):

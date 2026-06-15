@@ -3,17 +3,16 @@
 import logging
 from uuid import UUID
 
+import stripe
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.core.exceptions import NotFoundException, ValidationException
 from app.crud.order import crud_order
-from app.models.tour import TourTranslation, TourDate
+from app.models.tour import TourDate, TourTranslation
 from app.schemas.order import PaymentIntentResponse
 from app.tasks.email_tasks import send_booking_confirmation
-
-import stripe
 
 logger = logging.getLogger(__name__)
 

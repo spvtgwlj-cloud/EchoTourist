@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import Column, String, Text, SmallInteger, Integer, Float, DateTime, ForeignKey
+from sqlalchemy import Column, DateTime, Float, ForeignKey, SmallInteger, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -37,7 +37,10 @@ class Attraction(Base):
     translations = relationship("AttractionTranslation", backref="attraction", lazy="selectin")
     destination = relationship("Destination", backref="attractions")
     tickets = relationship("AttractionTicket", back_populates="attraction", cascade="all, delete-orphan")
-    media = relationship("AttractionMedia", back_populates="attraction", cascade="all, delete-orphan", order_by="AttractionMedia.sort_order")
+    media = relationship(
+        "AttractionMedia", back_populates="attraction",
+        cascade="all, delete-orphan", order_by="AttractionMedia.sort_order",
+    )
 
 
 class AttractionTranslation(Base):

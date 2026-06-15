@@ -1,5 +1,7 @@
 """SendGrid 邮件发送服务。"""
 
+# ruff: noqa: E501 — allow long lines in HTML templates (inline CSS in f-strings)
+
 import logging
 
 from app.config import settings
@@ -19,7 +21,7 @@ async def send_email(
 
     try:
         import sendgrid
-        from sendgrid.helpers.mail import Mail, Email, To, Content
+        from sendgrid.helpers.mail import Content, Email, Mail, To
 
         sg = sendgrid.SendGridAPIClient(api_key=settings.sendgrid_api_key)
         mail = Mail(
@@ -57,14 +59,8 @@ def render_booking_confirmation(order_no: str, tour_name: str, date: str, pax: i
         <h1>Booking Confirmed!</h1>
         <p>Your tour has been booked successfully.</p>
         <table style="width: 100%; border-collapse: collapse;">
-            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Order</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{order_no}</strong></td></tr>
-            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Tour</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{tour_name}</strong></td></tr>
-            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Date</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{date}</strong></td></tr>
-            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Guests</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{pax}</strong></td></tr>
-            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Total</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{total:.2f} {currency}</strong></td></tr>
-        </table>
-        <p><a href="{settings.frontend_url}/user/orders" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">View Order</a></p>
-        <hr>
+            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Order</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{order_no}</strong></td></tr>            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Tour</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{tour_name}</strong></td></tr>            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Date</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{date}</strong></td></tr>            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Guests</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{pax}</strong></td></tr>            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Total</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{total:.2f} {currency}</strong></td></tr>        </table>
+        <p><a href="{settings.frontend_url}/user/orders" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">View Order</a></p>        <hr>
         <p style="color: #666; font-size: 12px;">Echo Tours — Your Journey, Our Passion</p>
     </body>
     </html>
@@ -90,14 +86,10 @@ def render_review_notification(
         <h1>New Review Alert</h1>
         <p>A customer has left a new review for your tour.</p>
         <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
-            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Tour</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{tour_name}</strong></td></tr>
-            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Reviewer</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{reviewer_name}</strong></td></tr>
-            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Rating</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong style="font-size: 18px;">{stars} {rating}/5</strong></td></tr>
-        </table>
+            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Tour</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{tour_name}</strong></td></tr>            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Reviewer</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{reviewer_name}</strong></td></tr>            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Rating</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong style="font-size: 18px;">{stars} {rating}/5</strong></td></tr>        </table>
         {title_html}
         {comment_html}
-        <p><a href="{settings.frontend_url}/tours/{tour_slug}" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">View Tour</a></p>
-        <hr>
+        <p><a href="{settings.frontend_url}/tours/{tour_slug}" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">View Tour</a></p>        <hr>
         <p style="color: #666; font-size: 12px;">Echo Tours — Review Notification</p>
     </body>
     </html>
@@ -120,12 +112,7 @@ def render_custom_tour_notification(
         currency_symbol = "$" if currency == "USD" else currency
         price_html = f"""
         <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
-            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Request</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{request_no}</strong></td></tr>
-            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Estimated Price</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{currency_symbol}{subtotal:.2f}</strong></td></tr>
-            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Confirmed Price</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong style="font-size: 18px; color: #16a34a;">{currency_symbol}{confirmed_price:.2f}</strong></td></tr>
-            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Travelers</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{pax_count}</strong></td></tr>
-            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Itinerary</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{segments_count} segment(s), {total_days} days</strong></td></tr>
-        </table>"""
+            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Request</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{request_no}</strong></td></tr>            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Estimated Price</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{currency_symbol}{subtotal:.2f}</strong></td></tr>            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Confirmed Price</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong style="font-size: 18px; color: #16a34a;">{currency_symbol}{confirmed_price:.2f}</strong></td></tr>            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Travelers</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{pax_count}</strong></td></tr>            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;">Itinerary</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>{segments_count} segment(s), {total_days} days</strong></td></tr>        </table>"""
 
     return f"""
     <html>
@@ -135,8 +122,7 @@ def render_custom_tour_notification(
         <p>Great news! Our team has reviewed your custom tour request and the price has been confirmed.</p>
         {price_html}
         <p>You can view the full details of your custom itinerary by logging into your account.</p>
-        <p><a href="{settings.frontend_url}/user/custom-requests" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">View My Requests</a></p>
-        <p style="color: #666; font-size: 13px;">If you have any questions, please don't hesitate to contact us.</p>
+        <p><a href="{settings.frontend_url}/user/custom-requests" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">View My Requests</a></p>        <p style="color: #666; font-size: 13px;">If you have any questions, please don't hesitate to contact us.</p>
         <hr>
         <p style="color: #666; font-size: 12px;">Echo Tours — Your Journey, Our Passion</p>
     </body>

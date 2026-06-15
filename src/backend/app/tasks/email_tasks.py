@@ -15,7 +15,8 @@ logger = logging.getLogger(__name__)
 def send_welcome_email(user_email: str, user_name: str) -> bool:
     """异步发送欢迎邮件。"""
     import asyncio
-    from app.services.email_service import send_email, render_welcome_email
+
+    from app.services.email_service import render_welcome_email, send_email
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
@@ -38,7 +39,8 @@ def send_welcome_email(user_email: str, user_name: str) -> bool:
 def send_booking_confirmation(order_no: str, tour_name: str, date: str, pax: int, total: float, currency: str, user_email: str) -> bool:
     """异步发送预订确认邮件。"""
     import asyncio
-    from app.services.email_service import send_email, render_booking_confirmation
+
+    from app.services.email_service import render_booking_confirmation, send_email
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
@@ -71,7 +73,8 @@ def send_review_notification(
 ) -> bool:
     """异步发送评价通知给管理员/商家。"""
     import asyncio
-    from app.services.email_service import send_email, render_review_notification
+
+    from app.services.email_service import render_review_notification, send_email
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
@@ -110,7 +113,8 @@ def send_custom_tour_notification(
 ) -> bool:
     """异步发送定制旅程报价确认邮件给客户。"""
     import asyncio
-    from app.services.email_service import send_email, render_custom_tour_notification
+
+    from app.services.email_service import render_custom_tour_notification, send_email
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)

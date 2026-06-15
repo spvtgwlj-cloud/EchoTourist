@@ -1,16 +1,16 @@
 """用户资料管理 API。"""
 
 from fastapi import APIRouter, Depends
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
 
-from app.database import get_db
 from app.api.v1.auth import get_current_user
 from app.crud.user import crud_user
-from app.models.user import User
-from app.models.review import Review
+from app.database import get_db
 from app.models.order import Order
-from app.schemas.user import UserProfileUpdate, UserProfileResponse
+from app.models.review import Review
+from app.models.user import User
+from app.schemas.user import UserProfileResponse, UserProfileUpdate
 
 router = APIRouter(prefix="/users", tags=["users"])
 

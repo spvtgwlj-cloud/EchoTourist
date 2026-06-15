@@ -1,9 +1,9 @@
 """Review 评分/评价 Schema。"""
 
-from pydantic import BaseModel, Field
-from typing import Optional
-from datetime import datetime
 import uuid
+from typing import Optional
+
+from pydantic import BaseModel, Field
 
 
 class ReviewCreate(BaseModel):

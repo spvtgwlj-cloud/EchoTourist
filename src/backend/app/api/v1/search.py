@@ -1,11 +1,12 @@
 """搜索 API 路由。"""
 
-from fastapi import APIRouter, Query
 from typing import Optional
 
+from fastapi import APIRouter, Query
+
+from app.schemas.search import SearchResponse
 from app.search.client import get_es
 from app.search.query import search_tours
-from app.schemas.search import SearchResponse
 
 router = APIRouter(prefix="/search", tags=["search"])
 
