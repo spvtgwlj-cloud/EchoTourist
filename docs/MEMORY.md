@@ -1,0 +1,26 @@
+- [Session 05 Handoff](session-05-review-order-handoff.md) — P0 评价权限修复
+- [Session 06 Handoff](session-06-handoff.md) — P1/P2 + P3 全部完成，v2.7 发布就绪
+- [Session 07 Handoff](session-07-handoff.md) — WishlistButton 接入 + E2E 扩展 + 测试修复
+- [Session 08 Handoff](session-08-handoff.md) — 全量回归测试 + checkout 中文测试修复 + v2.7 发布
+- [Session 09 Handoff](session-09-handoff.md) — Destinations Bug 修复 + Attractions 交互分析
+- [Session 10 Handoff](session-10-handoff.md) — Attractions 收藏 + 直接下单功能实现
+- [Session 11 Handoff](session-11-handoff.md) — Phase 2 逆向+边界 + Phase 3 回归测试体系 + 3 Bug 修复
+- [Session 12 Handoff](session-12-handoff.md) — PRD 产品设计文档 + 2 个运行时 Bug 修复
+- [Session 13 Handoff](session-13-handoff.md) — Top Attractions More Information 弹窗 + Admin 景点管理后台
+- [Session 14 Handoff](session-14-handoff.md) — Admin Tours 新增 Sort Order 排序字段（全栈链路）
+- [Session 15 Handoff](session-15-handoff.md) — 自定制旅程完整功能（多段行程 + 基础服务 + 导语预设 + 超管管理）
+- [Session 16 Handoff](session-16-handoff.md) — 定制旅游目的地/景点修复 + Admin 目的地管理 + 自定义输入
+- [Session 17 Handoff](session-17-handoff.md) — 测试覆盖补全（25 tests）+ 3 个运行时 Bug 修复 + DB schema 同步
+- [Session 18 Handoff](session-18-handoff.md) — Admin Tours 序列号 + 删除按钮（全栈链路）
+- [Session 19 Handoff](session-19-handoff.md) — 竞品对标分析（Odynovo）+ 主题标签系统全栈实现 + PRD v3.4
+- [Session 20 Handoff](session-20-handoff.md) — 搜索主题Bug修复 / 咨询表单+24/7电话 / 北京Tours扩展至30款 / PRD v3.5
+- [Session 21 Handoff](session-21-handoff.md) — 六份文档全部同步至 v4.0（PRD + 使用手册 + 开发进展 + 测试用例 + 测试覆盖计划 + 部署文档）
+- [Session 22 Handoff](session-22-handoff.md) — 西班牙语翻译全线补全：30 产品 + 3 目的地 + 45 景点，seed_data + ES 重建
+- [Session 23 Handoff](session-23-handoff.md) — 全量测试回归 + 5 个后端测试修复 + DB 测试数据清理
+- [Session 24 Handoff](session-24-handoff.md) — E2E 151全pass + 测试隔离 + 密钥统一 + auth高亮修复
+- [Session 25 Handoff](session-25-handoff.md) — 全局 InquiryForm + 测试数据清理体系 + Profile Bug 修复
+- [Session 26 Handoff](session-26-handoff.md) — 游客端定制请求页面 + 价格确认邮件通知
+- [Session 27 Handoff](session-27-handoff.md) — AWS 部署文档 + 随机测试验证
+- [Session 28 Handoff](session-28-handoff.md) — 5项程序修复 + 全量测试 + GitHub同步
+- [Session 29 Handoff](handoff-session29-20260615-091000.md) — CI全线修复（ruff 201错 + ESLint + alembic合并 + attraction_media迁移）
+- [Github CI 相关问题修复20260615](Github%20CI%20%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98%E4%BF%AE%E5%A4%8D20260615.md) — CI 5 Job 故障根因与修复方案
