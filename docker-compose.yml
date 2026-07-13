@@ -106,7 +106,7 @@ services:
       context: ./src/backend
       dockerfile: Dockerfile
       target: dev
-    command: celery -A app.tasks.celery_app beat --loglevel=info
+    command: celery -A app.tasks.celery_app beat --loglevel=info -s /tmp/celerybeat-schedule
     environment:
       - REDIS_URL=redis://redis:6379/0
       - SECRET_KEY=dev-secret-key-change-in-production

@@ -5,7 +5,7 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.dependencies import get_current_user_optional
+from app.api.v1.auth import get_current_user_optional
 from app.core.exceptions import NotFoundException
 from app.crud.custom_tour import crud_base_service, crud_custom_tour_request
 from app.database import get_db
