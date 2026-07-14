@@ -128,7 +128,7 @@ services:
     volumes:
       - ./src/backend:/app
     healthcheck:
-      test: ["CMD-SHELL", "pgrep -f 'celery.*beat' > /dev/null || exit 1"]
+      test: ["CMD-SHELL", "ps aux | grep -q '[c]elery.*beat' || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
