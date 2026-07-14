@@ -1,7 +1,7 @@
-# Echo Tours — AWS 云平台部署指南
+`# Echo Tours — AWS 云平台部署指南
 
 > **适用版本**: v2.7+  
-> **最后更新**: 2026-06-11  
+> **最后更新**: 2026-07-13（根据实际 ECS 部署经验修订）  
 > **目标读者**: 运维 / 后端开发人员  
 > **前置要求**: AWS 账号、Docker、Git、基本 Linux 操作
 
@@ -29,19 +29,21 @@ Echo Tours 由以下 **8 个服务** 组成，均为 Docker 容器化部署：
 
 | # | 服务 | 基础镜像 | 资源需求 | 依赖 | 说明 |
 |---|------|---------|---------|------|------|
-| 1 | **nginx** | nginx:alpine | 64 MB | frontend, backend | 反向代理，统一入口 :80 |
-| 2 | **postgres** | postgres:16-alpine | 256 MB～512 MB | — | 主数据库，持久化存储 |
-| 3 | **redis** | redis:7-alpine | 64 MB～256 MB | — | 缓存 + Celery 消息代理 |
-| 4 | **elasticsearch** | elasticsearch:8.17.0 | 512 MB～1 GB | — | 全文搜索（可选） |
+| 1 | **nginx** | nginx:alpine | ~50 MB | frontend, backend | 反向代理，统一入口 :80 |
+| 2 | **postgres** | postgres:16-alpine | 1-2 GB | — | 主数据库，持久化存储 |
+| 3 | **redis** | redis:7-alpine | ~200 MB | — | 缓存 + Celery 消息代理 |
+| 4 | **elasticsearch** | elasticsearch:8.17.0 | ~1 GB | — | 全文搜索（JVM heap 512MB） |
 | 5 | **migrations** | 项目自建 | — | postgres | 一次性运行，`alembic upgrade head` |
-| 6 | **backend** | 项目自建 (Python 3.12) | 256 MB～512 MB | postgres, redis, migrations | FastAPI 4 workers |
-| 7 | **frontend** | 项目自建 (Node 20) | 256 MB～512 MB | backend | Next.js standalone SSR |
-| 8 | **celery_worker** | 同 backend 镜像 | 256 MB | postgres, redis | 异步任务（4 concurrency） |
-| 9 | **celery_beat** | 同 backend 镜像 | 128 MB | redis | 定时调度器 |
+| 6 | **backend** | 项目自建 (Python 3.12) | 300-500 MB | postgres, redis, migrations | FastAPI uvicorn workers |
+| 7 | **frontend** | 项目自建 (Node 20) | 300-500 MB | backend | Next.js SSR（dev 模式更高） |
+| 8 | **celery_worker** | 同 backend 镜像 | ~200 MB | postgres, redis | 异步任务 |
+| 9 | **celery_beat** | 同 backend 镜像 | ~100 MB | redis | 定时调度器 |
 
-> **最低总内存**: ~2.5 GB（含 ES）/ ~1.5 GB（不含 ES）
+> **实测最低总内存**: ~4.5 GB（含 ES）/ ~3 GB（不含 ES）
 >
-> **推荐生产配置**: 4 GB+ RAM，2 vCPU+
+> **推荐生产配置**: **8 GB RAM，2 vCPU+**（`t4g.large` 或 `t3a.large`）
+>
+> ⚠️ 2 GB 实例（如 `t4g.small`）在开启 ES 后会触发 OOM Kill，建议至少 4 GB。
 
 ### 1.2 网络架构（Docker Compose 内部）
 
@@ -266,12 +268,26 @@ sudo systemctl enable docker
 sudo systemctl start docker
 sudo usermod -aG docker ec2-user  # 登出重登录生效
 
-# 安装 Docker Compose 插件
-sudo dnf install -y docker-compose-plugin
+# 安装 Docker Compose
+# Amazon Linux 2023 推荐安装独立版 docker-compose（兼容性最好）
+sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+# 也尝试安装插件版（两者可共存）
+sudo dnf install -y docker-compose-plugin 2>/dev/null || true
+
+# 升级 Docker Buildx（新版 docker compose 需要 buildx >= 0.17.0）
+BUILDX_VERSION=$(curl -s https://api.github.com/repos/docker/buildx/releases/latest | grep "tag_name" | cut -d'"' -f4)
+ARCH=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
+curl -LO "https://github.com/docker/buildx/releases/download/${BUILDX_VERSION}/buildx-${BUILDX_VERSION}.linux-${ARCH}"
+mkdir -p ~/.docker/cli-plugins
+chmod +x buildx-${BUILDX_VERSION}.linux-${ARCH}
+mv buildx-${BUILDX_VERSION}.linux-${ARCH} ~/.docker/cli-plugins/docker-buildx
 
 # 验证
 docker --version
-docker compose version
+docker-compose --version
+docker buildx version
 ```
 
 > **⚠ 重要**: SSH 登出后重新登录，使 `sudo usermod` 生效：
@@ -280,6 +296,8 @@ docker compose version
 > ssh -i ~/.ssh/${KEY_NAME}.pem ec2-user@$EIP
 > docker info  # 确认无需 sudo 也能运行
 > ```
+>
+> **⚠ 注意命令差异**: `docker-compose`（独立版，带连字符）和 `docker compose`（插件版，空格）功能相同。本文档统一使用 `docker compose`，如果系统只装了独立版，请替换为 `docker-compose`。
 
 #### 3.1.4 第三步：从本地部署到 EC2
 
@@ -312,10 +330,16 @@ ssh -i ~/.ssh/${KEY_NAME}.pem ec2-user@$EIP
 # 安装 Git
 sudo dnf install -y git
 
-# 克隆仓库
-git clone https://github.com/你的用户名/Echo-Website.git ~/echo-tours
+# 克隆仓库（必须使用 Personal Access Token，密码认证已禁用）
+# 格式: git clone https://<token>@github.com/<org>/<repo>.git
+git clone https://ghp_xxxxxxxxxxxx@github.com/你的用户名/EchoTourist.git ~/echo-tours
 cd ~/echo-tours
 ```
+
+> ⚠️ GitHub 从 2021 年 8 月起不再支持密码认证。必须使用 **Personal Access Token (PAT)**：
+> 1. GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)
+> 2. 生成新 token，勾选 `repo` 权限
+> 3. Fine-grained token 需额外设置 **Contents: Read and Write** 才能 push
 
 #### 3.1.5 第四步：配置环境变量与部署
 
@@ -353,7 +377,7 @@ openssl rand -hex 32
 ```bash
 # 在 EC2 上执行
 cd ~/echo-tours
-bash scripts/setup.sh
+bash scripts/setup.sh --with-seed     # --with-seed 会在部署后填充演示数据
 ```
 
 setup.sh 会自动完成：
@@ -364,6 +388,7 @@ setup.sh 会自动完成：
 5. ✅ 启动全部 8 个服务
 6. ✅ 执行数据库迁移（alembic upgrade head）
 7. ✅ 验证健康检查
+8. ✅ 填充演示数据（如指定 `--with-seed`）
 
 **或手动分步执行：**
 
@@ -1272,7 +1297,76 @@ aws cloudwatch put-metric-alarm \
 
 ## 7. 常见问题与排错
 
-### 7.1 EC2 内存不足导致容器退出
+### 7.1 首次部署常见错误（2026-07 实测）
+
+以下是 2026 年 7 月首次在 AWS EC2 (Amazon Linux 2023, x86_64) 上部署 EchoTour 时遇到的实际问题及修复方案。
+
+#### 7.1.1 Backend 不断重启：ImportError
+
+**症状**: Backend 容器反复崩溃，`docker-compose logs backend` 显示：
+```
+ImportError: cannot import name 'get_current_user_optional' from 'app.api.dependencies'
+```
+
+**根因**: `src/backend/app/api/v1/custom_tours.py` 从错误的模块导入了 `get_current_user_optional`。
+
+**修复**: 将导入路径从 `app.api.dependencies` 改为 `app.api.v1.auth`（v2.8 已修复并推送）。
+
+#### 7.1.2 Celery Beat 文件权限错误
+
+**症状**: Celery Beat 不断重启，日志显示：
+```
+PermissionError: [Errno 13] Permission denied: 'celerybeat-schedule'
+```
+
+**根因**: 容器以 `app` 用户运行，但 `/app` 通过 volume 挂载宿主机代码，无写权限。
+
+**修复**: 在 `docker-compose.yml` 中为 celery_beat 的 command 添加 `-s /tmp/celerybeat-schedule`：
+```yaml
+command: celery -A app.tasks.celery_app beat --loglevel=info -s /tmp/celerybeat-schedule
+```
+
+#### 7.1.3 Nginx 502 — Host is unreachable
+
+**症状**: 浏览器访问返回 `502 Bad Gateway`，nginx 日志显示：
+```
+connect() failed (113: Host is unreachable) while connecting to upstream
+```
+
+**根因**: 分批重建容器时，部分容器留在旧 Docker 网络中，跨网络 DNS 无法解析。
+
+**修复**: 执行完全重建：
+```bash
+docker-compose down
+docker-compose up -d
+```
+
+#### 7.1.4 Frontend `next: not found` / `Cannot find module`
+
+**症状**: Frontend 容器崩溃，日志显示 `sh: next: not found` 或 `Cannot find module '/app/server.js'`。
+
+**根因**: 匿名卷 `- /app/node_modules` 覆盖了新镜像的 node_modules；或旧镜像 target 不匹配。
+
+**修复**:
+```bash
+docker-compose down frontend
+docker-compose rm -f -v frontend       # -v 删除匿名卷
+docker-compose build --no-cache frontend
+docker-compose up -d frontend nginx
+```
+
+#### 7.1.5 数据为空 — 需要运行 Seed 脚本
+
+**症状**: 部署完成后网站能访问，但 tours/目的地等数据为空。
+
+**修复**: 使用 `--with-seed` 标志运行 setup.sh，或手动执行：
+```bash
+docker-compose exec backend python scripts/seed_data.py
+```
+
+---
+
+### 7.2 EC2 内存不足导致容器退出
 
 **症状**: 容器频繁重启，`docker logs` 无异常，`dmesg` 看到 `oom-kill`
 
@@ -1387,11 +1481,15 @@ docker compose -f docker-compose.prod.yml ps
 
 ### A. 成本估算总结
 
-| 方案 | 按月预估 | 适用场景 |
-|------|---------|---------|
-| EC2 t4g.small + Docker Compose | ~$35–55 | 开发 / 小团队 / 预算有限 |
-| ECS Fargate + RDS + ElastiCache | ~$130–180 | 正式生产 / 高可用 |
-| 混合部署（ECS 主 + EC2 备） | ~$170–235 | 企业级 / 高可靠性 |
+| 方案 | 实例 | 内存 | 存储 | 月费估算 | 适用场景 |
+|------|------|------|------|---------|---------|
+| EC2 `t4g.medium` + Docker Compose | 2vCPU | 4 GB | gp3 30GB | ~$25 | 开发测试 |
+| **EC2 `t4g.large` + Docker Compose** 🏆 | 2vCPU | 8 GB | gp3 50+100GB | **~$55** | 小规模生产（推荐起步） |
+| EC2 `t4g.xlarge` + Docker Compose | 4vCPU | 16 GB | gp3 50+200GB | ~$110 | 中等规模 |
+| ECS Fargate + RDS + ElastiCache | — | — | — | ~$130–180 | 全托管 / 高可用 |
+| 混合部署（ECS 主 + EC2 备） | — | — | — | ~$170–235 | 企业级 / 高可靠性 |
+
+> **实测建议**: 起步用 `t4g.large`（8 GB），所有 8 个服务（含 ES）运行稳定。`t4g.small`（2 GB）会在启动 ES 后触发 OOM。
 
 ### B. 关键命令速查
 
