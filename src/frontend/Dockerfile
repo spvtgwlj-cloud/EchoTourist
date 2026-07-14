@@ -35,6 +35,7 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/messages ./messages
+RUN mkdir -p /app/.next/cache && chown -R app:app /app
 USER app
 EXPOSE 3000
 ENV NODE_ENV=production
